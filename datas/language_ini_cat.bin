@@ -1,0 +1,256 @@
+[Language]
+VERSION = 1
+DESCRIPTION = DEFAULT CATALÀ
+
+# VIDEO - ADJUST
+VIDEOADJUST_POSITION    = Utilitza ESQ (-X) / DER (+X) / ADALT (-Y) / ABAIX (+Y) per ajustar la pantalla
+VIDEOADJUST_SCALEINFO   = Escala X: %i Y: %i
+VIDEOADJUST_EXITINFO    = Prem EQUIS per sortir
+VIDEOADJUST_DEFAULTS    = Prem CIRCULO pels valors per defecte
+
+# SELECT - GAME FOLDER
+GAMEFOLDER_WANTUSE      = Desitges utilitzar
+GAMEFOLDER_TOINSTALLNTR = per instal·lar els teus jocs?
+GAMEFOLDER_USING        = Utilitzant
+GAMEFOLDER_TOINSTALL    = per instal·lar els teus jocs.
+    
+# DRAW SCREEN1
+DRAWSCREEN_FAVSWAP      = Favorits Intercanvi
+DRAWSCREEN_FAVINSERT    = Favorits Inserir
+DRAWSCREEN_FAVORITES    = Favorits
+DRAWSCREEN_PAGE         = Pàgina
+DRAWSCREEN_GAMES        = Jocs
+DRAWSCREEN_PLAY         = Jugar
+DRAWSCREEN_SOPTIONS     = SELECT: Opcions del Joc
+DRAWSCREEN_SDELETE      = SELECT: Esborrar Favorit
+DRAWSCREEN_STGLOPT      = START: Opcions Globals
+DRAWSCREEN_EXITXMB      = Sortir a XMB?
+DRAWSCREEN_RESTART      = Reiniciar el sistema PS3?
+DRAWSCREEN_SHUTDOWN     = Apagar el sistema PS3?
+DRAWSCREEN_CANRUNFAV    = No es pot executar aquest favorit
+DRAWSCREEN_MARKNOTEXEC  = Assenyalat com a no executable. Intentant la instal·lació en memòria cau (HDD0)
+DRAWSCREEN_MARKNOTEX4G  = Assenyalat com a no executable – Conté fitxers partits >= 4GB
+DRAWSCREEN_GAMEINOFMNT  = No puc trobar on muntar /dev_hdd0/game utilitzant l’USB
+DRAWSCREEN_GAMEIASKDIR  = Desitges crear-ho en /dev_usb00
+DRAWSCREEN_GAMEICANTFD  = No puc trobar un dispositiu USB on muntar /dev_hdd0/game
+DRAWSCREEN_GAMEIWLAUNCH = Desitges executar el Joc?
+DRAWSCREEN_EXTEXENOTFND = executable extern no trobat
+DRAWSCREEN_EXTEXENOTCPY = Utilitza 'Copiar EBOOT.BIN de l’USB' per a importar-ho.
+DRAWSCREEN_REQBR        = El joc requereix d’un Disc-BR al lector@ Desitges reintentar-ho?
+
+# DRAW OPTIONS
+DRAWGMOPT_OPTS          = Opcions
+DRAWGMOPT_CFGGAME       = Config. Joc
+DRAWGMOPT_CPYGAME       = Copiar Joc
+DRAWGMOPT_DELGAME       = Esborrar Joc
+DRAWGMOPT_FIXGAME       = Arreglar Permisos 
+DRAWGMOPT_TSTGAME       = Comprovar Fitxers
+DRAWGMOPT_CPYEBOOTGAME  = Copiar EBOOT.BIN de l’USB
+DRAWGMOPT_CPYTOFAV      = Copiar a Favorits
+DRAWGMOPT_DELFMFAV      = Esborrar de Favorits
+DRAWGMOPT_UNMTDEV       = Unmount USB00%i Device
+
+DRAWGMOPT_EXTRACTISO    = Extract ISO
+DRAWGMOPT_BUILDISO      = Build ISO
+DRAWGMOPT_MKISO         = Select a device to Build the ISO
+DRAWGMOPT_XTISO         = Select a device to Extract the ISO
+DRAWGMOPT_CPYISO        = Select a device to Copy the ISO
+
+DRAWGMOPT_FIXCOMPLETE   = Arranjament de Permisos Completat!
+DRAWGMOPT_CPYOK         = còpia finalitzada correctament
+DRAWGMOPT_CPYERR        = Error copiant
+DRAWGMOPT_CPYNOTFND     = no trobat
+
+DRAWGMOPT_GAMEUPDATE    = Actualización de Juego
+
+# DRAW CONFIGS
+DRAWGMCFG_CFGS          = Config. Joc
+DRAWGMCFG_DSK           = Requereix Disc-BR     
+DRAWGMCFG_NO            = No
+DRAWGMCFG_YES           = Si
+DRAWGMCFG_UPD           = Actualitzacions Online
+DRAWGMCFG_ON            = On
+DRAWGMCFG_OFF           = Off
+DRAWGMCFG_EXTBOOT       = Utilitzar EBOOT.BIN Extern
+DRAWGMCFG_BDEMU         = BD Emu (només per a USB)
+DRAWGMCFG_EXTHDD0GAME   = dev_hdd0/game en Ext. 
+DRAWGMCFG_SAVECFG       = Guardar Configuració 
+DRAWGMCFG_DIRECTBOOT    = Direct Boot
+
+# DRAW GLOBAL OPTIONS
+DRAWGLOPT_OPTS          = Opcions Globals
+DRAWGLOPT_SCRADJUST     = Ajustaments de Pantalla
+DRAWGLOPT_CHANGEGUI     = Cambiar GUI Actual
+DRAWGLOPT_CHANGEBCK     = Canviar Color de Fons
+DRAWGLOPT_BCKPICNONE    = Background Picture: None
+DRAWGLOPT_BCKPICRAND    = Background Picture: Random
+DRAWGLOPT_BCKPIC1       = Background Picture: PIC1.PNG
+DRAWGLOPT_BCKPICT       = Background Picture:
+DRAWGLOPT_CHANGEDIR     = Canviar Directori de Jocs
+DRAWGLOPT_SWMUSICOFF    = Desactivar Música
+DRAWGLOPT_SWMUSICON     = Activar Música
+DRAWGLOPT_INITFTP       = Iniciar Servidor FTP
+DRAWGLOPT_TOOLS         = Eines
+DRAWGLOPT_REFRESH       = Llista de Jocs
+DRAWGLOPT_CREDITS       = Crèdits
+DRAWGLOPT_FTPINITED     = Servidor FTP inicialitzant@Desitges que es reiniciï el servei FTP automàticament cada vegada?
+DRAWGLOPT_FTPARINITED   = Servidor FTP ja està iniciat
+DRAWGLOPT_FTPSTOPED     = Servidor FTP Aturat@Desactivat el reinici del servei FTP a l’iniciar el manager.
+
+# DRAW TOOLS
+DRAWTOOLS_TOOLS         = Eines
+DRAWTOOLS_DELCACHE      = Esborrat de Fitxers de memòria cau
+# DRAWTOOLS_SECDISABLE    = Desactivació Syscall Security
+# DRAWTOOLS_SECENABLE     = Activació Syscall Security
+# DRAWTOOLS_LOADX         = Sortir i Carregar PS3LoadX
+DRAWTOOLS_PKGTOOLS      = Instalar .PKG
+DRAWTOOLS_COPYFROM      = Copia desde /dev_usb/iris a la carpeta de IRISMAN
+DRAWTOOLS_WITHBDVD      = Con Controladora BDVD
+DRAWTOOLS_NOBDVD        = Sin Controladora BDVD
+DRAWTOOLS_NOBDVD2       = Cobra / Payload Sin Disco
+DRAWTOOLS_ARCHIVEMAN    = Manejador de Archivos
+DRAWTOOLS_COVERSDOWN    = Descarga de Caratulas
+
+# MAIN - OTHERS
+DRAWCACHE_CACHE         = Esborrat de Fitxers memòria cau
+DRAWCACHE_ERRNEEDIT     = Necessites %1.2f GB lliures per a continuar
+DRAWCACHE_ASKTODEL      = Esborrar %s de la memòria cau?
+PATCHBEMU_ERRNOUSB      = BDEMU s’utilitza només per a dispositius USB
+MOVEOBEMU_ERRSAVE       = Errada Guardant:@%s
+MOVEOBEMU_ERRMOVE       = Errada Movent a:@%s/PS3_GAME ja existeix
+MOVEOBEMU_MOUNTOK       = BDEMU muntat a:@%s/PS3_GAME
+MOVETBEMU_ERRMOVE       = Errada Movent a:@%s ja existeix
+
+# UTILS
+# FAST COPY ADD
+FASTCPADD_FAILED        = Errada en fast_copy_process() ret
+FASTCPADD_ERRTMFILES    = Massa fitxers
+FASTCPADD_FAILEDSTAT    = Errada en stat()
+FASTCPADD_ERROPEN       = Errada Obrint 0 (write)
+FASTCPADD_COPYING       = Copiant
+FASTCPADD_FAILFASTFILE  = Errada en fast_files(fast_num_files).mem
+
+# FAST COPY PROCESS
+FASTCPPRC_JOINFILE      = Unint Fitxer
+FASTCPPRC_COPYFILE      = Copiant Fitxer
+FASTCPPTC_OPENERROR     = Errada!!!!!!!!!!!!!!!!!!!!!!!!!@Fitxers Oberts %i@ Espera 20 segons a que es mostri l’errada
+
+# GAME TEST FILES
+GAMETESTS_FOUNDINSTALL  = Trobat %s@@Desitges instal·lar-ho?
+GAMETESTS_BIGFILE       = BigFile
+GAMETESTS_TESTFILE      = Comprovant Fitxer
+GAMETESTS_CHECKSIZE     = Comprovant Tam. del Fitxer
+
+# GAME DELETE FILES
+GAMEDELFL_DELETED       = Esborrat
+GAMEDELFL_DELETING      = Esborrant... Fitxer
+
+# GAME COPY
+GAMECPYSL_GSIZEABCNTASK = Comprovació: Avortat - Continuar amb la còpia?
+GAMECPYSL_STARTED       = Iniciant... @ còpia
+GAMECPYSL_SPLITEDHDDNFO = %s@@Joc Fraccionat copiat en HDD0 (no es pot iniciar)
+GAMECPYSL_SPLITEDUSBNFO = %s@@Joc Fraccionat copiat en USB00%c (no es pot iniciar)
+GAMECPYSL_DONE          = Acabant! Fitxers Copiats
+GAMECPYSL_FAILDELDUMP   = Desitges Esborrar l’abocament erroni en
+
+# GAME CACHE COPY
+GAMECHCPY_ISNEEDONEFILE = Ho sento, necessites com a mínim un BigFile per instal·lar
+GAMECHCPY_NEEDMORESPACE = Tens %.2fGB lliures i necessites %.2fGB@@Si us plau, esborra fitxers de la memòria cau
+GAMECHCPY_NOSPACE       = Ho sento, tens %.2fGB lliures@@i necessites %.2fGB
+GAMECHCPY_CACHENFOSTART = Fitxers memòria cau: %.2fGB - Total: %.2fGB@ guanyes %.2fGB en HDD0 (%.2fGB Total)@@Prem qualsevol botó per a començar
+GAMECHCPY_FAILDELFROM   = Desitges Esborrar l’abocament de memòria cau erroni des de
+
+# GAME DELETE
+GAMEDELSL_WANTDELETE    = Desitges esborrar des de
+GAMEDELSL_STARTED       = Iniciant... @ esborrat
+GAMEDELSL_DONE          = Finalitzat!  Fitxers Esborrats
+
+# GAME TEST
+GAMETSTSL_FINALNFO      = Directoris: %i Fitxers: %i@BigFiles: %i Fitxers Fraccionats: %i
+GAMETSTSL_TESTED        = Fitxers Comprovats
+
+#GLOBAL UTILS
+GLUTIL_SPLITFILE        = Fitxer Fraccionat
+GLUTIL_WROTE            = Escrits
+GLUTIL_TIME             = Temps
+GLUTIL_TIMELEFT         = Remanent
+GLUTIL_HOLDTRIANGLEAB   = Manté premut CIRCULO per a Avortar
+GLUTIL_HOLDTRIANGLESK   = Manté premut CIRCULO per a Passar
+GLUTIL_ABORTEDUSER      = Avortat per l’usuari
+GLUTIL_ABORTED          = Avortat!!!
+GLUTIL_XEXIT            = Premeu TRIANGULO per a Sortir
+GLUTIL_WANTCPYFROM      = Desitges copiar des de
+GLUTIL_WTO              = a
+
+# GLOBAL
+GLOBAL_RETURN           = Tornar
+GLOBAL_SAVED            = Fitxer desat
+
+# INSTALL .PKG
+PKG_HEADER              = Utilidad de instalación .PKG -_____Usa EQUIS para seleccionar y CIRCULO para salir
+PKG_INSERTUSB           = Insereix el dispositiu de alamacenamiento USB
+PKG_ERRTOBIG            = Tamany. PKG massa gran o poc espai en disc
+PKG_WANTINSTALL         = Vols instal · lar aquest fitxer .PKG?
+PKG_ERRALREADY          = Error: .PKG ya está en la pila
+PKG_ERRFULLSTACK        = Error: pila llena (max 16 entradas)
+PKG_ERRBUILD            = Error construyendo el proceso .PKG
+PKG_COPYING             = Copiando fichero .PKG a la carpeta de Iris Manager...
+PKG_ERROPENING          = Error obrint fitxer .PKG
+PKG_ERRCREATING         = Error creant fitxer .PKG
+PKG_ERRREADING          = Error llegint .PKG
+PKG_ERRLICON            = Error carregant ICON
+PKG_ERRMOVING           = Error movent .PKG
+   
+# DRAW_PSX
+DRAWPSX_EMULATOR        = Emulador
+DRAWPSX_VIDEOPS         = PSX Opciones de Vídeo
+DRAWPSX_SAVEASK         = Salvar opcions PSX?
+DRAWPSX_SAVED           = Optiones PSX Salvadas
+DRAWPSX_VIDEOTHER       = Vídeo / Otras
+DRAWPSX_VIDEOMODE       = Mode de Vídeo
+DRAWPSX_VIDEOASP        = Aspecte Vídeo (480/576)
+DRAWPSX_FULLSC          = Pantalla Completa
+DRAWPSX_SMOOTH          = Suavitzat
+DRAWPSX_EXTROM          = ROM Externa
+DRAWPSX_FORMAT          = Formatar Internal_MC
+DRAWPSX_ASKFORMAT       = Vols formatar Internal_MC?@@Perdràs el salvat en aquesta operació.
+DRAWPSX_ERRWRITING      = Error escrivint el fitxer (Dispositiu ple?)
+DRAWPSX_BUILDISO        = Construint ISO personalitzada...
+DRAWPSX_ASKCHEATS       = Disc PSX de Cheats encontrado@@Quieres usarlo?
+DRAWPSX_ERRCHEATS       = PSX Disc para Cheats no puede ser lanzado@@sin un juego de PSX
+DRAWPSX_ERRSECSIZE      = Error: Tamaño diferente de sector en ficheros ISO
+DRAWPSX_ERRUNKSIZE      = Error: Tamaño de Sector Desconocido
+DRAWPSX_DISCEJECT       = PSX CD Expulsat
+DRAWPSX_DISCORDER       = Selecciona l'ordre dels Discos
+DRAWPSX_PRESSOB         = Prem TRIANGLE per canviar l'ordre
+DRAWPSX_PRESSXB         = Prem X per llançar el joc
+DRAWPSX_CHEATMAKE       = Disco PSX de Cheats encontrado, pero tamaño de sector diferente@@Quieres construir uno compatible?
+DRAWPSX_COPYMC          = Copiant Memory Card a HDD0...
+DRAWPSX_ERRCOPYMC       = Error copiant la Memory Card en HDD0
+DRAWPSX_PUTFNAME        = Introdueix un Nom de Carpeta:
+DRAWPSX_FMUSTB          = El Nom de la carpeta ha de ser >= 3 caràcters
+DRAWPSX_PUTADISC        = Fica un disc PSX y prem SÍ per continuar o NO para cancel · lar@@Disc en la còpia:: 
+DRAWPSX_UNREC           = Disc no reconegut
+DRAWPSX_ERROPENING      = Error obrint dispositiu BDVD
+DRAWPSX_ASKEFOLDER      = La Carpeta Existeix@@Continuar?
+DRAWPSX_ISOEXITS        = existeix@@Saltar?
+
+# generic
+OUT_OFMEMORY            = Memòria insuficient
+OPERATION_DONE          = Fet!
+PLUG_STORAGE1           = Recorda endollar un dispositiu d'emmagatzematge massiu per crear l'esdeveniment del fals disc
+PLUG_STORAGE2           = Fals Disc Inserit
+
+# GAME LIST
+GAMELIST_ALLGAMES       = Tots els jocs
+GAMELIST_PS3GAMES       = Jocs PS3
+GAMELIST_VIDEOS         = Vídeos
+GAMELIST_NETGAMES       = Jocs de xarxa (via webMAN)
+GAMELIST_STATUS1        = [] Tots els jocs Retro        <  >  Seleccioneu mode Retro        X  Seleccioneu Llista
+GAMELIST_STATUS2        = X  Seleccioneu Llista de jocs             O  Tornar
+GAMELIST_SCANNING0      = Buscant tots els jocs...
+GAMELIST_SCANNING1      = Buscant Jocs PS3...
+GAMELIST_SCANNING2      = Buscant Jocs PlayStation games...
+GAMELIST_SCANNING3      = Buscant vídeos...
+GAMELIST_SCANNING4      = Buscant Jocs Retro...
+GAMELIST_SCANNING5      = Buscant Jocs de xarxa (webMAN)...

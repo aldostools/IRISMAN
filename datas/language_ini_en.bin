@@ -1,0 +1,256 @@
+[Language]
+VERSION = 2
+DESCRIPTION = DEFAULT ENGLISH
+
+# VIDEO - ADJUST
+VIDEOADJUST_POSITION    = Use LEFT (-X) / RIGHT (+X) / UP (-Y) / DOWN (+Y) to adjust the screen
+VIDEOADJUST_SCALEINFO   = Video Scale X: %i Y: %i
+VIDEOADJUST_EXITINFO    = Press CROSS to save settings and exit
+VIDEOADJUST_DEFAULTS    = Press CIRCLE to default values
+
+# SELECT - GAME FOLDER
+GAMEFOLDER_WANTUSE      = Do you want to use
+GAMEFOLDER_TOINSTALLNTR = to install the game?
+GAMEFOLDER_USING        = Using
+GAMEFOLDER_TOINSTALL    = to install the game
+    
+# DRAW SCREEN1
+DRAWSCREEN_FAVSWAP      = Favourites Swap
+DRAWSCREEN_FAVINSERT    = Favourites Insert
+DRAWSCREEN_FAVORITES    = Favourites
+DRAWSCREEN_PAGE         = Page
+DRAWSCREEN_GAMES        = Games
+DRAWSCREEN_PLAY         = Play
+DRAWSCREEN_SOPTIONS     = TRIANGLE: Game Options
+DRAWSCREEN_SDELETE      = TRIANGLE: Delete Favourite
+DRAWSCREEN_STGLOPT      = START: Global Options
+DRAWSCREEN_EXITXMB      = Exit to XMB?
+DRAWSCREEN_RESTART      = Do you want to Restart the PS3?
+DRAWSCREEN_SHUTDOWN     = Do you want to turn off the PS3?
+DRAWSCREEN_CANRUNFAV    = Cannot run this favourite
+DRAWSCREEN_MARKNOTEXEC  = Marked as non executable. Trying to install in HDD0 cache
+DRAWSCREEN_MARKNOTEX4G  = Marked as not executable - Contains splited files >= 4GB
+DRAWSCREEN_GAMEINOFMNT  = I cannot find one folder to mount /dev_hdd0/game from USB
+DRAWSCREEN_GAMEIASKDIR  = Do you want to create in /dev_usb00
+DRAWSCREEN_GAMEICANTFD  = I cannot find an USB device to mount /dev_hdd0/game from USB
+DRAWSCREEN_GAMEIWLAUNCH = Do you want to launch the Game?
+DRAWSCREEN_EXTEXENOTFND = external executable not found
+DRAWSCREEN_EXTEXENOTCPY = Use 'Copy EBOOT.BIN from USB' to import them.
+DRAWSCREEN_REQBR        = Required BR-Disc@ Retry?
+DRAWSCREEN_PARCONTROL   = Locked by Parental Control
+
+# DRAW OPTIONS
+DRAWGMOPT_OPTS          = Options
+DRAWGMOPT_CFGGAME       = Config. Game
+DRAWGMOPT_CPYGAME       = Copy Game
+DRAWGMOPT_DELGAME       = Delete Game
+DRAWGMOPT_FIXGAME       = Fix File Permissions
+DRAWGMOPT_TSTGAME       = Test & Fix Game
+DRAWGMOPT_CPYEBOOTGAME  = Copy EBOOT.BIN from USB
+DRAWGMOPT_CPYTOFAV      = Copy to Favourites
+DRAWGMOPT_DELFMFAV      = Delete from Favourites
+DRAWGMOPT_UNMTDEV       = Unmount USB00%i Device
+
+DRAWGMOPT_EXTRACTISO    = Extract ISO
+DRAWGMOPT_BUILDISO      = Build ISO
+DRAWGMOPT_MKISO         = Select a device to Build the ISO
+DRAWGMOPT_XTISO         = Select a device to Extract the ISO
+DRAWGMOPT_CPYISO        = Select a device to Copy the ISO
+
+DRAWGMOPT_FIXCOMPLETE   = Fix Permissions Done!
+DRAWGMOPT_CPYOK         = copied successfully
+DRAWGMOPT_CPYERR        = Error copying
+DRAWGMOPT_CPYNOTFND     = not found
+
+DRAWGMOPT_GAMEUPDATE    = Game Update
+
+# DRAW CONFIGS
+DRAWGMCFG_CFGS          = Config. Game
+DRAWGMCFG_DSK           = Requires Disc
+DRAWGMCFG_NO            = No
+DRAWGMCFG_YES           = Yes
+DRAWGMCFG_UPD           = Online Updates
+DRAWGMCFG_ON            = On
+DRAWGMCFG_OFF           = Off
+DRAWGMCFG_EXTBOOT       = External EBOOT.BIN
+DRAWGMCFG_BDEMU         = BD Emu
+DRAWGMCFG_EXTHDD0GAME   = Ext /dev_hdd0/game
+DRAWGMCFG_SAVECFG       = Save Config
+DRAWGMCFG_DIRECTBOOT    = Direct Boot
+
+# DRAW GLOBAL OPTIONS
+DRAWGLOPT_OPTS          = Global Options
+DRAWGLOPT_SCRADJUST     = Video Adjust
+DRAWGLOPT_CHANGEGUI     = Change Current GUI
+DRAWGLOPT_CHANGEBCK     = Change Background Color
+DRAWGLOPT_BCKPICNONE    = Background Picture: None
+DRAWGLOPT_BCKPICRAND    = Background Picture: Random
+DRAWGLOPT_BCKPIC1       = Background Picture: PIC1.PNG
+DRAWGLOPT_BCKPICT       = Background Picture:
+DRAWGLOPT_CHANGEDIR     = Change Game Directory
+DRAWGLOPT_SWMUSICOFF    = Switch Music Off
+DRAWGLOPT_SWMUSICON     = Switch Music On
+DRAWGLOPT_INITFTP       = Initialize FTP server
+DRAWGLOPT_TOOLS         = Tools
+DRAWGLOPT_REFRESH       = Game List
+DRAWGLOPT_CREDITS       = Credits
+DRAWGLOPT_FTPINITED     = Server FTP initialized@Do you want auto-enable FTP service on init?
+DRAWGLOPT_FTPARINITED   = Server FTP already initialized
+DRAWGLOPT_FTPSTOPED     = Server FTP Stopped@Removed FTP service on init.
+
+# DRAW TOOLS
+DRAWTOOLS_TOOLS         = Tools
+DRAWTOOLS_DELCACHE      = Delete Cache Tool
+# DRAWTOOLS_SECDISABLE    = Press To Disable Syscall Security
+# DRAWTOOLS_SECENABLE     = Press To Enable Syscall Security
+DRAWTOOLS_PKGTOOLS      = .PKG Install
+DRAWTOOLS_COPYFROM      = Copy from /dev_usb/iris to IRISMAN folder
+DRAWTOOLS_WITHBDVD      = With BDVD Controller
+DRAWTOOLS_NOBDVD        = Without BDVD Controller
+DRAWTOOLS_NOBDVD2       = Cobra / Disc-less payload
+DRAWTOOLS_ARCHIVEMAN    = File Manager
+DRAWTOOLS_COVERSDOWN    = Covers Download
+
+# MAIN - OTHERS
+DRAWCACHE_CACHE         = Delete Cache Tool
+DRAWCACHE_ERRNEEDIT     = You need %1.2f GB free to install
+DRAWCACHE_ASKTODEL      = Delete %s Cache?
+PATCHBEMU_ERRNOUSB      = BDEMU is only for USB devices
+MOVEOBEMU_ERRSAVE       = Error Saving:@%s
+MOVEOBEMU_ERRMOVE       = Error Moving To:@%s exists
+MOVEOBEMU_MOUNTOK       = BDEMU mounted in:@%s
+MOVETBEMU_ERRMOVE       = Error Moving To:@%s exists
+
+# UTILS
+# FAST COPY ADD
+FASTCPADD_FAILED        = Failed in fast_copy_process() ret
+FASTCPADD_ERRTMFILES    = Too much files
+FASTCPADD_FAILEDSTAT    = Failed in stat()
+FASTCPADD_ERROPEN       = Error Opening0 (write)
+FASTCPADD_COPYING       = Copying
+FASTCPADD_FAILFASTFILE  = Failed in fast_files(fast_num_files).mem
+
+# FAST COPY PROCESS
+FASTCPPRC_JOINFILE      = Joining file
+FASTCPPRC_COPYFILE      = Copying. File
+FASTCPPTC_OPENERROR     = Error!!!!!!!!!!!!!!!!!!!!!!!!!@Files Opened %i@ Waiting 20 seconds to display fatal error
+
+# GAME TEST FILES
+GAMETESTS_FOUNDINSTALL  = Found %s@@Want to install?
+GAMETESTS_BIGFILE       = Big file
+GAMETESTS_TESTFILE      = Test File
+GAMETESTS_CHECKSIZE     = Checking Size of File
+
+# GAME DELETE FILES
+GAMEDELFL_DELETED       = Deleted
+GAMEDELFL_DELETING      = Deleting... File
+
+# GAME COPY
+GAMECPYSL_GSIZEABCNTASK = Get Size: Aborted - Continue the copy?
+GAMECPYSL_STARTED       = Starting... @ copy
+GAMECPYSL_SPLITEDHDDNFO = %s@@Split game copied in HDD0 (non bootable)
+GAMECPYSL_SPLITEDUSBNFO = %s@@Split game copied in USB00%c (non bootable)
+GAMECPYSL_DONE          = Done! Files Copied
+GAMECPYSL_FAILDELDUMP   = Delete failed dump in
+
+# GAME CACHE COPY
+GAMECHCPY_ISNEEDONEFILE = Sorry, but you needs to install at least a bigfile
+GAMECHCPY_NEEDMORESPACE = You have %.2fGB free and you needs %.2fGB@@Please, delete Cache Entries
+GAMECHCPY_NOSPACE       = Sorry, you have %.2fGB free@@and you needs %.2fGB
+GAMECHCPY_CACHENFOSTART = Cache Files: %.2fGB - Total Files: %.2fGB@ you save %.2fGB on HDD0 (%.2fGB Total)@@Press any button to Start
+GAMECHCPY_FAILDELFROM   = Delete Cache failed dump from
+
+# GAME DELETE
+GAMEDELSL_WANTDELETE    = Do you want to delete from
+GAMEDELSL_STARTED       = Starting... @ delete
+GAMEDELSL_DONE          = Done!  Files Deleted
+
+# GAME TEST
+GAMETSTSL_FINALNFO      = Directories: %i Files: %i@Big files: %i Split files: %i
+GAMETSTSL_TESTED        = Files Tested
+
+#GLOBAL UTILS
+GLUTIL_SPLITFILE        = Split file
+GLUTIL_WROTE            = Wrote
+GLUTIL_TIME             = Time
+GLUTIL_TIMELEFT         = Time Left
+GLUTIL_HOLDTRIANGLEAB   = Hold CIRCLE to Abort
+GLUTIL_HOLDTRIANGLESK   = Hold CIRCLE to Skip
+GLUTIL_ABORTEDUSER      = Aborted by user
+GLUTIL_ABORTED          = Aborted!!!
+GLUTIL_XEXIT            = Press TRIANGLE to Exit
+GLUTIL_WANTCPYFROM      = Do you want to copy from
+GLUTIL_WTO              = to
+
+# GLOBAL
+GLOBAL_RETURN           = Return
+GLOBAL_SAVED            = File Saved
+
+# INSTALL .PKG
+PKG_HEADER              = Install .PKG Utility -_____Use CROSS to select and CIRCLE to exit
+PKG_INSERTUSB           = Insert the USB mass storage device
+PKG_ERRTOBIG            = .PKG size too big or disk space small
+PKG_WANTINSTALL         = Do you want to Install this .PKG file?
+PKG_ERRALREADY          = Error: .PKG already in the stack
+PKG_ERRFULLSTACK        = Error: stack is full (max 16 entries)
+PKG_ERRBUILD            = Error Building .PKG process
+PKG_COPYING             = Copying .PKG file to Iris Manager folder...
+PKG_ERROPENING          = Error Opening .PKG file
+PKG_ERRCREATING         = Error Creating .PKG file
+PKG_ERRREADING          = Error Reading .PKG file
+PKG_ERRLICON            = Error Loading ICON file
+PKG_ERRMOVING           = Error moving .PKG
+
+# DRAW_PSX
+DRAWPSX_EMULATOR        = Emulator
+DRAWPSX_VIDEOPS         = PSX Video Options
+DRAWPSX_SAVEASK         = Do you want to save the PSX options?
+DRAWPSX_SAVED           = PSX Options Saved
+DRAWPSX_VIDEOTHER       = Video / Others
+DRAWPSX_VIDEOMODE       = Video Mode
+DRAWPSX_VIDEOASP        = Video Aspect (480/576)
+DRAWPSX_FULLSC          = Full Screen
+DRAWPSX_SMOOTH          = Smooting
+DRAWPSX_EXTROM          = External ROM
+DRAWPSX_FORMAT          = Format Internal_MC
+DRAWPSX_ASKFORMAT       = Do you want you format Internal_MC?@@You will LOSE the saves in this operation
+DRAWPSX_ERRWRITING      = Error writing the file (Device full?)
+DRAWPSX_BUILDISO        = Building custom ISO...
+DRAWPSX_ASKCHEATS       = PSX Cheat disc found@@Do you want you use it?
+DRAWPSX_ERRCHEATS       = PSX Disc for Cheats cannot be launched@@without a PSX game
+DRAWPSX_ERRSECSIZE      = Error: Different sector size in ISO files
+DRAWPSX_ERRUNKSIZE      = Error: Unknown Sector Size
+DRAWPSX_DISCEJECT       = PSX CD Ejected
+DRAWPSX_DISCORDER       = Select Disc Order
+DRAWPSX_PRESSOB         = Press TRIANGLE to change the order
+DRAWPSX_PRESSXB         = Press CROSS to launch the game
+DRAWPSX_CHEATMAKE       = PSX Cheat disc found, but different sector size@@Do you want you build one compatible?
+DRAWPSX_COPYMC          = Copying Memory Card to HDD0 device...
+DRAWPSX_ERRCOPYMC       = Error copying the Memory Card to HDD0 device
+DRAWPSX_PUTFNAME        = Put a Folder Name:
+DRAWPSX_FMUSTB          = Folder Name must be >=3 chars
+DRAWPSX_PUTADISC        = Put a PSX disc and press YES to continue or NO to abort@@Disc to copy: 
+DRAWPSX_UNREC           = Unrecognized disc
+DRAWPSX_ERROPENING      = Error opening BDVD drive
+DRAWPSX_ASKEFOLDER      = Folder Exits@@Continue?
+DRAWPSX_ISOEXITS        = exists@@Skip?
+       
+# generic
+OUT_OFMEMORY            = Out of Memory
+OPERATION_DONE          = Done!
+PLUG_STORAGE1           = Remember you to plug an USB storage massive device to create the fake disc event
+PLUG_STORAGE2           = Fake Disc Inserted
+
+# GAME LIST
+GAMELIST_ALLGAMES       = All Games
+GAMELIST_PS3GAMES       = PS3 Games
+GAMELIST_VIDEOS         = Videos
+GAMELIST_NETGAMES       = Network Games (via webMAN)
+GAMELIST_STATUS1        = []  All Retro games       <  >  Select Retro mode       X  Select List
+GAMELIST_STATUS2        = X  Select Game List mode             O  Go Back
+GAMELIST_SCANNING0      = Scanning all games...
+GAMELIST_SCANNING1      = Scanning PS3 games...
+GAMELIST_SCANNING2      = Scanning PlayStation games...
+GAMELIST_SCANNING3      = Scanning Videos...
+GAMELIST_SCANNING4      = Scanning Retro games...
+GAMELIST_SCANNING5      = Scanning network games (webMAN)...

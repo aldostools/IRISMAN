@@ -1,0 +1,256 @@
+﻿[Language]
+VERSION = 2
+DESCRIPTION = DEFAULT KOREAN
+
+# VIDEO - ADJUST
+VIDEOADJUST_POSITION    = 사용 좌 (-X) / 우 (+X) / 상 (-Y) / 하 (+Y) 로 화면 조절
+VIDEOADJUST_SCALEINFO   = 화면 사이즈 X: %i Y: %i
+VIDEOADJUST_EXITINFO    = O 버튼으로 종료
+VIDEOADJUST_DEFAULTS    = X 버튼으로 설정 초기화
+
+# SELECT - GAME FOLDER
+GAMEFOLDER_WANTUSE      = 게임 구동 경로
+GAMEFOLDER_TOINSTALLNTR = 로 지정할까요?
+GAMEFOLDER_USING        = 게임 구동 경로
+GAMEFOLDER_TOINSTALL    = 로 지정할까요?
+    
+# DRAW SCREEN1
+DRAWSCREEN_FAVSWAP      = 즐겨찾기 스왑
+DRAWSCREEN_FAVINSERT    = 즐겨찾기 넣기
+DRAWSCREEN_FAVORITES    = 즐겨찾기
+DRAWSCREEN_PAGE         = 페이지
+DRAWSCREEN_GAMES        = 게임
+DRAWSCREEN_PLAY         = 구동
+DRAWSCREEN_SOPTIONS     = △ 버튼: 게임 설정
+DRAWSCREEN_SDELETE      = △ 버튼: 즐겨찾기에서 삭제
+DRAWSCREEN_STGLOPT      = START: 아이리스 매니져 설정
+DRAWSCREEN_EXITXMB      = XMB로 나가기?
+DRAWSCREEN_RESTART      = PS3를 다시 시작 하시겠습니까?
+DRAWSCREEN_SHUTDOWN     = PS3의 전원을 종료 하시겠습니까?
+DRAWSCREEN_CANRUNFAV    = 이 즐겨찾기는 구동이 불가
+DRAWSCREEN_MARKNOTEXEC  = 구동불가로 확인됨. HDD0 캐쉬에서 설치 시도중.
+DRAWSCREEN_MARKNOTEX4G  = 구동불가로 확인됨 - 분활된 파일이 들어있음 >= 4GB
+DRAWSCREEN_GAMEINOFMNT  = USB 에서 /dev_hdd0/game 에 마운트할 게임을 검색 실패.
+DRAWSCREEN_GAMEIASKDIR  =  /dev_usb00 에 게임 설치 경로 지정
+DRAWSCREEN_GAMEICANTFD  =  /dev_hdd0/game 에 마운트할 외장 USB 매체 검색 실패.
+DRAWSCREEN_GAMEIWLAUNCH = 게임을 구동하시겠습니까?
+DRAWSCREEN_EXTEXENOTFND = 구동 가능 외장매체 검색 불가.
+DRAWSCREEN_EXTEXENOTCPY = 사용 'USB 장치에서 EBOOT.BIN 복사' 
+DRAWSCREEN_REQBR        = 구동시디가 필요합니다@ 재시도?
+DRAWSCREEN_PARCONTROL   = 부모의 보호자 권한 설정
+
+# DRAW OPTIONS
+DRAWGMOPT_OPTS          = 옵션
+DRAWGMOPT_CFGGAME       = 게임 설정
+DRAWGMOPT_CPYGAME       = 게임 복사
+DRAWGMOPT_DELGAME       = 게임 삭제
+DRAWGMOPT_FIXGAME       = 파일 권한 수정
+DRAWGMOPT_TSTGAME       = 게임 테스트
+DRAWGMOPT_CPYEBOOTGAME  = EBOOT.BIN 을 USB에서 복사하기
+DRAWGMOPT_CPYTOFAV      = 즐겨찾기로 복사하기
+DRAWGMOPT_DELFMFAV      = 즐겨찾기에서 삭제
+DRAWGMOPT_UNMTDEV       = USB00%i 장치 연결 해제
+
+DRAWGMOPT_EXTRACTISO    = ISO 압축 해제
+DRAWGMOPT_BUILDISO      = ISO 생성하기
+DRAWGMOPT_MKISO         = ISO 를 생성할 저장 장치 경로 선택
+DRAWGMOPT_XTISO         = ISO 압축을 해제할 저장 장치 경로 선택
+DRAWGMOPT_CPYISO        = ISO 를 복사할 대상 선택
+
+DRAWGMOPT_FIXCOMPLETE   = 파일 권한 설정 완료!
+DRAWGMOPT_CPYOK         = 복사 완료.
+DRAWGMOPT_CPYERR        = 복사 실패
+DRAWGMOPT_CPYNOTFND     = 검색 실패.
+
+DRAWGMOPT_GAMEUPDATE    = 게임 업데이트
+
+# DRAW CONFIGS
+DRAWGMCFG_CFGS          = 게임 설정
+DRAWGMCFG_DSK           = 디스크 요구
+DRAWGMCFG_NO            = 아니오
+DRAWGMCFG_YES           = 예
+DRAWGMCFG_UPD           = 업데이트 패치 찾기
+DRAWGMCFG_ON            = 켜기
+DRAWGMCFG_OFF           = 끄기
+DRAWGMCFG_EXTBOOT       = 외장 EBOOT.BIN [원본 이붓구동]
+DRAWGMCFG_BDEMU         = BD 에뮬레이션
+DRAWGMCFG_EXTHDD0GAME   = 외장구동 /dev_hdd0/game
+DRAWGMCFG_SAVECFG       = 설정 저장
+DRAWGMCFG_DIRECTBOOT    = 다이렉트 부팅
+
+# DRAW GLOBAL OPTIONS
+DRAWGLOPT_OPTS          = 아이리스 매니져 설정
+DRAWGLOPT_SCRADJUST     = 화면 조절
+DRAWGLOPT_CHANGEGUI     = GUI 바꾸기
+DRAWGLOPT_CHANGEBCK     = 배경 화면 바꾸기
+DRAWGLOPT_BCKPICNONE    = 배경화면 : 없음
+DRAWGLOPT_BCKPICRAND    = 배경화면 : 랜덤
+DRAWGLOPT_BCKPIC1       = 배경화면 : PIC1.PNG
+DRAWGLOPT_BCKPICT       = 배경화면 : " 
+DRAWGLOPT_CHANGEDIR     = 게임 경로 변경하기
+DRAWGLOPT_SWMUSICOFF    = 음악 끄기
+DRAWGLOPT_SWMUSICON     = 음악 켜기
+DRAWGLOPT_INITFTP       = FTP 서버 가동합니다.
+DRAWGLOPT_TOOLS         = 도  구
+DRAWGLOPT_REFRESH       = 게임 목차 갱신
+DRAWGLOPT_CREDITS       = 수고 하신 분들
+DRAWGLOPT_FTPINITED     = FTP 서버가 가동 되었습니다@다음부터는 자동 활성화 하시겠습니까??
+DRAWGLOPT_FTPARINITED   = FTP 서버가 이미 가동 중입니다.
+DRAWGLOPT_FTPSTOPED     = FTP 서버 중단 되었습니다.@FTP 서비스를 중단합니다..
+
+# DRAW TOOLS
+DRAWTOOLS_TOOLS         = 도구
+DRAWTOOLS_DELCACHE      = 캐쉬 삭제 도구
+# DRAWTOOLS_SECDISABLE    = Syscall 보안 해제하기
+# DRAWTOOLS_SECENABLE     = Syscall 보안 적용하기
+DRAWTOOLS_PKGTOOLS      = PKG 파일 설치하기
+DRAWTOOLS_COPYFROM      =  /dev_usb/iris 에서 Iris 폴더로 복사하기
+DRAWTOOLS_WITHBDVD      = BDVD 컨트롤러가 있는 경우
+DRAWTOOLS_NOBDVD        = BDVD 컨트롤러가 없는 경우
+DRAWTOOLS_NOBDVD2       = 코브라 / 맴바 / 구동시디 대체 모드
+DRAWTOOLS_ARCHIVEMAN    = 파일 매니져
+DRAWTOOLS_COVERSDOWN    = 커버 다운로드
+
+# MAIN - OTHERS
+DRAWCACHE_CACHE         = 캐쉬 삭제 도구
+DRAWCACHE_ERRNEEDIT     = 최소 %1.2f GB 여유공간이 설치시 요구됩니다.
+DRAWCACHE_ASKTODEL      =  %s 캐쉬 삭제?
+PATCHBEMU_ERRNOUSB      = BDEMU 는 USB 장치 전용입니다.
+MOVEOBEMU_ERRSAVE       = 저장 실패:@%s
+MOVEOBEMU_ERRMOVE       = 경로 이동 실패:@%s exists
+MOVEOBEMU_MOUNTOK       = BDEMU가 마운트 되었습니다 :@%s
+MOVETBEMU_ERRMOVE       = 경로 이동 실패:@%s exists
+
+# UTILS
+# FAST COPY ADD
+FASTCPADD_FAILED        = 빠른 복사 실패() 재시도
+FASTCPADD_ERRTMFILES    = 파일이 너무 많습니다.
+FASTCPADD_FAILEDSTAT    = 실패()
+FASTCPADD_ERROPEN       = 읽기 오류0 (쓰기)
+FASTCPADD_COPYING       = 복사중
+FASTCPADD_FAILFASTFILE  = Failed in fast_files(fast_num_files).mem
+
+# FAST COPY PROCESS
+FASTCPPRC_JOINFILE      = 파일 합치는중..
+FASTCPPRC_COPYFILE      = 파일 복사중..
+FASTCPPTC_OPENERROR     = 에러!!!!!!!!!!!!!!!!!!!!!!!!!@파일이 열렸습니다. %i@ 오류를 표기 하기위해 20초 기다리는중..
+
+# GAME TEST FILES
+GAMETESTS_FOUNDINSTALL  = 찾았습니다. %s@@설치 하시겠습니까?
+GAMETESTS_BIGFILE       = 큰 파일
+GAMETESTS_TESTFILE      = 파일 테스트
+GAMETESTS_CHECKSIZE     = 파일 사이즈 확인중
+
+# GAME DELETE FILES
+GAMEDELFL_DELETED       = 삭제됨.
+GAMEDELFL_DELETING      = 파일을 삭제하는중..
+
+# GAME COPY
+GAMECPYSL_GSIZEABCNTASK = Get Size: 취소됨 - 계속 복사하시겠습니까?
+GAMECPYSL_STARTED       = 시작... @ 복사
+GAMECPYSL_SPLITEDHDDNFO = %s@@분할게임이 내장하드에 복사되었습니다. (구동 불가)
+GAMECPYSL_SPLITEDUSBNFO = %s@@분할게임이 외장하드에 복사되었습니다%c (구동 불가)
+GAMECPYSL_DONE          = 완료! 파일 복사 끝!!
+GAMECPYSL_FAILDELDUMP   = 덤프 실패, 파일 삭제
+
+# GAME CACHE COPY
+GAMECHCPY_ISNEEDONEFILE = 죄송하지만, 적어도 큰 파일을 설치하셔야 합니다.
+GAMECHCPY_NEEDMORESPACE = %.2fGB 정도의 여유 공간이 있고 %.2fGB 정도가 필요합니다. @@캐쉬를 삭제해 주세요.
+GAMECHCPY_NOSPACE       = 죄송하지만  %.2fGB 여유 공간 뿐이네요. @@그리고  %.2fGB 여분이 필요합니다.
+GAMECHCPY_CACHENFOSTART = 캐쉬 파일: %.2fGB - 총 파일: %.2fGB@ %.2fGB 의 용량이 내장하드에서 절약 (%.2fGB 총)@@아무 버튼을 눌러서 시작해주세요.
+GAMECHCPY_FAILDELFROM   = 캐쉬 삭제 실패
+
+# GAME DELETE
+GAMEDELSL_WANTDELETE    = 게임 삭제 경로
+GAMEDELSL_STARTED       = 시작... @ 삭제
+GAMEDELSL_DONE          = 완료!  파일 삭제됨
+
+# GAME TEST
+GAMETSTSL_FINALNFO      = 경로: %i 파일: %i@큰 파일: %i 분할 파일: %i
+GAMETSTSL_TESTED        = 파일 테스트 완료.
+
+#GLOBAL UTILS
+GLUTIL_SPLITFILE        = 파일 분할 하기
+GLUTIL_WROTE            = 쓰여짐
+GLUTIL_TIME             = 시간
+GLUTIL_TIMELEFT         = 시간 남음
+GLUTIL_HOLDTRIANGLEAB   = X 버튼 눌러서 취소
+GLUTIL_HOLDTRIANGLESK   = X 눌러서 건너 뛰기
+GLUTIL_ABORTEDUSER      = 사용자에 의해 중단
+GLUTIL_ABORTED          = 취소됨!!!
+GLUTIL_XEXIT            = △ 버튼 눌러서 종료
+GLUTIL_WANTCPYFROM      = 에서 복사하기
+GLUTIL_WTO              = 로
+
+# GLOBAL
+GLOBAL_RETURN           = 돌아가기
+GLOBAL_SAVED            = 파일 저장됨
+
+# INSTALL .PKG
+PKG_HEADER              = Install .PKG 도구 -_____O 버튼을 눌러 선택하고 X 를 눌러 종료 하십시오.
+PKG_INSERTUSB           = USB 저장 매체를 삽입해 주십시오.
+PKG_ERRTOBIG            = PKG 사이즈가 디스크에 비해 너무 큽니다.
+PKG_WANTINSTALL         = 이 PKG 파일을 설치 하시겠습니까?
+PKG_ERRALREADY          = 에러: .PKG 가 이미 작업중
+PKG_ERRFULLSTACK        = 에러: 목록이 이미 꽉참 (최대 16개)
+PKG_ERRBUILD            = 에러: 패키지 생성 실패
+PKG_COPYING             = 아이리스맨 폴더로 PKG 파일 복사중...
+PKG_ERROPENING          = 에러: PKG 파일 열기
+PKG_ERRCREATING         = 에러: PKG 파일 생성
+PKG_ERRREADING          = 에러: PKG 파일 읽기
+PKG_ERRLICON            = ICON 파일 읽기 실패
+PKG_ERRMOVING           = PKG 파일 이동 실패
+
+# DRAW_PSX
+DRAWPSX_EMULATOR        = 에뮬레이터
+DRAWPSX_VIDEOPS         = PS1 비디오 설정
+DRAWPSX_SAVEASK         = PS1 설정 저장하기?
+DRAWPSX_SAVED           = PS1 설정 저장됨
+DRAWPSX_VIDEOTHER       = 화면 / 기타 등등
+DRAWPSX_VIDEOMODE       = 화면 설정
+DRAWPSX_VIDEOASP        = 화면 해상도 (480/576)
+DRAWPSX_FULLSC          = 전체 화면
+DRAWPSX_SMOOTH          = 스무딩 [부드럽게]
+DRAWPSX_EXTROM          = 외장 ROM
+DRAWPSX_FORMAT          = 내장 메모리 카드 포맷하기
+DRAWPSX_ASKFORMAT       = 내장 메모리 카드 포맷하시겠습니까?@@세이브 파일을 잃게 됩니다.
+DRAWPSX_ERRWRITING      = 파일 쓰기 실패 (저장매체 포화상태?)
+DRAWPSX_BUILDISO        = 커스텀 ISO 파일 제작...
+DRAWPSX_ASKCHEATS       = PS1 치트 디스크 발견@@사용 하시겠습니까?
+DRAWPSX_ERRCHEATS       = PS1 치트 디스크는 @@PSX 게임 없이 구동이 되지 않습니다.
+DRAWPSX_ERRSECSIZE      = 에러 : ISO 파일에서 사이즈가 다른 섹터를 발견
+DRAWPSX_ERRUNKSIZE      = 에러 : 정체불명의 파일 섹터 사이즈
+DRAWPSX_DISCEJECT       = PS1 시디 꺼내짐.
+DRAWPSX_DISCORDER       = 디스크 순번 정하기.
+DRAWPSX_PRESSOB         = △ 버튼을 눌러 순서를 정해주세요
+DRAWPSX_PRESSXB         = O 버튼을 눌러서 게임을 실행하세요.
+DRAWPSX_CHEATMAKE       = PS1 치트 디스크는 발견되었지만 섹터사이즈가 다르네요@@호환 가능하게 변환하시겠습니까?
+DRAWPSX_COPYMC          = 메모리카드의 데이터를  HDD0 장치로 복사...
+DRAWPSX_ERRCOPYMC       = 메모리 카드 데이터 HDD0 장치로 복사 실패.
+DRAWPSX_PUTFNAME        = 폴더 이름을 정해주세요.:
+DRAWPSX_FMUSTB          = 폴더이름은 >=3글자는 되어야..
+DRAWPSX_PUTADISC        = PS1 디스크를 넣고 YES 를 눌러 계속 하시던지 NO 를 눌러 취소하시던지@@디스크 복사하기: 
+DRAWPSX_UNREC           = 인식 불능 디스크
+DRAWPSX_ERROPENING      = BDVD 드라이브 구동 실패
+DRAWPSX_ASKEFOLDER      = 폴더가 존재합니다.@@계속?
+DRAWPSX_ISOEXITS        = 존재합니다.@@건너뛰기?
+       
+# generic
+OUT_OFMEMORY            = 메모리 없음
+OPERATION_DONE          = 완료!
+PLUG_STORAGE1           = 구동시디 대체를 위해 USB 저장장치 연결을 잊지 마시길~
+PLUG_STORAGE2           = 구동시디 대체 장치 삽입 완료.
+
+# GAME LIST
+GAMELIST_ALLGAMES       = 모든 게임
+GAMELIST_PS3GAMES       = PS3 게임
+GAMELIST_VIDEOS         = 비디오
+GAMELIST_NETGAMES       = 네트워크 게임 (웹맨)
+GAMELIST_STATUS1        = 네모버튼 모든 Retro 게임       <  >  Retro 모드 선택       X  모드 선택
+GAMELIST_STATUS2        = O버튼  게임 목차 형식 선택             X 버튼  돌아가기
+GAMELIST_SCANNING0      = 모든 게임 검색중....
+GAMELIST_SCANNING1      = PS3 게임 검색중....
+GAMELIST_SCANNING2      = PlayStation®게임 검색중....
+GAMELIST_SCANNING3      = 비디오 검색중....
+GAMELIST_SCANNING4      = Retro 게임 검색중....
+GAMELIST_SCANNING5      = 네트워크 게임 (웹맨) 게임 검색중....

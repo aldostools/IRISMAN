@@ -1,0 +1,25 @@
+u32 flag 
+
+DEVICE flags:
+
+(1<<0)   (1)      dev_hdd0 
+(1<<1)   (2)      dev_usb000
+(1<<2)   (4)      dev_usb001
+(1<<3)   (8)      dev_usb002
+(1<<4)   (16)     dev_usb003
+(1<<5)   (32)     dev_usb004
+(1<<6)   (64)     dev_usb005
+(1<<7)   (128)    dev_usb006
+(1<<8)   (256)    dev_usb007
+(1<<11)  (2048)   dev_bdvd
+(1<<15)  (32768)  NTFS/EXTx ISO
+
+OR flags:
+
+(1<<32) homelaunch / launch homebrew/psn from USB
+
+(1<<24) PS3 ISO
+
+(1<<24) | (1<<23) PS2 ISO
+
+(1<<23) PSX ISO

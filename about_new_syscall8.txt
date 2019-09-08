@@ -1,0 +1,51 @@
+The new syscall 8 payload is thinking to do easy the port, to identify or stealth (exception for CFW 3.41)
+
+payloads offset from base (0)
+
++0x10 -> 'S', 'K', '1','E' ID (0x534B3145)
++0x18 -> connect perms routine
++0x1C -> payload size
++0x20 -> syscall 8 addr
++0x28 -> syscall 8 TOC (surely unused by providing from syscall vector)
+
++0x30 -> connect open hook function
+
+From Iris Manager:
+
+0x80000000000004f0ULL -> 0x534B314500000000ULL | (u64) PAYLOAD_OFFSET (ID + low 32 bits PAYLOAD_OFFSET)
+0x80000000000004f8ULL -> SYSCALL_BASE + 64ULL (syscall 8 address)
+
+Notes:
+
+0x4f8 and PAYLOAD_OFFSET can be 0 (i.e CFW 3.41)
+
+This addresses are used in order to indentify and stealth the payload presence: you can mount again
+the syscall 8 connecting with poke(SYSCALL_BASE + 64ULL, 0X8000000000000000ULL +  PAYLOAD_OFFSET + 0x20
+
+One example from homelaunc1:
+
+u64 restore_syscall8[2]= {0,0};
+
+int is_payload_loaded(void)
+{
+    u64 addr = peekq(0x80000000000004f0ULL);
+
+    if((addr>>32) == 0x534B3145) {
+        addr&= 0xffffffff;
+        if(addr && peekq(0x80000000000004f8ULL)) {
+            restore_syscall8[0]= peekq(0x80000000000004f8ULL); // (8*8)
+            restore_syscall8[1]= peekq(restore_syscall8[0]);
+            pokeq(restore_syscall8[0], 0x8000000000000000ULL + (u64) (addr + 0x20));
+            return 2; // other CFW
+        }
+        
+        return 1; // CFW 3.41
+    }
+   
+    return 0; // no detected
+}
+
+Stealth to exit:
+
+if(restore_syscall8[0]) sys8_pokeinstr(restore_syscall8[0], restore_syscall8[1]);
+

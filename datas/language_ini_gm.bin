@@ -1,0 +1,256 @@
+[Language]
+VERSION = 2
+DESCRIPTION = DEFAULT GERMAN
+
+# VIDEO - ADJUST
+VIDEOADJUST_POSITION    = LINKS (-X) / RECHTS (+X) / HOCH (-Y) / RUNTER (+Y) 
+VIDEOADJUST_SCALEINFO   = Bildschirm-Bereich X: %i Y: %i
+VIDEOADJUST_EXITINFO    = KREUZ - Beenden
+VIDEOADJUST_DEFAULTS    = KREIS - Voreinstellungen
+
+# SELECT - GAME FOLDER
+GAMEFOLDER_WANTUSE      = 
+GAMEFOLDER_TOINSTALLNTR = Verzeichnis zur Spiel-Installation auswählen?
+GAMEFOLDER_USING        = Ausgewähltes verzeichnis wird zur Installation
+GAMEFOLDER_TOINSTALL    = des Spiels benutzt!
+    
+# DRAW SCREEN1
+DRAWSCREEN_FAVSWAP      = Favorit wechseln
+DRAWSCREEN_FAVINSERT    = Favorit einfügen
+DRAWSCREEN_FAVORITES    = Favoriten
+DRAWSCREEN_PAGE         = Seite
+DRAWSCREEN_GAMES        = Spiele
+DRAWSCREEN_PLAY         = Spielen
+DRAWSCREEN_SOPTIONS     = TRIANGEL: Spiel-Optionen
+DRAWSCREEN_SDELETE      = TRIANGEL: Favoriten löschen
+DRAWSCREEN_STGLOPT      = START: Allgemeine Optionen
+DRAWSCREEN_EXITXMB      = Zurück zum XMB?
+DRAWSCREEN_RESTART      = Wollen Sie wieder das PS3-System starten?
+DRAWSCREEN_SHUTDOWN     = Schalten Sie das PS3-System?
+DRAWSCREEN_CANRUNFAV    = Favorit kann nicht gestartet werden
+DRAWSCREEN_MARKNOTEXEC  = Nicht ausführbar - Versuche im HDD0 Cache zu installieren
+DRAWSCREEN_MARKNOTEX4G  = Nicht ausführbar -  Beinhaltet gesplittete Dateien >= 4GB
+DRAWSCREEN_GAMEINOFMNT  = Auf USB Gerät kein Verzeichnis zum Mounten von /dev_hdd0/game gefunden
+DRAWSCREEN_GAMEIASKDIR  = Verzeichnis auf /dev_usb00 erstellen
+DRAWSCREEN_GAMEICANTFD  = Kein USB Gerät zum Mounten von /dev_hdd0/game auf USB gefunden
+DRAWSCREEN_GAMEIWLAUNCH = Spiel starten?
+DRAWSCREEN_EXTEXENOTFND = Externe ausführbare Datei nicht gefunden
+DRAWSCREEN_EXTEXENOTCPY = Kopiere/Importiere EBOOT.BIN von USB
+DRAWSCREEN_REQBR        = BR-Disk wird benötigt! - Wiederholen?
+
+# DRAW OPTIONS
+DRAWGMOPT_OPTS          = Einstellungs-Optionen
+DRAWGMOPT_CFGGAME       = Spiel-Konfiguration
+DRAWGMOPT_CPYGAME       = Spiel kopieren
+DRAWGMOPT_DELGAME       = Spiel löschen
+DRAWGMOPT_FIXGAME       = Datei-Zugriffsrechte reparieren
+DRAWGMOPT_TSTGAME       = Spiel testen
+DRAWGMOPT_CPYEBOOTGAME  = EBOOT.BIN von USB kopieren
+DRAWGMOPT_CPYTOFAV      = Zu den Favoriten kopieren
+DRAWGMOPT_DELFMFAV      = Aus den Favoriten löschen
+DRAWGMOPT_UNMTDEV       = Unmount USB00%i Device
+
+DRAWGMOPT_EXTRACTISO    = Extract ISO
+DRAWGMOPT_BUILDISO      = Build ISO
+DRAWGMOPT_MKISO         = Select a device to Build the ISO
+DRAWGMOPT_XTISO         = Select a device to Extract the ISO
+DRAWGMOPT_CPYISO        = Select a device to Copy the ISO
+
+DRAWGMOPT_FIXCOMPLETE   = Datei-Zugriffsrechte repariert!
+DRAWGMOPT_CPYOK         = Erfolgreich kopiert!
+DRAWGMOPT_CPYERR        = Fehler beim Kopieren
+DRAWGMOPT_CPYNOTFND     = nicht gefunden
+
+DRAWGMOPT_GAMEUPDATE    = Game Update
+
+# DRAW CONFIGS
+DRAWGMCFG_CFGS          = Spiel konfigurieren
+DRAWGMCFG_DSK           = Disk wird benötigt
+DRAWGMCFG_NO            = Nein
+DRAWGMCFG_YES           = Ja
+DRAWGMCFG_UPD           = Online Aktualisierung
+DRAWGMCFG_ON            = An
+DRAWGMCFG_OFF           = Aus
+DRAWGMCFG_EXTBOOT       = Externe EBOOT.BIN
+DRAWGMCFG_BDEMU         = BDEMU
+DRAWGMCFG_EXTHDD0GAME   = Ext /dev_hdd0/game
+DRAWGMCFG_SAVECFG       = Konfiguration speichern
+DRAWGMCFG_DIRECTBOOT    = Direct Boot
+
+# DRAW GLOBAL OPTIONS
+DRAWGLOPT_OPTS          = Allgemeine-Optionen
+DRAWGLOPT_SCRADJUST     = Bilschirm-Einstellungen
+DRAWGLOPT_CHANGEGUI     = Change Current GUI
+DRAWGLOPT_CHANGEBCK     = Hintergrund-Farbe 
+DRAWGLOPT_BCKPICNONE    = Background Picture: None
+DRAWGLOPT_BCKPICRAND    = Background Picture: Random
+DRAWGLOPT_BCKPIC1       = Background Picture: PIC1.PNG
+DRAWGLOPT_BCKPICT       = Background Picture:
+DRAWGLOPT_CHANGEDIR     = Spiele-Verzeichniss
+DRAWGLOPT_SWMUSICOFF    = Musik Aus
+DRAWGLOPT_SWMUSICON     = Musik An
+DRAWGLOPT_INITFTP       = FTP Server Initialisierung
+DRAWGLOPT_TOOLS         = Werkzeuge
+DRAWGLOPT_REFRESH       = Spieleliste
+DRAWGLOPT_CREDITS       = DANKE
+DRAWGLOPT_FTPINITED     = FTP Server AN?
+DRAWGLOPT_FTPARINITED   = FTP Server ist initialisiert
+DRAWGLOPT_FTPSTOPED     = FTP Server AUS
+
+# DRAW TOOLS
+DRAWTOOLS_TOOLS         = Werkzeuge
+DRAWTOOLS_DELCACHE      = Werkzeug Cache löschen
+# DRAWTOOLS_SECDISABLE    = Drücken zum Ausschalten der Syscall Security
+# DRAWTOOLS_SECENABLE     = Drücken zum Ansschalten der Syscall Security
+DRAWTOOLS_PKGTOOLS      = Installation von PKG Dateien
+DRAWTOOLS_COPYFROM      = Kopieren /dev_usb/iris nach /dev_hdd0/game/IRISMAN00
+
+DRAWTOOLS_WITHBDVD      = BDVD Controller AN
+DRAWTOOLS_NOBDVD        = BDVD Controller Aus
+DRAWTOOLS_NOBDVD2       = Cobra / Disk - ohne Payload
+DRAWTOOLS_ARCHIVEMAN    = Archiv Manager
+DRAWTOOLS_COVERSDOWN    = Covers Download
+
+# MAIN - OTHERS
+DRAWCACHE_CACHE         = Cache Tool löschen
+DRAWCACHE_ERRNEEDIT     = Installation Benötigt %1.2f GB freien Speicher 
+DRAWCACHE_ASKTODEL      = %s Cache löschen?
+PATCHBEMU_ERRNOUSB      = BDEMU ist nur für USB Geräte
+MOVEOBEMU_ERRSAVE       = Fehler beim Speichern:@%s
+MOVEOBEMU_ERRMOVE       = Fehler beim Verschieben nach:@%s vorhanden
+MOVEOBEMU_MOUNTOK       = BDEMU gemounted in:@%s
+MOVETBEMU_ERRMOVE       = Fehler beim Verschieben nach:@%s vorhanden
+
+# UTILS
+# FAST COPY ADD
+FASTCPADD_FAILED        = Fehlgeschlagen in fast_copy_process() ret
+FASTCPADD_ERRTMFILES    = Zu viele Dateien
+FASTCPADD_FAILEDSTAT    = Fehlgeschlagen in stat()
+FASTCPADD_ERROPEN       = Schreibfehler beim Öffnen0 
+FASTCPADD_COPYING       = Kopiere
+FASTCPADD_FAILFASTFILE  = Fehler in fast_files (fast_num_files).mem
+
+# FAST COPY PROCESS
+FASTCPPRC_JOINFILE      = Suche Datei
+FASTCPPRC_COPYFILE      = Datei wird kopiert...
+FASTCPPTC_OPENERROR     = Fehler!!!! beim Öffnen der Datei %i@  20 Sekunden warten bis zu Anzeige der Fehlermeldung 
+
+# GAME TEST FILES
+GAMETESTS_FOUNDINSTALL  = Gefundene Datei %s@@installieren?
+GAMETESTS_BIGFILE       = Grosse Datei(en) (4GB+)
+GAMETESTS_TESTFILE      = Datei testen
+GAMETESTS_CHECKSIZE     = Grösse der Datei überprüfen
+
+# GAME DELETE FILES
+GAMEDELFL_DELETED       = Gelöscht
+GAMEDELFL_DELETING      = Datei löschen...
+
+# GAME COPY
+GAMECPYSL_GSIZEABCNTASK = Berechne Grösse: Abgebrochen - Kopiervorgang fortsetzen?
+GAMECPYSL_STARTED       = Starten... @ Kopieren
+GAMECPYSL_SPLITEDHDDNFO = %s@@Gesplittetes Spiel auf HDD0 kopiert (nicht startfähig)
+GAMECPYSL_SPLITEDUSBNFO = %s@@Gesplittetes Spiel auf USB00%c  kopiert (nicht startfähig)
+GAMECPYSL_DONE          = Fertig! Dateien kopiert
+GAMECPYSL_FAILDELDUMP   = löschen fehlgeschlagen dump in
+
+# GAME CACHE COPY
+GAMECHCPY_ISNEEDONEFILE = Es wird mindestes ein Bigfile
+GAMECHCPY_NEEDMORESPACE =  %.2fGB frei, Benötigt werden %.2fGB@@Bitte, Cache Eintraege löschen
+GAMECHCPY_NOSPACE       = Es sind %.2fGB frei@@Benötigt werden %.2fGB
+GAMECHCPY_CACHENFOSTART = Cache Files: %.2fGB - Total Files: %.2fGB@ you save %.2fGB on HDD0 (%.2fGB Total)@@Zum Starten beliebige Tasten Drücken
+GAMECHCPY_FAILDELFROM   = Cache löschen fehlgeschlagen dump from
+
+# GAME DELETE
+GAMEDELSL_WANTDELETE    = Spiel löschen?
+GAMEDELSL_STARTED       = Start... @ löschen
+GAMEDELSL_DONE          = Dateien gelöscht... Fertig!
+
+# GAME TEST
+GAMETSTSL_FINALNFO      = Verzeichnisse: %i Dateien: %i@Grosse Dateien: %i Geteilte Dateien: %i
+GAMETSTSL_TESTED        = Dateien getestet!
+
+#GLOBAL UTILS
+GLUTIL_SPLITFILE        = Datei teilen
+GLUTIL_WROTE            = Schreiben
+GLUTIL_TIME             = Zeit
+GLUTIL_TIMELEFT         = Restzeit
+GLUTIL_HOLDTRIANGLEAB   = Dreieck zum Abbrechen gedrueckt halten
+GLUTIL_HOLDTRIANGLESK   = Dreieck zum Ueberspringen gedrueckt halten
+GLUTIL_ABORTEDUSER      = Abbruch durch den Benutzer
+GLUTIL_ABORTED          = Abgebrochen!!!
+GLUTIL_XEXIT            = Drücke TRIANGEL zum Beenden
+GLUTIL_WANTCPYFROM      = Soll kopiert werden von
+GLUTIL_WTO              = nach
+
+# GLOBAL
+GLOBAL_RETURN           = Zurück
+GLOBAL_SAVED            = Datei gespeichert
+
+# INSTALL .PKG
+PKG_HEADER              = Installation von PKG Dateien:   KREUZ - Auswählen / KREIS - Beenden
+PKG_INSERTUSB           = Bitte USB Speichergerät anschliessen !!!
+PKG_ERRTOBIG            = PKG Datei zu GROSS oder zu wenig Disk-Speicherplatz vorhanden
+PKG_WANTINSTALL         = Soll diese PKG Datei installiert werden?
+PKG_ERRALREADY          = Fehler: PKG Datei bereits im Stapelspeicher
+PKG_ERRFULLSTACK        = Fehler: Stapelspeicher ist voll (max. 16 Einträge)
+PKG_ERRBUILD            = Fehler beim Erstellen der PKG Datei
+PKG_COPYING             = Kopiere PKG Datei in Iris Manager Verzeichnis...
+PKG_ERROPENING          = Fehler beim Öffnen einer PKG Datei
+PKG_ERRCREATING         = Fehler beim Erstellen einer PKG Datei
+PKG_ERRREADING          = Fehler beim Lesen einer PKG Datei
+PKG_ERRLICON            = Fehler beim Laden einer .ICON Datei
+PKG_ERRMOVING           = Fehler beim Verschieben einer PKG Datei
+
+# DRAW_PSX
+DRAWPSX_EMULATOR        = Emulator
+DRAWPSX_VIDEOPS         = PSX Video Optionen
+DRAWPSX_SAVEASK         = PSX Optionen speichern?
+DRAWPSX_SAVED           = PSX Optionen gespeichert!
+DRAWPSX_VIDEOTHER       = Video / Others
+DRAWPSX_VIDEOMODE       = Video Modus
+DRAWPSX_VIDEOASP        = Bildschirm-Verhältnis (480/576)
+DRAWPSX_FULLSC          = Volle Bildschirm-Grösse
+DRAWPSX_SMOOTH          = Smoothing
+DRAWPSX_EXTROM          = Externer ROM
+DRAWPSX_FORMAT          = Interne Speicher-Karte formatieren
+DRAWPSX_ASKFORMAT       = Interne Speicherkarte formatieren?@@ALLE DATEN WERDEN GELÖSCHT!
+DRAWPSX_ERRWRITING      = Fehler beim Schreiben (Gerät voll?)
+DRAWPSX_BUILDISO        = Custom ISO wird erstellt...
+DRAWPSX_ASKCHEATS       = PSX Cheat Disk erkannt@@Benutzen?
+DRAWPSX_ERRCHEATS       = PSX Disk mit Cheats nicht startbar@@ohne einem PSX Spiel
+DRAWPSX_ERRSECSIZE      = Fehler: Unterschiedliche Sektor-Grössen in der ISO 
+DRAWPSX_ERRUNKSIZE      = Fehler: Unbekannte Sektor-Grösse
+DRAWPSX_DISCEJECT       = PSX CD Ausgeworfen
+DRAWPSX_DISCORDER       = Disk Reihenfolge auswaehlen
+DRAWPSX_PRESSOB         = TRIANGEL - Wechseln der Reihenfolge
+DRAWPSX_PRESSXB         = KREUZ - Spiel-Start
+DRAWPSX_CHEATMAKE       = PSX Cheat Disk mit unterschiedlichen Sektor-Grössen erkannt@@Sektor-Grösse anpassen?
+DRAWPSX_COPYMC          = Speicher-Karte wird auf HDD0 kopiert...
+DRAWPSX_ERRCOPYMC       = Fehler beim Kopieren der Speicher-Karte
+DRAWPSX_PUTFNAME        = Name vom Verzeichnis eingeben:
+DRAWPSX_FMUSTB          = Name vom Verzeichnis min. 3 Buchstaben
+DRAWPSX_PUTADISC        = PSX Disk einlegen & kopieren@@JA - Weiter & NEIN - Abbruch
+DRAWPSX_UNREC           = Disk wird nicht erkannt
+DRAWPSX_ERROPENING      = Fehler mit BDVD Laufwerk
+DRAWPSX_ASKEFOLDER      = Verzeichnis existiert! - Weiter?
+DRAWPSX_ISOEXITS        = ISO existiert! - Überspringen?
+       
+# generic
+OUT_OFMEMORY            = Zu wenig Speicherplatz!
+OPERATION_DONE          = Fertig!
+PLUG_STORAGE1           = Für Fake Disc Event ein USB Speicher anschliessen!  
+PLUG_STORAGE2           = Fake Disk eingelegt!
+
+# GAME LIST
+GAMELIST_ALLGAMES       = Alle Spiele
+GAMELIST_PS3GAMES       = PS3 Spiele
+GAMELIST_VIDEOS         = Videos
+GAMELIST_NETGAMES       = Network-Spiele (via webMAN)
+GAMELIST_STATUS1        = [] Alle Retro-Spiele       <  >  Wählen Retro modus      X  Wählen Sie List
+GAMELIST_STATUS2        = X  Wählen Sie Spiel-List             O  Zurück
+GAMELIST_SCANNING0      = Scannen all games...
+GAMELIST_SCANNING1      = Scannen PS3-Spiele...
+GAMELIST_SCANNING2      = Scannen PlayStation-Spiele...
+GAMELIST_SCANNING3      = Scannen Videos...
+GAMELIST_SCANNING4      = Scannen Retro-Spiele...
+GAMELIST_SCANNING5      = Scannen network-Spiele (webMAN)...

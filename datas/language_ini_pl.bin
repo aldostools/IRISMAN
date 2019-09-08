@@ -1,0 +1,255 @@
+[Language]
+VERSION = 2
+DESCRIPTION = DEFAULT POLISH
+
+# VIDEO - ADJUST
+VIDEOADJUST_POSITION = Użyj W LEWO(-X)/W PRAWO(+X)/W GÓRĘ -Y)/W DÓŁ(+Y)aby dostosować ekran
+VIDEOADJUST_SCALEINFO = Skala wideo X: %i Y: %i
+VIDEOADJUST_EXITINFO = Naciśnij KRZYŻYK,aby wyjść
+VIDEOADJUST_DEFAULTS = Naciśnij KÓŁKO na wartości domyślne
+
+# SELECT - GAME FOLDER
+GAMEFOLDER_WANTUSE = Chcesz użyć
+GAMEFOLDER_TOINSTALLNTR = Folder do zainstalowania gry
+GAMEFOLDER_USING = Z użyciem
+GAMEFOLDER_TOINSTALL = Folder do instalacji gry
+
+# DRAW SCREEN1
+DRAWSCREEN_FAVSWAP = Zamień ulubione
+DRAWSCREEN_FAVINSERT = Wstaw ulubione
+DRAWSCREEN_FAVORITES = Ulubione
+DRAWSCREEN_PAGE = Strona
+DRAWSCREEN_GAMES = Gra
+DRAWSCREEN_PLAY = Grać
+DRAWSCREEN_SOPTIONS = SELECT: Opcje gry
+DRAWSCREEN_SDELETE = SELECT: Usuń ulubione
+DRAWSCREEN_STGLOPT = START: Opcje globalne
+DRAWSCREEN_EXITXMB = Wyjść do XMB?
+DRAWSCREEN_RESTART = Czy chcesz ponownie uruchomić PS3?
+DRAWSCREEN_SHUTDOWN = Czy chcesz wyłączyć PS3?
+DRAWSCREEN_CANRUNFAV = Nie można uruchomić tego ulubionego
+DRAWSCREEN_MARKNOTEXEC = Oznaczono niewykonalne.Próbuję zainstalować w pamięci podręcznej HDD
+DRAWSCREEN_MARKNOTEX4G = Oznaczono niewykonalne-zawiera pliki podzielone>=4GB
+DRAWSCREEN_GAMEINOFMNT = Nie mogę znaleźć folderu do zamontowania/dev_hdd/gry z USB
+DRAWSCREEN_GAMEIASKDIR = Chcesz utworzyć w /dev_usb00
+DRAWSCREEN_GAMEICANTFD = Nie mogę znaleźć urządzenia USB do zamontowania/dev_hdd/gry z USB
+DRAWSCREEN_GAMEIWLAUNCH = Chcesz uruchomić grę?
+DRAWSCREEN_EXTEXENOTFND = Nie znaleziono zewnętrznego pliku wykonywalnego
+DRAWSCREEN_EXTEXENOTCPY = Użyj „Kopiuj EBOOT.BIN z USB”, aby je zaimportować.
+DRAWSCREEN_REQBR = Wymagany BR-Disc@ Spróbować ponownie?
+DRAWSCREEN_PARCONTROL = Zablokowane przez kontrolę rodzicielską
+
+# DRAW OPTIONS
+DRAWGMOPT_OPTS = Opcje
+DRAWGMOPT_CFGGAME = Konfig. Gry
+DRAWGMOPT_CPYGAME = Kopiuj Grę
+DRAWGMOPT_DELGAME = Usuń Grę
+DRAWGMOPT_FIXGAME = Napraw uprawnienia do plików
+DRAWGMOPT_TSTGAME = Testuj Grę
+DRAWGMOPT_CPYEBOOTGAME = Skopiuj EBOOT.BIN z USB
+DRAWGMOPT_CPYTOFAV = Kopiuj do ulubionych
+DRAWGMOPT_DELFMFAV = Usuń z ulubionych
+DRAWGMOPT_UNMTDEV = Odłącz urządzenie USB00%i
+DRAWGMOPT_EXTRACTISO = Wyodrębnij ISO
+DRAWGMOPT_BUILDISO = Zbuduj ISO
+DRAWGMOPT_MKISO = Wybierz urządzenie do zbudowania ISO
+DRAWGMOPT_XTISO = Wybierz urządzenie do wyodrębnienia ISO
+DRAWGMOPT_CPYISO = Wybierz urządzenie,aby skopiować ISO
+
+DRAWGMOPT_FIXCOMPLETE = Gotowa naprawa uprawnienia!
+DRAWGMOPT_CPYOK = Skopiowane pomyślnie
+DRAWGMOPT_CPYERR = Błąd kopiowania
+DRAWGMOPT_CPYNOTFND = Nie znaleziono
+
+DRAWGMOPT_GAMEUPDATE = Aktualizacja Gry
+
+# DRAW CONFIGS
+DRAWGMCFG_CFGS = Konfig. Gry
+DRAWGMCFG_DSK = Wymaga dysku
+DRAWGMCFG_NO = Nie
+DRAWGMCFG_YES = Tak
+DRAWGMCFG_UPD = Aktualizacje online
+DRAWGMCFG_ON = Wł.
+DRAWGMCFG_OFF = Wył.
+DRAWGMCFG_EXTBOOT = Zewnętrzny EBOOT.BIN
+DRAWGMCFG_BDEMU = BD Emu
+DRAWGMCFG_EXTHDD0GAME = Ext /dev_hdd0/game
+DRAWGMCFG_SAVECFG = Zapisz konfigurację
+DRAWGMCFG_DIRECTBOOT = Bezpośredni rozruch
+
+# DRAW GLOBAL OPTIONS
+DRAWGLOPT_OPTS = Opcje globalne
+DRAWGLOPT_SCRADJUST = Regulacja wideo
+DRAWGLOPT_CHANGEGUI = Zmień bieżący GUI
+DRAWGLOPT_CHANGEBCK = Zmień kolor tła
+DRAWGLOPT_BCKPICNONE = Obraz w tle: None
+DRAWGLOPT_BCKPICRAND = Obraz w tle: Losowy
+DRAWGLOPT_BCKPIC1    = Obraz w tle: PIC1.PNG
+DRAWGLOPT_BCKPICT    = Obraz w tle:
+DRAWGLOPT_CHANGEDIR = Zmień katalog gier
+DRAWGLOPT_SWMUSICOFF = Wyłącz muzykę
+DRAWGLOPT_SWMUSICON = Włącz muzykę
+DRAWGLOPT_INITFTP = Zainicjuj serwer FTP
+DRAWGLOPT_TOOLS = Narzędzia
+DRAWGLOPT_REFRESH = Lista Gier
+DRAWGLOPT_CREDITS = Uznanie
+DRAWGLOPT_FTPINITED = Serwer FTP zainicjowany@.Czy chcesz automatycznie włączyć usługę FTP?
+DRAWGLOPT_FTPARINITED = Serwer FTP już zainicjowany
+DRAWGLOPT_FTPSTOPED = Serwer FTP zatrzymany@.Usunięto usługę FTP.
+
+# DRAW TOOLS
+DRAWTOOLS_TOOLS = Narzędzia
+DRAWTOOLS_DELCACHE = Usuń narzędzie pamięci podręcznej
+DRAWTOOLS_SECDISABLE = Naciśnij, aby wyłączyć zabezpieczenia Syscall
+DRAWTOOLS_SECENABLE = Naciśnij, aby włączyć zabezpieczenia Syscall
+DRAWTOOLS_PKGTOOLS = Instalacja.PKG
+DRAWTOOLS_COPYFROM = Skopiuj z /dev_usb/ do folderu Iris
+DRAWTOOLS_WITHBDVD = Z kontrolerem BDVD
+DRAWTOOLS_NOBDVD = Bez kontrolera BDVD
+DRAWTOOLS_NOBDVD2 = Dysk-krótrze ładowanie
+DRAWTOOLS_ARCHIVEMAN = Menedżer archiwum
+DRAWTOOLS_COVERSDOWN = Pobieranie okładek
+
+# MAIN - OTHERS
+DRAWCACHE_CACHE = Usuń narzędzie z pamięci podręcznej
+DRAWCACHE_ERRNEEDIT = Do instalacji potrzebujesz %1.2f GB
+DRAWCACHE_ASKTODEL = Usunąć %s z pamięci podręcznej?
+PATCHBEMU_ERRNOUSB = BDEMU jest tylko dla urządzeń USB
+MOVEOBEMU_ERRSAVE = Zapisywanie błędów:@%s
+MOVEOBEMU_ERRMOVE = Błąd Przenoszenie do:@%s już istnieje
+MOVEOBEMU_MOUNTOK = BDEMU zamontowany w:@%s
+MOVETBEMU_ERRMOVE = Błąd Przenoszenie do:@%s już istnieje
+
+# UTILS
+# FAST COPY ADD
+FASTCPADD_FAILED = Nie powiodło się szybkie kopiowanie () procesu
+FASTCPADD_ERRTMFILES = Zbyt dużo plików
+FASTCPADD_FAILEDSTAT = Nie powiodło się()
+FASTCPADD_ERROPEN = Błąd podczas otwierania (napisz)
+FASTCPADD_COPYING = Kopiowanie
+FASTCPADD_FAILFASTFILE = Nie udało się szybko (pliki z szybką numeracją)
+
+# FAST COPY PROCESS
+FASTCPPRC_JOINFILE = Łączenie pliku
+FASTCPPRC_COPYFILE = Kopiowanie pliku
+FASTCPPTC_OPENERROR = Błąd!@pliki otwarte %i@ Oczekiwanie 20s.na wyświetlenie błędu krytycznego
+
+# GAME TEST FILES
+GAMETESTS_FOUNDINSTALL = Znaleziono %s@@Chcesz zainstalować?
+GAMETESTS_BIGFILE = Duży plik
+GAMETESTS_TESTFILE = Plik testowy
+GAMETESTS_CHECKSIZE = Sprawdzanie rozmiaru pliku
+
+# GAME DELETE FILES
+GAMEDELFL_DELETED = Usunięto
+GAMEDELFL_DELETING = Usuwanie ... Pliku
+
+# GAME COPY
+GAMECPYSL_GSIZEABCNTASK = Uzyskiwanie rozmiaru: Przerwano - Kontynułować kopię?
+GAMECPYSL_STARTED = Rozpoczęcie... @ kopiowanie
+GAMECPYSL_SPLITEDHDDNFO = %s@@Podzielona gra skopiowana na HDD(bez możliwości rozruchu)
+GAMECPYSL_SPLITEDUSBNFO = %s@@Podzielona gra skopiowana na USB%c(bez możliwości rozruchu)
+GAMECPYSL_DONE = Gotowe! Pliki skopiowane
+GAMECPYSL_FAILDELDUMP = Usuwanie nieudanego zrzutu
+
+# GAME CACHE COPY
+GAMECHCPY_ISNEEDONEFILE = Przepraszamy,ale musisz zainstalować duży plik
+GAMECHCPY_NEEDMORESPACE = Masz %.2fGB i potrzebujesz %.2fGB@@usuń wpisy w pamięci
+GAMECHCPY_NOSPACE = Przepraszamy, masz %.2fGB wolne@@i potrzebujesz %.2fGB
+GAMECHCPY_CACHENFOSTART = Pliki pamięci podręcznej: %.2fGBŁączna liczba plików: %.2fGB@ zapisujesz %.2fGB na HDD (%.2fGB Całkowity)@@NaCIśnij dowolny przycisk,aby rozpocząć
+GAMECHCPY_FAILDELFROM = Usuwanie nieudanego zrzutu pamięci podręcznej
+
+# GAME DELETE
+GAMEDELSL_WANTDELETE = Chcesz usunąć z
+GAMEDELSL_STARTED = Rozpoczęcie ... @ usunięcie
+GAMEDELSL_DONE = Gotowe! Pliki usunięte
+
+# GAME TEST
+GAMETSTSL_FINALNFO = Katalogi:%i Pliki:%i@Duże pliki:%iPodzielone pliki:%i
+GAMETSTSL_TESTED = Pliki przetestowane
+
+# GLOBAL UTILS
+GLUTIL_SPLITFILE = Podział pliku
+GLUTIL_WROTE = Nadpisać
+GLUTIL_TIME = Czas
+GLUTIL_TIMELEFT = Pozostały czas
+GLUTIL_HOLDTRIANGLEAB = Przytrzymaj TRIANGLE, aby przerwać
+GLUTIL_HOLDTRIANGLESK = Przytrzymaj TRIANGLE, aby pominąć
+GLUTIL_ABORTEDUSER = Przerwano przez użytkownika
+GLUTIL_ABORTED = Przerwano!!!
+GLUTIL_XEXIT = Naciśnij KRZYŻYK, aby wyjść
+GLUTIL_WANTCPYFROM = Chcesz skopiować z
+GLUTIL_WTO = do
+
+# GLOBAL
+GLOBAL_RETURN = Powrót
+GLOBAL_SAVED = Zapisano plik
+
+# INSTALL .PKG
+PKG_HEADER = Zainstaluj narzędzie.PKG_____Użyj KRZYŻYKA,aby wybrać,a KÓŁKO,aby wyjść
+PKG_INSERTUSB = Dodaj urządzenie pamięci masowej USB
+PKG_ERRTOBIG = .Zbyt duży rozmiar PKG lub mała przestrzeń na dyskowu
+PKG_WANTINSTALL = Chcesz zainstalować ten plik .PKG?
+PKG_ERRALREADY = Błąd: .PKG już jest na...
+PKG_ERRFULLSTACK = Błąd: ... jest pełny (maksymalnie 16 wpisów)
+PKG_ERRBUILD = Błąd podczas budowania procesu .PKG
+PKG_COPYING = Kopiowanie pliku .PKG do folderu Iris Manager ...
+PKG_ERROPENING = Błąd podczas otwierania pliku .PKG
+PKG_ERRCREATING = Błąd podczas tworzenia pliku .PKG
+PKG_ERRREADING = Błąd odczytu pliku .PKG
+PKG_ERRLICON = Błąd podczas ładowania pliku IKON
+PKG_ERRMOVING = Błąd podczas przenoszenia .PKG
+
+# DRAW_PSX
+DRAWPSX_EMULATOR = Emulator
+DRAWPSX_VIDEOPS = Opcje wideo PSX
+DRAWPSX_SAVEASK = Zapisać opcje PSX?
+DRAWPSX_SAVED = Zapisane opcje PSX
+DRAWPSX_VIDEOTHER = Wideo / Inne
+DRAWPSX_VIDEOMODE = Tryb wideo
+DRAWPSX_VIDEOASP = Aspekt wideo (480/576)
+DRAWPSX_FULLSC = Pełny ekran
+DRAWPSX_SMOOTH = Wygładzanie
+DRAWPSX_EXTROM = Zewnętrzna pamięć ROM
+DRAWPSX_FORMAT = Format wewnętrzny_MC
+DRAWPSX_ASKFORMAT = Chcesz sformatować?@@Utracisz zapisy w tej operacji
+DRAWPSX_ERRWRITING = Błąd podczas zapisywania pliku (urządzenie pełne?)
+DRAWPSX_BUILDISO = Budowanie niestandardowego ISO ...
+DRAWPSX_ASKCHEATS = Znaleziony dysk PSX@@Chcesz go użyć?
+DRAWPSX_ERRCHEATS = PSX Dysk nie może zostać uruchomiony@@bez gry PSX
+DRAWPSX_ERRSECSIZE = Błąd: Inny rozmiar sektora w plikach ISO
+DRAWPSX_ERRUNKSIZE = Błąd: nieznany rozmiar sektora
+DRAWPSX_DISCEJECT = Wysunąć PSX CD
+DRAWPSX_DISCORDER = Wybierz opcję kolejność dysków
+DRAWPSX_PRESSOB = Naciśnij KÓŁKO,aby zmienić kolejność
+DRAWPSX_PRESSXB = Naciśnij KRZYŻYK,aby uruchomić grę
+DRAWPSX_CHEATMAKE = Znaleziony dysk PSX,ale inny rozmiar sektora@@Chcesz zbudować jeden zgodny?
+DRAWPSX_COPYMC = Kopiowanie karty pamięci na urządzenie HDD...
+DRAWPSX_ERRCOPYMC = Błąd podczas kopiowania karty pamięci do urządzenia HDD
+DRAWPSX_PUTFNAME = Umieść nazwę folderu:
+DRAWPSX_FMUSTB = Nazwa folderu musi być >=3 znakom
+DRAWPSX_PUTADISC = Umieść PSX i naciśnij klawisz TAK aby kontynuować,lub klawisz NIE,aby przerwać@@:
+DRAWPSX_UNREC = Nierozpoznany dysk
+DRAWPSX_ERROPENING = Błąd podczas otwierania dysku BDVD
+DRAWPSX_ASKEFOLDER = Wyjść z folderów @@ Kontynułować?
+DRAWPSX_ISOEXITS = Zostawić@@pominąć?
+
+# generic
+OUT_OFMEMORY = Brak pamięci
+OPERATION_DONE = Gotowe!
+PLUG_STORAGE1 = Pamiętaj,aby podłączyć urządzenie pamięci masowej USB,aby utworzyć fałszywą płyte
+PLUG_STORAGE2 = Imitacja włożonej płyty
+
+# GAME LIST
+GAMELIST_ALLGAMES = Wszystkie gry
+GAMELIST_PS3GAMES = Gry na PS3
+GAMELIST_VIDEOS = Filmy
+GAMELIST_NETGAMES = Gry sieciowe(przez webMAN)
+GAMELIST_STATUS1 = [] Wszystkie gry Retro < > Wybierz tryb Retro X Wybierz listę
+GAMELIST_STATUS2 = X Wybierz tryb Listy gier O Wróć
+GAMELIST_SCANNING0 = Skanowanie wszystkich gier...
+GAMELIST_SCANNING1 = Skanowanie gier PS3...
+GAMELIST_SCANNING2 = Skanowanie gier PlayStation...
+GAMELIST_SCANNING3 = Skanowanie wideo...
+GAMELIST_SCANNING4 = Skanowanie gier Retro...
+GAMELIST_SCANNING5 = Skanowanie gier sieciowych(webMAN)...

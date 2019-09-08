@@ -1,0 +1,255 @@
+[Language]
+VERSION                 = 2
+DESCRIPTION             = DEFAULT NORSK
+
+# VIDEO - ADJUST
+VIDEOADJUST_POSITION    = Bruk VENSTRE (-X) / HØYRE (+X) / OPP (-Y) / NED (+Y) for å justere skjermen
+VIDEOADJUST_SCALEINFO   = Video størelse X: %i Y: %i
+VIDEOADJUST_EXITINFO    = Trykk CROSS for å avslutte
+VIDEOADJUST_DEFAULTS    = Trykk CIRCLE for standard instillinger
+
+# SELECT - GAME FOLDER
+GAMEFOLDER_WANTUSE      = Vil benytte
+GAMEFOLDER_TOINSTALLNTR = for å installere spillet?
+GAMEFOLDER_USING        = Benytter
+GAMEFOLDER_TOINSTALL    = for å installere spillet
+
+# DRAW SCREEN1
+DRAWSCREEN_FAVSWAP      = Bytte favoritter
+DRAWSCREEN_FAVINSERT    = Sett inn favoritter
+DRAWSCREEN_FAVORITES    = favoritter
+DRAWSCREEN_PAGE         = Side
+DRAWSCREEN_GAMES        = Spill
+DRAWSCREEN_PLAY         = Spill
+DRAWSCREEN_SOPTIONS     = SELECT: Spillvalg
+DRAWSCREEN_SDELETE      = SELECT: slett favoritt
+DRAWSCREEN_STGLOPT      = START: Globale valg
+DRAWSCREEN_EXITXMB      = Avslutt til XMB?
+DRAWSCREEN_RESTART      = Restarter PS3-systemet?
+DRAWSCREEN_SHUTDOWN     = Slå av PS3-systemet?
+DRAWSCREEN_CANRUNFAV    = Kan ikke kjøre denne favoritten
+DRAWSCREEN_MARKNOTEXEC  = Merket som ikke kjørbar. Prøver å installere på HDD0
+DRAWSCREEN_MARKNOTEX4G  = Merket som ikke kjørbar - Inneholder delte filer >= 4GB
+DRAWSCREEN_GAMEINOFMNT  = Jeg kan ikke finne en mappe for å montere /dev_hdd0/game fra USB
+DRAWSCREEN_GAMEIASKDIR  = Vil lage i /dev_usb00
+DRAWSCREEN_GAMEICANTFD  = Jeg kan ikke finne en USB enhet for å montere /dev_hdd0/game fra USB
+DRAWSCREEN_GAMEIWLAUNCH = Ønsker du å starte spillet?
+DRAWSCREEN_EXTEXENOTFND = ekstern kjørbar fil ikke funnet
+DRAWSCREEN_EXTEXENOTCPY = Benytt 'Copy EBOOT.BIN from USB' for å importere dem.
+DRAWSCREEN_REQBR        = Trenger BR-Disc@ På nytt?
+
+# DRAW OPTIONS
+DRAWGMOPT_OPTS          = Valg
+DRAWGMOPT_CFGGAME       = Spillinstillinger
+DRAWGMOPT_CPYGAME       = Kopier spill
+DRAWGMOPT_DELGAME       = Slett spill
+DRAWGMOPT_FIXGAME       = Fiks fil privilegier
+DRAWGMOPT_TSTGAME       = Test spill
+DRAWGMOPT_CPYEBOOTGAME  = Kopier EBOOT.BIN fra USB
+DRAWGMOPT_CPYTOFAV      = Kopier til favoritter
+DRAWGMOPT_DELFMFAV      = Slett fra favoritter
+DRAWGMOPT_UNMTDEV       = Unmount USB00%i Device
+
+DRAWGMOPT_EXTRACTISO    = Extract ISO
+DRAWGMOPT_BUILDISO      = Build ISO
+DRAWGMOPT_MKISO         = Select a device to Build the ISO
+DRAWGMOPT_XTISO         = Select a device to Extract the ISO
+DRAWGMOPT_CPYISO        = Select a device to Copy the ISO
+
+DRAWGMOPT_FIXCOMPLETE   = Fiksing av priviliegier ferdig!
+DRAWGMOPT_CPYOK         = Kopiering vellykket
+DRAWGMOPT_CPYERR        = kopieringen feilet
+DRAWGMOPT_CPYNOTFND     = ikke funnet
+
+DRAWGMOPT_GAMEUPDATE    = Game Update
+
+# DRAW CONFIGS
+DRAWGMCFG_CFGS          = Spillinstillinger
+DRAWGMCFG_DSK           = Krever plate
+DRAWGMCFG_NO            = Nei
+DRAWGMCFG_YES           = Ja
+DRAWGMCFG_UPD           = Online oppdateringer
+DRAWGMCFG_ON            = På
+DRAWGMCFG_OFF           = Av
+DRAWGMCFG_EXTBOOT       = Ekstern EBOOT.BIN
+DRAWGMCFG_BDEMU         = BD Emu
+DRAWGMCFG_EXTHDD0GAME   = Eks /dev_hdd0/game
+DRAWGMCFG_SAVECFG       = Lagre instillinger
+DRAWGMCFG_DIRECTBOOT    = Direct Boot
+
+# DRAW GLOBAL OPTIONS
+DRAWGLOPT_OPTS          = Global Options
+DRAWGLOPT_SCRADJUST     = Videoinstillinger
+DRAWGLOPT_CHANGEGUI     = Change Current GUI
+DRAWGLOPT_CHANGEBCK     = Bytt bakgrunsfarge
+DRAWGLOPT_BCKPICNONE    = Background Picture: None
+DRAWGLOPT_BCKPICRAND    = Background Picture: Random
+DRAWGLOPT_BCKPIC1       = Background Picture: PIC1.PNG
+DRAWGLOPT_BCKPICT       = Background Picture:
+DRAWGLOPT_CHANGEDIR     = Bytt spillmappe
+DRAWGLOPT_SWMUSICOFF    = Slå av musikk
+DRAWGLOPT_SWMUSICON     = Slå på musikk
+DRAWGLOPT_INITFTP       = Start FTP tjener
+DRAWGLOPT_TOOLS         = Verktøy
+DRAWGLOPT_REFRESH       = Spill Liste
+DRAWGLOPT_CREDITS       = Opphavsrett
+DRAWGLOPT_FTPINITED     = FTP tjener startet@Vil du at FTP tjeneren skal starte ved oppstart?
+DRAWGLOPT_FTPARINITED   = FTP tjener kjører allerede
+DRAWGLOPT_FTPSTOPED     = FTP tjener avsluttet@Fjernet FTP tjener ved oppstart.
+
+# DRAW TOOLS
+DRAWTOOLS_TOOLS         = Verktøy
+DRAWTOOLS_DELCACHE      = Slett buffer verktøy
+# DRAWTOOLS_SECDISABLE  = Trykk for å slå av Syscall sikkerhet
+# DRAWTOOLS_SECENABLE   = Trykk for å slå på Syscall sikkerhet
+DRAWTOOLS_PKGTOOLS      = .PKG Installere
+DRAWTOOLS_COPYFROM      = Kopier fra /dev_usb/iris til IRISMAN mappe
+DRAWTOOLS_WITHBDVD      = Med BDVD kontroller
+DRAWTOOLS_NOBDVD        = Uten BDVD kontroller
+DRAWTOOLS_NOBDVD2       = Cobra / Disc-less payload
+DRAWTOOLS_ARCHIVEMAN    = File Manager
+DRAWTOOLS_COVERSDOWN    = Covers Download
+
+# MAIN - OTHERS
+DRAWCACHE_CACHE         = Slett buffer verktøy
+DRAWCACHE_ERRNEEDIT     = Du trenger %1.2f GB ledig for å installere
+DRAWCACHE_ASKTODEL      = Slett %s buffer?
+PATCHBEMU_ERRNOUSB      = BDEMU er bare til USB enheter
+MOVEOBEMU_ERRSAVE       = Feil ved Lagring:@%s
+MOVEOBEMU_ERRMOVE       = Feil ved Flytting til:@%s eksisterende
+MOVEOBEMU_MOUNTOK       = BDEMU mounted in:@%s
+MOVETBEMU_ERRMOVE       = Feil ved Flytting til:@%s eksisterende
+
+# UTILS
+# FAST COPY ADD
+FASTCPADD_FAILED        = Feilet i fast_copy_process() ret
+FASTCPADD_ERRTMFILES    = For mange filer
+FASTCPADD_FAILEDSTAT    = Feilet i stat()
+FASTCPADD_ERROPEN       = Feil i Opening0 (write)
+FASTCPADD_COPYING       = Kopierer
+FASTCPADD_FAILFASTFILE  = Feilet i fast_files(fast_num_files).mem
+
+# FAST COPY PROCESS
+FASTCPPRC_JOINFILE      = Slår sammen fil
+FASTCPPRC_COPYFILE      = Kopierer fil
+FASTCPPTC_OPENERROR     = Feil!!!!!!!!!!!!!!!!!!!!!!!!!@Fil åpnet %i@ Venter i 20 sekunder med å vise fatal feil
+
+# GAME TEST FILES
+GAMETESTS_FOUNDINSTALL  = Fant %s@@Ønsker du å installere?
+GAMETESTS_BIGFILE       = Stor Fil
+GAMETESTS_TESTFILE      = Test Fil
+GAMETESTS_CHECKSIZE     = Sjekker filstørrelse
+
+# GAME DELETE FILES
+GAMEDELFL_DELETED       = Sletter
+GAMEDELFL_DELETING      = Sletter... Fil
+
+# GAME COPY
+GAMECPYSL_GSIZEABCNTASK = Henter Størrelse: Avbrutt - Fortsette å kopiere?
+GAMECPYSL_STARTED       = Starter… @ kopiering
+GAMECPYSL_SPLITEDHDDNFO = %s@@Spill kopiert som delte filer til HDD0( ikke kjørbar )
+GAMECPYSL_SPLITEDUSBNFO = %s@@Spill kopiert som delte filer til USB00%c( ikke kjørbar )
+GAMECPYSL_DONE          = Ferdig! Filene er kopiert
+GAMECPYSL_FAILDELDUMP   = Slett feilet dump i
+
+# GAME CACHE COPY
+GAMECHCPY_ISNEEDONEFILE = Beklager, men du trenger å installere minst en stor fil
+GAMECHCPY_NEEDMORESPACE = Du har %.2fGB ledig og du trenger %.2fGB@@Venligst slett buffer
+GAMECHCPY_NOSPACE       = Beklager, du har %.2fGB ledig@@og du trenger %.2fGB
+GAMECHCPY_CACHENFOSTART = Buffer: %.2fGB - Filer totalt: %.2fGB@ du sparer %.2fGB på HDD0 (%.2fGB Totalt)@@Trykk en knapp for å starte
+GAMECHCPY_FAILDELFROM   = Fikk ikke slettet buffer
+
+# GAME DELETE
+GAMEDELSL_WANTDELETE    = vil du slette fra
+GAMEDELSL_STARTED       = Begynner… @ slett
+GAMEDELSL_DONE          = Ferdig! Filene er slettet
+
+# GAME TEST
+GAMETSTSL_FINALNFO      = Mapper: %i Filer: %i@Store filer: %i delte filer: %i
+GAMETSTSL_TESTED        = Files Tested
+
+#GLOBAL UTILS
+GLUTIL_SPLITFILE        = Del opp fil
+GLUTIL_WROTE            = Skrev
+GLUTIL_TIME             = Tid
+GLUTIL_TIMELEFT         = Tid igjen
+GLUTIL_HOLDTRIANGLEAB   = Trykk CIRCLE for å avbryte
+GLUTIL_HOLDTRIANGLESK   = Trykk CIRCLE for å hoppe over
+GLUTIL_ABORTEDUSER      = Avbrutt av bruker
+GLUTIL_ABORTED          = Avbrutt!!!
+GLUTIL_XEXIT            = Trykk TRIANGLE for å gå ut
+GLUTIL_WANTCPYFROM      = vil du kopiere fra
+GLUTIL_WTO              = til
+
+# GLOBAL
+GLOBAL_RETURN           = Tilbake
+GLOBAL_SAVED            = Fil lagret
+
+# INSTALL .PKG
+PKG_HEADER              = Installer .PKG Verktøy -_____Use CROSS for å velge og CIRCLE for å gå ut
+PKG_INSERTUSB           = Sett inn USB mass storage enhet
+PKG_ERRTOBIG            = .PKG størrelse for stor eller for lite plass på disken
+PKG_WANTINSTALL         = Vil du installere denne .PKG filen?
+PKG_ERRALREADY          = Feil: .PKG allerede in the stack
+PKG_ERRFULLSTACK        = Feil: Stacken er full( max 16 entries )
+PKG_ERRBUILD            = Feil ved bygging av .PKG prosess
+PKG_COPYING             = Kopiering .PKG fil til Iris Manager mappe...
+PKG_ERROPENING          = Åpning av .PKG fil feilet
+PKG_ERRCREATING         = Oppreting av .PKG fil feilet
+PKG_ERRREADING          = Lesing av .PKG fil feilet
+PKG_ERRLICON            = Lasting av ICON fil feilet
+PKG_ERRMOVING           = Flytting av .PKG feilet
+
+# DRAW_PSX
+DRAWPSX_EMULATOR        = Emulator
+DRAWPSX_VIDEOPS         = PS1 videovalg
+DRAWPSX_SAVEASK         = Lagre PS1 valg?
+DRAWPSX_SAVED           = PS1 valg lagret
+DRAWPSX_VIDEOTHER       = Video / andre
+DRAWPSX_VIDEOMODE       = Videomodus
+DRAWPSX_VIDEOASP        = Video Aspect (480/576)
+DRAWPSX_FULLSC          = Fullskjerm
+DRAWPSX_SMOOTH          = Utjevning av punkter
+DRAWPSX_EXTROM          = Ekstern ROM
+DRAWPSX_FORMAT          = Formater Internal_MC
+DRAWPSX_ASKFORMAT       = Ønsker du å formatere Internal_MC?@@Alle lagringer vil gå tapt i denne operasjonen.
+DRAWPSX_ERRWRITING      = Feil ved skriving av fil( Er enheten full? )
+DRAWPSX_BUILDISO        = Lager egen ISO...
+DRAWPSX_ASKCHEATS       = PS1 jukseplate funnet@@Vil du benytte den?
+DRAWPSX_ERRCHEATS       = PS1 jukseplate kan ikke startes@@Uten et PS1 spill
+DRAWPSX_ERRSECSIZE      = Feil: Annen sektorstørrelse i ISO fil
+DRAWPSX_ERRUNKSIZE      = Feil: Ukjent sektorstørrelse
+DRAWPSX_DISCEJECT       = PS1 CD matet ut
+DRAWPSX_DISCORDER       = Velg rekkefølge for plate
+DRAWPSX_PRESSOB         = Trykk TRIANGLE bytte rekkefølge
+DRAWPSX_PRESSXB         = Trykk CROSS for å starte spillet
+DRAWPSX_CHEATMAKE       = PS1 jukseplate funnet, men annen sektorstørrelse@@Ønsker du å lage en kompatibel?
+DRAWPSX_COPYMC          = Copying Memory Card to HDD0 device...
+DRAWPSX_ERRCOPYMC       = Feil ved kopiering av minnekort til HDD0 enhet
+DRAWPSX_PUTFNAME        = Mappenavn:
+DRAWPSX_FMUSTB          = Mappenavn må være >=3 tegn
+DRAWPSX_PUTADISC        = Sett inn en PS1 plate og trykk JA for å fortsette eller NEI for å avbryte@@Plate å kopiere:
+DRAWPSX_UNREC           = Ukjent plate
+DRAWPSX_ERROPENING      = Får ikke åpnet BDVD drive
+DRAWPSX_ASKEFOLDER      = Mappen eksisterer allerede@@Fortsette?
+DRAWPSX_ISOEXITS        = eksisterer@@Hoppe over?
+
+# generic
+OUT_OFMEMORY            = Minne er fult
+OPERATION_DONE          = Ferdig!
+PLUG_STORAGE1           = Remember you to plug an USB storage massive device to create the fake disc event
+PLUG_STORAGE2           = Fake Disc Inserted
+
+# GAME LIST
+GAMELIST_ALLGAMES       = All Games
+GAMELIST_PS3GAMES       = PS3 Games
+GAMELIST_VIDEOS         = Videos
+GAMELIST_NETGAMES       = Network Games (via webMAN)
+GAMELIST_STATUS1        = SQUARE  All Retro games       <  >  Select Retro mode       X  Select List
+GAMELIST_STATUS2        = X  Select Game List mode             O  Go Back
+GAMELIST_SCANNING0      = Scanning all games...
+GAMELIST_SCANNING1      = Scanning PS3 games...
+GAMELIST_SCANNING2      = Scanning PlayStation games...
+GAMELIST_SCANNING3      = Scanning Videos...
+GAMELIST_SCANNING4      = Scanning Retro games...
+GAMELIST_SCANNING5      = Scanning network games (webMAN)...
