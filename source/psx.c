@@ -2264,7 +2264,7 @@ void load_psx_payload()
     char * mdata= LoadFile(temp_buffer, &m);
     if(!mdata) return;
 #endif
-
+/*
     if(lv2peek(addr) != 0x45505331454D5531ULL)
     {
         for(n = 0; n < psx_storage_bin_size + 8; n+= 8)
@@ -2276,7 +2276,7 @@ void load_psx_payload()
             }
         }
     }
-
+*/
     base1 = lv2peek(syscall_base + (u64) (600 * 8));
     toc   = lv2peek(base1 + 0x8ULL);
     addr2 = lv2peek(base1);
