@@ -3920,10 +3920,10 @@ static int iso_param_sfo_util(u32 lba, u32 len)
 
 static int iso_patch_exe_error_09(u32 lba, char *filename)
 {
-    if(firmware >= 0x485C) return SUCCESS;
+    if(firmware >= 0x486C) return SUCCESS;
 
     u16 fw_421 = 42100;
-    u16 fw_485 = 48500;
+    u16 fw_486 = 48600;
     int offset_fw;
     u16 ver = 0;
     int flag = 0;
@@ -3957,7 +3957,7 @@ static int iso_patch_exe_error_09(u32 lba, char *filename)
 
     u16 cur_firm = ((firmware>>12) & 0xF) * 10000 + ((firmware>>8) & 0xF) * 1000 + ((firmware>>4) & 0xF) * 100;
 
-    if(firmware >= 0x421C && firmware < 0x485C && ver > fw_421 && ver <= fw_485 && ver > cur_firm)
+    if(firmware >= 0x421C && firmware < 0x485C && ver > fw_421 && ver <= fw_486 && ver > cur_firm)
     {
         DPrintf("Version changed from %u.%u to %u.%u in %s\n\n", ver/10000, (ver % 10000)/100, cur_firm/10000, (cur_firm % 10000)/100, filename);
         cur_firm = SWAP16(cur_firm);

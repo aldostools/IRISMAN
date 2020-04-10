@@ -212,7 +212,37 @@ int is_firm_485deh(void)
    toc = peekq(0x8000000000003000ULL);
    if(toc == 0x800000000039D440ULL)
    {
-      return (peekq(0x8000000000344B70ULL) != 0x323031392F30312FULL); //timestamp: 2019/08/
+      return (peekq(0x8000000000344B70ULL) == 0x323031392F30382FULL); //timestamp: 2019/08/
+   }
+   else
+   {
+      return 0;
+   }
+}
+
+int is_firm_486deh(void)
+{
+    // TOC 4.86 deh
+   u64 toc;
+   toc = peekq(0x8000000000003000ULL);
+   if(toc == 0x800000000039D440ULL)
+   {
+      return (peekq(0x8000000000344B70ULL) == 0x323032302F30312FULL); //timestamp: 2020/01/
+   }
+   else
+   {
+      return 0;
+   }
+}
+
+int is_firm_48Xdeh(void)
+{
+    // TOC 4.87 deh
+   u64 toc;
+   toc = peekq(0x8000000000003000ULL);
+   if(toc == 0x800000000039D440ULL)
+   {
+      return (peekq(0x8000000000344B70ULL) > 0x323032302F30312FULL); //timestamp: 2020/01/
    }
    else
    {

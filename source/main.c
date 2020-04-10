@@ -2129,8 +2129,8 @@ void read_settings()
     char InstallMamba[2] = "1";
     char LoadMambaAndQuit[2] = "0";
 
-    spoof_version  = 0x0485;
-    spoof_revision = 67869; // 0x0001091d
+    spoof_version  = 0x0486;
+    spoof_revision = 67896; //0x00010938 // 4.85 = 67869; // 0x0001091d
 
     // set default values
     sprintf(covers_path, "%s/USRDIR/covers/", MM_PATH);
@@ -2403,7 +2403,7 @@ s32 main(s32 argc, const char* argv[])
 
     u32 entry = 0;
     u32 segmentcount = 0;
-    sysSpuSegment * segments; 
+    sysSpuSegment * segments;
 
     if(lv2peek(0x80000000000004E8ULL)) syscall_40(1, 0); // disables PS3 Disc-less
 
