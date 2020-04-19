@@ -58,6 +58,8 @@
 #include <spu_soundlib.h>
 #include <audioplayer.h>
 
+#define ROOT_MENU          (max_menu2 == 7)
+
 int sys_game_get_temperature(int sel, u32 *temperature);
 void draw_device_mkiso(float x, float y, int index, char *path);
 void load_background_picture();
@@ -2134,7 +2136,7 @@ int file_manager(char *pathw1, char *pathw2)
         {
             int py = 0;
             int max_menu2 = 8; bool is_dir=false;
-            if((!fm_pane && (path1[1] == 0)) || (fm_pane && (path2[1] == 0))) max_menu2 = 6;
+            if((!fm_pane && (path1[1] == 0)) || (fm_pane && (path2[1] == 0))) {max_menu2 = 7;}
             else if(!fm_pane &&
                     (strcmp(path1, "/dev_hdd0/game") == SUCCESS ||
                      strstr(path1, "/GAME") != NULL ||
@@ -2166,11 +2168,13 @@ int file_manager(char *pathw1, char *pathw2)
 
             if(new_pad & BUTTON_CROSS_) frame = 300;
 
-            if(max_menu2 == 6)
+            if(ROOT_MENU)
             {
                 if(use_cobra == false || bAllowNetGames == false) mount_option = 0;
 
                 bool blink = (set_menu2 == 1  && (frame & BLINK));
+
+                display_ttf_string(0, py, "exFAT Manager",      (set_menu2 == 7  && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
 
                 display_ttf_string(0, py, (mount_option == 1) ? "Mount /net_host0" :
                                           (mount_option == 2) ? "Mount /net_host0/PKG" :
@@ -2300,7 +2304,7 @@ int file_manager(char *pathw1, char *pathw2)
         if(set_menu2)
         {
             int max_menu2 = 8; bool is_dir=false;
-            if((!fm_pane && (path1[1] == 0)) || (fm_pane && (path2[1] == 0))) max_menu2 = 6;
+            if((!fm_pane && (path1[1] == 0)) || (fm_pane && (path2[1] == 0))) max_menu2 = 7;
             else if(!fm_pane &&
                     (strcmp(path1, "/dev_hdd0/game") == SUCCESS ||
                      strstr(path1, "/GAME") != NULL ||
@@ -2329,7 +2333,7 @@ int file_manager(char *pathw1, char *pathw2)
                 ROT_DEC(set_menu2, 1, max_menu2)
             else if(new_pad & BUTTON_DOWN)
                 ROT_INC(set_menu2, max_menu2, 1)
-            else if((set_menu2 == 1) && (max_menu2 == 6))
+            else if((set_menu2 == 1) && ROOT_MENU)
             {
                 if(new_pad & BUTTON_LEFT)
                     ROT_DEC(mount_option, 0, 7)
@@ -2338,7 +2342,7 @@ int file_manager(char *pathw1, char *pathw2)
                 else if(new_pad & BUTTON_SELECT)
                     mount_option = 0;
             }
-            else if((set_menu2 == 6) && (max_menu2 == 6))
+            else if((set_menu2 == 6) && ROOT_MENU)
             {
                 if(new_pad & BUTTON_LEFT)
                     ROT_DEC(exit_option, 0, 2)
@@ -2357,7 +2361,7 @@ int file_manager(char *pathw1, char *pathw2)
                     mnt_mode = 0;
             }
             else
-            if((set_menu2 == 3) && (max_menu2 != 6) && ((new_pad & BUTTON_LEFT) || (new_pad & BUTTON_RIGHT) || (new_pad & BUTTON_SELECT)))
+            if((set_menu2 == 3) && (!ROOT_MENU) && ((new_pad & BUTTON_LEFT) || (new_pad & BUTTON_RIGHT) || (new_pad & BUTTON_SELECT)))
             {
                 allow_shadow_copy = !allow_shadow_copy;
             }
@@ -2376,7 +2380,7 @@ int file_manager(char *pathw1, char *pathw2)
                 }
             }
 
-            if(max_menu2 == 6)
+            if(ROOT_MENU)
             {
                 if(set_menu2 == 1)
                 {
@@ -2464,10 +2468,8 @@ int file_manager(char *pathw1, char *pathw2)
                         else
                             dev_blind = (sys_fs_mount("CELL_FS_IOS:BUILTIN_FLSH1", "CELL_FS_FAT", "/dev_blind", 0) == SUCCESS);
                     }
-
                     nentries1 = pos1 = sel1 = 0;
                     nentries2 = pos2 = sel2 = 0;
-
                 } // mount/umount /dev_blind
                 else if(set_menu2 == 2 || set_menu2 == 3)
                 {   // lv2 / lv1 dump
@@ -2498,21 +2500,18 @@ int file_manager(char *pathw1, char *pathw2)
                         nentries2 = pos2 = sel2 = 0;
                         strncpy(path2, temp_buffer, flen);
                     }
-
                 }   // lv2 / lv1 dump
                 else if(set_menu2 == 4)
                 {   // RAM area editor
                     hex_editor(HEX_EDIT_RAM, "RAM Area Editor", 0x10000000ULL);
                     frame = set_menu2 = 0;
                     continue;
-
                 }   // RAM area editor
                 else if(set_menu2 == 5)
                 {   // LV2 editor
                     hex_editor(HEX_EDIT_LV2, "LV2 Editor", 0x800000ULL);
                     frame = set_menu2 = 0;
                     continue;
-
                 }   // LV2 Editor
                 else if(set_menu2 == 6)
                 {
@@ -2533,6 +2532,15 @@ int file_manager(char *pathw1, char *pathw2)
                     }
                     continue;
                 }   // Exit File Manager
+                else if(set_menu2 == 7)
+                {
+                    // exFAT File Manager
+                    extern s32 fmapp_run();
+                    fmapp_run();
+
+                    set_menu2 = 0;
+                    continue;
+                }
             }
             else if(set_menu2 == 1)
             {
@@ -3276,6 +3284,10 @@ int file_manager(char *pathw1, char *pathw2)
                 }
 
                 fm_pane = 0; FullScreen = png_signal = 0;
+            }
+            else if (fm_pane == 0 && strlen(path1) > 1)
+            {
+                new_pad = BUTTON_CROSS_; sel1 = 0;
             }
         }
         else if(new_pad & BUTTON_RIGHT)

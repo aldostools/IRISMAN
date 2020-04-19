@@ -1,0 +1,3 @@
+make 'DFLAGS=-DDEBUG_IP=\"192.168.2.191\"'
+
+#use python udpd.py in a separate session to follow the debug stream

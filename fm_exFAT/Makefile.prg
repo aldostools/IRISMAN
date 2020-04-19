@@ -10,24 +10,13 @@ endif
 #---------------------------------------------------------------------------------
 #  TITLE, APPID, CONTENTID, ICON0 SFOXML before ppu_rules.
 #---------------------------------------------------------------------------------
-TC_ADD		:=	`date +%d%H%M`
-ICON0		:=	ICON0.PNG
-ICON1		:=	ICON1.PAM
-PIC1		:=	PIC1.PNG
-SFOXML		:=	sfo.xml
-
-# usage:  make BUILD_STEALTH=yes
-ifndef BUILD_STEALTH
-TITLE		:=	IrisManager - v2.93
-APPID		:=	IMANAGER4
-else
-TITLE		:=	LEMMINGS™ Trial Version
-APPID		:=	NPUA80034
-endif
-CONTENTID	:=	UP0001-$(APPID)_00-0000000000000000
-PKGFILES	:=	release
-
-WITH_GAMES_DIR	?=	GAMEZ
+TITLE		        := Simple File Manager
+APPID		        := PS3SFM001
+CONTENTID	      := UP0001-$(APPID)_00-0000000000000000
+ICON0           := $(CURDIR)/ICON0.PNG
+#ICON1          := $(CURDIR)/ICON1.PAM
+#PIC1           := $(CURDIR)/PIC1.PNG
+SFOXML          := $(CURDIR)/sfo.xml
 
 SCETOOL_FLAGS	?=	--self-app-version=0001000000000000  --sce-type=SELF --compress-data=TRUE --self-add-shdrs=TRUE --skip-sections=FALSE --key-revision=1 \
 					--self-auth-id=1010000001000003 --self-vendor-id=01000002 --self-fw-version=0003004000000000
@@ -44,57 +33,24 @@ SCETOOL_FLAGS	+=	--self-cap-flags 0000000000000000000000000000000000000000000000
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-TARGET		:=  $(notdir $(CURDIR))
-BUILD		:=  build
-SOURCES		:=  source source/ftp
-SOURCES		+=  source/payload341  source/payload355     source/payload355dex  source/payload355deh
-SOURCES		+=  source/payload421  source/payload421dex  source/payload430     source/payload430dex
-SOURCES		+=  source/payload431  source/payload440     source/payload441     source/payload441dex
-SOURCES		+=  source/payload446  source/payload446dex  source/payload450     source/payload450dex
-SOURCES		+=  source/payload453  source/payload453dex  source/payload455     source/payload455dex
-SOURCES		+=  source/payload460  source/payload460dex  source/payload460deh
-SOURCES		+=  source/payload465  source/payload465dex
-SOURCES		+=  source/payload470  source/payload470dex
-SOURCES		+=  source/payload475  source/payload475dex  source/payload475deh
-SOURCES		+=  source/payload480  source/payload480dex  source/payload480deh  source/payload481dex
-
-DATA		:=  datas
-SHADERS		:=  shaders
-INCLUDES	:=  include include/ftp
-INCLUDES	+=  include/payload341  include/payload355     include/payload355dex  include/payload355deh
-INCLUDES	+=  include/payload421  include/payload421dex  include/payload430     include/payload430dex
-INCLUDES	+=  include/payload431  include/payload440     include/payload441     include/payload441dex
-INCLUDES	+=  include/payload446  include/payload446dex  include/payload450     include/payload450dex
-INCLUDES	+=  include/payload453  include/payload453dex  include/payload455     include/payload455dex
-INCLUDES	+=  include/payload460  include/payload460dex  include/payload460deh
-INCLUDES	+=  include/payload465  include/payload465dex
-INCLUDES	+=  include/payload470  include/payload470dex
-INCLUDES	+=  include/payload475  include/payload475dex  include/payload475deh
-INCLUDES	+=  include/payload480  include/payload480dex  include/payload480deh  include/payload481dex
-
+TARGET		:=	$(notdir $(CURDIR))
+BUILD		:=	build
+SOURCES		:=	source
+DATA		:=	data
+SHADERS		:=	shaders
+INCLUDES	:=	include ../include lib/include
 
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS		:=	../lib/libaudioplayer.a ../lib/libcobra.a ../lib/libntfs_ext.a ../lib/libsfm_ps3.a ../lib/libfatfs.a -lfreetype -lz -ltiny3d -lnetctl -lnet -lsysfs -lpngdec -ljpgdec -lsimdmath -lgcm_sys -lio -lsysutil -lrt -llv2 -lsysmodule \
-			-lhttputil -lhttp -lssl \
-			-lmpg123 -logg \
-			-lmod -lspu_sound -laudio -lm $(PORTLIBS)/modules/spu_soundmodule.bin.a
+LIBS		:=	../lib/libfatfs.a -lsysfs -lfont -lfreetype -lz -ltiny3d -lsimdmath -lgcm_sys -lnet -lio -lsysutil -lrt -llv2 -lsysmodule -lm
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS		=	-O2 -Wall -mcpu=cell --std=gnu99 $(MACHDEP) $(INCLUDE)
-CFLAGS		+=	`$(PORTLIBS)/bin/freetype-config --cflags`
-CFLAGS		+=	-D__MKDEF_MANAGER_DIR__="\"$(APPID)\"" -D__MKDEF_MANAGER_FULLDIR__="\"dev_hdd0/game/$(APPID)\"" -DTITLE_APP="\"$(TITLE)\""
-CFLAGS		+=	-DUSE_MEMCPY_SYSCALL
-CFLAGS		+=	-DUSE_DISC_CALLBACK
-CFLAGS		+=	-D'__MKDEF_GAMES_DIR="$(WITH_GAMES_DIR)"'
-
-
+CFLAGS		=	-O2 -Wall -mcpu=cell $(MACHDEP) $(INCLUDE) -DPS3_GEKKO $(DFLAGS)
 CXXFLAGS	=	$(CFLAGS)
-
 
 LDFLAGS		=	$(MACHDEP) -Wl,-Map,$(notdir $@).map
 
@@ -128,7 +84,7 @@ CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 sFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S)))
-BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.bin)))
+BINFILES	:= $(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.bin)))
 VCGFILES	:=	$(foreach dir,$(SHADERS),$(notdir $(wildcard $(dir)/*.vcg)))
 FCGFILES	:=	$(foreach dir,$(SHADERS),$(notdir $(wildcard $(dir)/*.fcg)))
 
@@ -156,7 +112,8 @@ export OFILES	:=	$(addsuffix .o,$(BINFILES)) \
 export INCLUDE	:=	$(foreach dir,$(INCLUDES), -I$(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
 					$(LIBPSL1GHT_INC) \
-					-I$(CURDIR)/$(BUILD) -I$(PORTLIBS)/include -I$(PORTLIBS)/modules
+					-I$(CURDIR)/$(BUILD) -I$(PORTLIBS)/include \
+					-I$(PS3DEV)/portlibs/ppu/include/freetype2
 
 #---------------------------------------------------------------------------------
 # build a list of library paths
@@ -176,38 +133,15 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).self EBOOT.BIN
+	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).self  EBOOT.BIN
 
 #---------------------------------------------------------------------------------
 run:
 	ps3load $(OUTPUT).self
 
 #---------------------------------------------------------------------------------
-pkg: $(BUILD) #$(OUTPUT).pkg
-	@$(MAKE) --no-print-directory -C $(CURDIR)/loader -f $(CURDIR)/loader/Makefile npdrm
-	$(VERB) echo building pkg ... $(notdir $@)
-	$(VERB) mkdir -p $(BUILDDIR)/pkg/USRDIR
-	$(VERB) cp $(ICON0) $(BUILDDIR)/pkg/ICON0.PNG
-	$(VERB) cp -f $(CURDIR)/loader/EBOOT.BIN $(BUILDDIR)/pkg/USRDIR/EBOOT.BIN
-	$(VERB) cp -f $(CURDIR)/$(TARGET).self $(BUILDDIR)/pkg/USRDIR/iris_manager.self
-	$(VERB) $(SFO) --title "$(TITLE)" --appid "$(APPID)" -f $(SFOXML) $(BUILDDIR)/pkg/PARAM.SFO
-	$(VERB) if [ -n "$(PKGFILES)" -a -d "$(PKGFILES)" ]; then cp -rf $(PKGFILES)/* $(BUILDDIR)/pkg/; fi
-	$(VERB) $(PKG) --contentid $(CONTENTID) $(BUILDDIR)/pkg/ $(TARGET).pkg >> /dev/null
+pkg:	$(BUILD) $(OUTPUT).pkg
 
-#---------------------------------------------------------------------------------
-
-pkg2: $(BUILD)
-	@$(MAKE) --no-print-directory -C $(CURDIR)/loader -f $(CURDIR)/loader/Makefile npdrm
-	$(VERB) echo building pkg ... $(notdir $@)
-	$(VERB) mkdir -p $(BUILDDIR)/pkg2/USRDIR
-	$(VERB) cp $(ICON0) $(BUILDDIR)/pkg2/ICON0.PNG
-	$(VERB) cp $(ICON1) $(BUILDDIR)/pkg2/ICON1.PAM
-	$(VERB) cp $(PIC1) $(BUILDDIR)/pkg2/PIC1.PNG
-	$(VERB) cp -f $(CURDIR)/loader/EBOOT.BIN $(BUILDDIR)/pkg2/USRDIR/EBOOT.BIN
-	$(VERB) cp -f $(CURDIR)/$(TARGET).self $(BUILDDIR)/pkg2/USRDIR/iris_manager.self
-	$(VERB) $(SFO) --title "$(TITLE)" --appid "$(APPID)" -f $(SFOXML) $(BUILDDIR)/pkg2/PARAM.SFO
-	$(VERB) if [ -n "$(PKGFILES)" -a -d "$(PKGFILES)" ]; then cp -rf $(PKGFILES)/* $(BUILDDIR)/pkg2/; fi
-	$(VERB) $(PKG) --contentid $(CONTENTID) $(BUILDDIR)/pkg2/ $(TARGET)_animated.pkg >> /dev/null
 #---------------------------------------------------------------------------------
 
 npdrm: $(BUILD)

@@ -161,6 +161,7 @@ u32 snd_inited = 0;
 bool use_cobra = false;
 bool use_mamba = false; // cobra app version
 bool is_mamba_v2 = false;
+bool is_ps3hen = false;
 bool unsupported_cfw = false;
 
 bool install_mamba = true;
@@ -244,8 +245,6 @@ static const float box_width = (200 * 4) - 8;
 static const float box_height = (150 * 3) - 8;
 
 bool options_locked = false; // true when control parental is between 1 and 9, false for parental 0 (disabled)
-
-bool is_ps3hen = false;
 
 int noBDVD = MODE_DISCLESS;
 
@@ -2609,7 +2608,7 @@ s32 main(s32 argc, const char* argv[])
     {
         bAllowNetGames = get_vsh_plugin_slot_by_name("WWWD") > 0;
 
-        if(!bAllowNetGames)
+        if(!bAllowNetGames && !is_ps3hen)
         {
             int slot = get_vsh_plugin_free_slot();
 
