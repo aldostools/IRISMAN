@@ -10,7 +10,7 @@
 #include <io/pad.h>
 #include <osk_input.h>
 #define SUCCESS 	1
-#define FAILED		0
+#define FAILED	 	0
 
 #include <tiny3d.h>
 #include <libfont.h>
