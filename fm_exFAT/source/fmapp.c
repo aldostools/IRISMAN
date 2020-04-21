@@ -233,7 +233,7 @@ int fmapp_update(int dat)
             else
             {
                 snprintf (sp, CBSIZE, "%s", ps->current->name);
-                if(Get_OSK_String("Rename", sp, CBSIZE) == SUCCESS)
+                if(Get_OSK_String("Rename", sp, CBSIZE) == 0)
                 {
                     //rename
                     char lp[CBSIZE];
@@ -265,7 +265,7 @@ int fmapp_update(int dat)
             else
             {
                 snprintf (sp, CBSIZE, "New folder");
-                if(Get_OSK_String("New folder", sp, 255) == SUCCESS)
+                if(Get_OSK_String("New folder", sp, 255) == 0)
                 {
                     //new dir
                     char lp[CBSIZE];
