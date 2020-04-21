@@ -35,16 +35,13 @@ static const DISC_INTERFACE *disc_ntfs[8]= {
     &__io_ntfs_usb006,
     &__io_ntfs_usb007
 };
-
-#define MAX_NTFS	8
-
 // mounts from /dev_usb000 to 007
-static ntfs_md *mounts[MAX_NTFS] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-static int mountCount[MAX_NTFS] = {0, 0, 0, 0, 0, 0, 0, 0};
-
+static ntfs_md *mounts[8] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 //
-int ntfs_scan_path (struct fm_panel *p);
-int ntfs_job_scan (struct fm_job *p, char *path);
+static int ntfs_scan_path (struct fm_panel *p);
+static int ntfs_job_scan (struct fm_job *p, char *path);
+#define ext_scan_path	ntfs_scan_path
+#define ext_job_scan	ntfs_job_scan
 //-----------------------------------------------------------------------------
 
 //sys fs
@@ -57,37 +54,31 @@ struct fs_root {
     char *fs;
     int fs_type;
     int fs_idx;
+    int fs_parts;
 };
 
-struct fs_root rootfs[] = {
-    {0x0ULL,             "sys:/", FS_TSYS, 0},
-	{0x010300000000000AULL, NULL, FS_TNONE, -1},
-    {0x010300000000000BULL, NULL, FS_TNONE, -1},
-    {0x010300000000000CULL, NULL, FS_TNONE, -1},
-    {0x010300000000000DULL, NULL, FS_TNONE, -1},
-	{0x010300000000000EULL, NULL, FS_TNONE, -1},
-    {0x010300000000000FULL, NULL, FS_TNONE, -1},
-    {0x010300000000001FULL, NULL, FS_TNONE, -1},
-    {0x0103000000000020ULL, NULL, FS_TNONE, -1},
-    //ntfs
-	{0x0000000000000000ULL, NULL, FS_TNONE, -1},
-    {0x0000000000000000ULL, NULL, FS_TNONE, -1},
-    {0x0000000000000000ULL, NULL, FS_TNONE, -1},
-    {0x0000000000000000ULL, NULL, FS_TNONE, -1},
-	{0x0000000000000000ULL, NULL, FS_TNONE, -1},
-    {0x0000000000000000ULL, NULL, FS_TNONE, -1},
-    {0x0000000000000000ULL, NULL, FS_TNONE, -1},
-    {0x0000000000000000ULL, NULL, FS_TNONE, -1},
+static struct fs_root rootfs[] = {
+    //ntfs needs index 0 to 7, move SYS at the end
+	{0x010300000000000AULL, NULL, FS_TNONE, -1, -1},
+    {0x010300000000000BULL, NULL, FS_TNONE, -1, -1},
+    {0x010300000000000CULL, NULL, FS_TNONE, -1, -1},
+    {0x010300000000000DULL, NULL, FS_TNONE, -1, -1},
+	{0x010300000000000EULL, NULL, FS_TNONE, -1, -1},
+    {0x010300000000000FULL, NULL, FS_TNONE, -1, -1},
+    {0x010300000000001FULL, NULL, FS_TNONE, -1, -1},
+    {0x0103000000000020ULL, NULL, FS_TNONE, -1, -1},
+    {0x0ULL,             "sys:/", FS_TSYS, 0, 0},
 };
 //fs type counters
-int fs_fat_k = 0;
-int fs_ext_k = 0;
+static int fs_fat_k = 0;
+static int fs_ext_k = 0;
+static int fs_ntfs_k = 0;
 
-int sys_scan_path (struct fm_panel *p);
-int fat_scan_path (struct fm_panel *p);
+static int sys_scan_path (struct fm_panel *p);
+static int fat_scan_path (struct fm_panel *p);
 
-int sys_job_scan (struct fm_job *p, char *path);
-int fat_job_scan (struct fm_job *p, char *path);
+static int sys_job_scan (struct fm_job *p, char *path);
+static int fat_job_scan (struct fm_job *p, char *path);
 /*
 sysFsGetFreeSize("/dev_hdd0/", &blockSize, &freeSize);
 sprintf(filename, "/dev_usb00%c/", 47+find_device);
@@ -189,7 +180,7 @@ int fs_job_scan (struct fm_job *job)
         //else if (strncmp (job->spath, "ext", 3) == 0)
         case FS_TEXT:
         {
-            return 1;//ext_scan_path (job);
+            return ext_job_scan (job, job->spath);
         }
         //scan NTFS path
         //else if (strncmp (job->spath, "ntfs", 4) == 0)
@@ -208,18 +199,53 @@ int fs_job_scan (struct fm_job *job)
 }
 
 //probe for supported FSs on various devices
+static int _attach_fs (int k, char *flag, int *fsk, int fst, char *devfs)
+{
+    NPrintf ("_attach_fs on dev %d fs %d knt %d\n", k, fst, *fsk);
+    rootfs[k].fs = strdup (devfs);
+    rootfs[k].fs_type = fst;
+    rootfs[k].fs_idx = *fsk;
+    //
+    int lk = *fsk;
+    *fsk = ++lk;
+    lk = *flag;
+    *flag = ++lk;
+    NPrintf ("_attach_fs on dev %d fs %d knt %d\n", k, fst, *fsk);
+    //
+    return 1;
+}
+
+static int _detach_fs (int k, char *flag, int *fsk)
+{
+    NPrintf ("_detach_fs on dev %d fs %d knt %d\n", k, rootfs[k].fs_type, *fsk);
+    rootfs[k].fs_type = FS_TNONE;
+    rootfs[k].fs_parts = -1;
+    rootfs[k].fs_idx = -1;
+    if(rootfs[k].fs) free (rootfs[k].fs);
+    rootfs[k].fs = NULL;
+    //
+    int lk = *fsk;
+    *fsk = --lk;
+    lk = *flag;
+    *flag = ++lk;
+    NPrintf ("_detach_fs on dev %d knt %d\n", k, *fsk);
+    //
+    return 1;
+}
+
 int rootfs_probe ()
 {
-    char devfs[9];
+    char devfs[15];
     char flag = 0;  //notify caller that there is a change
-    int i, k, res;
+    int k, res;
+    NPrintf ("rootfs_probe in mounted: %dFAT %dNTFS %dEXT3\n", fs_fat_k, fs_ntfs_k, fs_ext_k);
     //check existing for unplug
     for (k = 0; k < sizeof (rootfs) / sizeof (struct fs_root); k++)
     {
         if (rootfs[k].fs && rootfs[k].devid > 0)
         {
             //are these still plugged in?
-            NPrintf ("rootfs_probe probing detach on dev %d fs: \n", k, rootfs[k].fs);
+            NPrintf ("rootfs_probe probing detach on dev %d fs: %s idx %d\n", k, rootfs[k].fs, rootfs[k].fs_idx);
             //FAT
             if (fs_fat_k && rootfs[k].fs_type == FS_TFAT /*&& !fflib_is_fatfs (rootfs[k].fs + 3)*/)
             {
@@ -239,43 +265,35 @@ int rootfs_probe ()
                 NPrintf ("rootfs_probe detach fat%d: on dev %d fs: %s\n", rootfs[k].fs_idx, k, rootfs[k].fs);
                 //no longer valid - detach
                 fflib_detach (rootfs[k].fs_idx);
-                rootfs[k].fs_type = FS_TNONE;
-                rootfs[k].fs_idx = -1;
-                if(rootfs[k].fs) free (rootfs[k].fs);
-                rootfs[k].fs = NULL;
-                fs_fat_k--;
-                flag++;
                 //
+                _detach_fs (k, &flag, &fs_fat_k);
+                continue;
             }
             //NTFS
-            if (rootfs[k].fs_type == FS_TNTFS)
+            if (fs_ntfs_k && (rootfs[k].fs_type == FS_TNTFS || rootfs[k].fs_type == FS_TEXT))
             {
-                i = rootfs[k].fs_idx;
-                if (mountCount[i] > 0 && !PS3_NTFS_IsInserted (i))
+                if (rootfs[k].fs_parts > 0 && !PS3_NTFS_IsInserted (k))
                 {
-                    if (mounts[i])
+                    if (mounts[k])
                     {
                         int j;
-                        for (j = 0; j < mountCount[i]; j++)
-                            if ((mounts[i] + j)->name[0])
+                        for (j = 0; j < rootfs[k].fs_parts; j++)
+                            if ((mounts[k] + j)->name[0])
                             {
-                                ntfsUnmount ((mounts[i] + j)->name, true);
-                                (mounts[i] + j)->name[0] = 0;
+                                ntfsUnmount ((mounts[k] + j)->name, true);
+                                (mounts[k] + j)->name[0] = 0;
                             }
-                        if(mounts[i]) free (mounts[i]);
-                        mounts[i]= NULL;
-                        mountCount[i] = 0;
+                        free (mounts[k]);
+                        mounts[k] = NULL;
                     }
                     // PS3_NTFS_IsInserted calls PS3_NTFS_Shutdown on failure.. anyway
-                    PS3_NTFS_Shutdown (i);
+                    PS3_NTFS_Shutdown (k);
+                    NPrintf ("rootfs_probe detach %s on dev %d (%d)\n", rootfs[k].fs, k, rootfs[k].fs_idx);
                     //no longer valid - detach
-                    rootfs[k].devid = 0;
-                    rootfs[k].fs_type = FS_TNONE;
-                    rootfs[k].fs_idx = -1;
-                    if(rootfs[k].fs) free (rootfs[k].fs);
-                    rootfs[k].fs = NULL;
-                    flag++;
-                    //
+                    if(rootfs[k].fs_type == FS_TEXT)
+                        _detach_fs (k, &flag, &fs_ext_k);
+                    else
+                        _detach_fs (k, &flag, &fs_ntfs_k);
                     continue;
                 } //mount count > 0
             }
@@ -292,12 +310,8 @@ int rootfs_probe ()
             res = fflib_attach (fs_fat_k, rootfs[k].devid, 1);
             if (0 == res)
             {
-                snprintf (devfs, 8, "fat%d:/", fs_fat_k);
-                rootfs[k].fs = strdup (devfs);
-                rootfs[k].fs_type = FS_TFAT;
-                rootfs[k].fs_idx = fs_fat_k;
-                fs_fat_k++;
-                flag++;
+                snprintf (devfs, 14, "fat%d:/", fs_fat_k);
+                _attach_fs (k, &flag, &fs_fat_k, FS_TFAT, devfs);
                 NPrintf ("rootfs_probe attach fat%d: on dev %d\n", rootfs[k].fs_idx, k);
                 //move on, this is taken now
                 continue;
@@ -308,47 +322,42 @@ int rootfs_probe ()
                 NPrintf ("!rootfs_probe attach fat%d: on dev %d, res %d, res2 %d\n", fs_fat_k, k, res, res2);
             }
             //probe NTFS
+            if (mounts[k] == NULL)
+            {
+                int ntfsParts = ntfsMountDevice (disc_ntfs[k], &mounts[k], NTFS_DEFAULT | NTFS_RECOVER);
+                NPrintf ("rootfs_probe attach ntfs%d: on dev %d, count %d\n", fs_ntfs_k, k, ntfsParts);
+                if (ntfsParts > 0)
+                {
+                    rootfs[k].fs_parts = ntfsParts;
+                    //mount ONLY first partition
+                    if((mounts[k])->name[0])
+                    {
+                        snprintf (devfs, 14, "%s:/", (mounts[k])->name);
+                        if(strncmp((mounts[k])->name, "ext", 3))
+                            _attach_fs (k, &flag, &fs_ext_k, FS_TEXT, devfs);
+                        else
+                            _attach_fs (k, &flag, &fs_ntfs_k, FS_TNTFS, devfs);
+                        NPrintf ("rootfs_probe attach %s: on dev %d (%d)\n", rootfs[k].fs, k, rootfs[k].fs_idx);
+                        #if 0
+                        //stat for free space
+                        struct statvfs vfs;
+                        u64 freeSpace = 0;
+                        snprintf (devfs, 14, "/%s:/", (mounts[k])->name);
+                        if (!ps3ntfs_statvfs (devfs, &vfs) < 0)
+                            freeSpace = (((u64)vfs.f_bsize * vfs.f_bfree));
+                        NPrintf ("rootfs_probe attach %s: on dev %d (%d), free %lluMB\n", rootfs[k].fs, k, rootfs[k].fs_idx, freeSpace/MBSZ);
+                        #endif
+                    }
+                    //move on, this is taken now
+                    continue;
+                }
+            }
             //probe EXT
-        }
+        } //if nothing is mounted on the USB drive
     }
     //
-    //probe NTFS/EXT
-    for(i = 0; i < 8; i++)
-    {
-        if (mountCount[i] == 0)
-        {
-            mountCount[i] = ntfsMountDevice (disc_ntfs[i], &mounts[i], NTFS_DEFAULT | NTFS_RECOVER);
-            if (mountCount[i])
-            {
-                //mount ONLY first partition
-                if((mounts[i])->name[0])
-                {
-                    for (k = 0; k < mountCount[i]; k++)
-                    {
-                        if((mounts[i]+k)->name[0])
-                        {
-                            snprintf (devfs, 8, "%s:/", (mounts[i]+k)->name);
-                            rootfs[9+i].devid = rootfs[i+1].devid;
-                            rootfs[9+i].fs = strdup (devfs);
-                            rootfs[9+i].fs_type = FS_TNTFS;
-                            rootfs[9+i].fs_idx = i;
-                            flag++;
-                            break;
-                            //stat for free space
-                            //struct statvfs vfs;
-                            //u64 freeSpace = 0;
-                            //snprintf (devfs, 8, "/%s:/", (mounts[k])->name);
-                            //if (!ps3ntfs_statvfs (devfs, &vfs) < 0)
-                            //    freeSpace = (((u64)vfs.f_bsize * vfs.f_bfree));
-                            //NPrintf ("rootfs_probe attach ntfs%d: on dev %d as %s, free %lluMB\n", rootfs[k].fs_idx, k, rootfs[k].fs, freeSpace/MBSZ);
-                        }
-                    }
-                }
-                //move on, this is taken now
-                continue;
-            }
-        }
-    }
+    NPrintf ("rootfs_probe out mounted: %dFAT %dNTFS %dEXT3\n", fs_fat_k, fs_ntfs_k, fs_ext_k);
+    //
     return flag;
 }
 
@@ -387,7 +396,7 @@ int fs_path_scan (struct fm_panel *p)
         //else if (strncmp (p->path, "ext", 3) == 0)
         case FS_TEXT:
         {
-            return 1;//ext_scan_path (p);
+            return ext_scan_path (p);
         }
         //scan NTFS path
         //else if (strncmp (p->path, "ntfs", 4) == 0)
@@ -405,7 +414,7 @@ int fs_path_scan (struct fm_panel *p)
     return 0;
 }
 
-int sys_scan_path (struct fm_panel *p)
+static int sys_scan_path (struct fm_panel *p)
 {
     char lp[256];
 	int dfd;
@@ -446,7 +455,7 @@ int sys_scan_path (struct fm_panel *p)
     return 0;
 }
 
-int fat_scan_path (struct fm_panel *p)
+static int fat_scan_path (struct fm_panel *p)
 {
     char lp[256];
     FRESULT res = 0;
@@ -493,7 +502,7 @@ int fat_scan_path (struct fm_panel *p)
     return res;
 }
 
-int ntfs_scan_path (struct fm_panel *p)
+static int ntfs_scan_path (struct fm_panel *p)
 {
     char lp[256];
     DIR_ITER *pdir = NULL;
@@ -538,12 +547,12 @@ int ntfs_scan_path (struct fm_panel *p)
     return 0;
 }
 
-int sys_job_scan (struct fm_job *p, char *path)
+static int sys_job_scan (struct fm_job *p, char *path)
 {
     char lp[256];
-	int dfd;
-	u64 read;
-	sysFSDirent dir;
+    int dfd;
+    u64 read;
+    sysFSDirent dir;
     sysFSStat stat;
     int res = sysLv2FsOpenDir (path, &dfd);
     if (res)
@@ -555,17 +564,17 @@ int sys_job_scan (struct fm_job *p, char *path)
         if (res >= 0)
             //fm_job_add (p, dir.d_name, 0, stat.st_size);
             fm_job_add (p, path, 0, stat.st_size);
-		return res;
+        return res;
     }
     //add dir
     fm_job_add (p, path, 1, 0);
     //
     for (; !sysLv2FsReadDir (dfd, &dir, &read); )
     {
-		if (!read)
-			break;
-		if (!strcmp (dir.d_name, ".") || !strcmp (dir.d_name, ".."))
-			continue;
+        if (!read)
+            break;
+        if (!strcmp (dir.d_name, ".") || !strcmp (dir.d_name, ".."))
+            continue;
         //
         snprintf (lp, 255, "%s/%s", path, dir.d_name);
         if (dir.d_type & DT_DIR)
@@ -664,7 +673,8 @@ int fat_job_scan (struct fm_job *p, char *path)
     return res;
 }
 
-int ntfs_job_scan (struct fm_job *p, char *path)
+
+static int ntfs_job_scan (struct fm_job *p, char *path)
 {
     char lp[256];
     DIR_ITER *pdir = NULL;

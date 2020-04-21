@@ -38,6 +38,7 @@ struct fm_panel {
     //
     int files;
     int dirs;
+    int sels;
     unsigned long long fsize;
 };
 
@@ -63,9 +64,9 @@ int fm_job_add (struct fm_job *p, char *fn, char dir, unsigned long fsz);
 //clear file management job
 int fm_job_clear (struct fm_job *job);
 //copy files/dirs from source to destination
-int fm_job_copy (char *src, char *dst, int (*ui_render)(int dt));
+int fm_job_copy (struct fm_panel *p, char *src, char *dst, int (*ui_render)(int dt));
 //remove files/dirs from source
-int fm_job_delete (char *src, int (*ui_render)(int dt));
+int fm_job_delete (struct fm_panel *p, char *src, int (*ui_render)(int dt));
 int fm_job_rename (char *path, char *old, char *new);
 //
 int fm_job_newdir (char *path, char *new);
@@ -73,6 +74,7 @@ int fm_job_newdir (char *path, char *new);
 int fm_status_draw (int dat);
 //set status message for index
 int fm_status_set (char *sm, int idx, int col);
+void fm_toggle_selection (struct fm_panel *p);
 
 int fm_panel_enter (struct fm_panel *p);
 int fm_panel_exit (struct fm_panel *p);

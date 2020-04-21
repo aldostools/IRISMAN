@@ -10,7 +10,7 @@
 #include <io/pad.h>
 #include <osk_input.h>
 #define SUCCESS 	1
-#define FAILED	 	0
+#define FAILED		0
 
 #include <tiny3d.h>
 #include <libfont.h>
@@ -126,9 +126,9 @@ int fmapp_init (int dt)
     //
     tiny3d_Init (1024*1024);
     //
-	ioPadInit (7);
+    ioPadInit (7);
     //
-	// Load texture
+    // Load texture
     LoadTexture ();
     //
     //DbgHeader("FATFS EXFAT Example");
@@ -283,12 +283,18 @@ int fmapp_update(int dat)
     //cross - action: enter dir
     else if (NPad (BUTTON_CROSS))
     {
-        fm_panel_enter (app_active_panel ());
+        if(fm_panel_enter (app_active_panel ()))
+            fm_toggle_selection (app_active_panel ());
     }
     else if (NPad (BUTTON_R3))
     {
         return -1;
     }
+    else if (NPad (BUTTON_L2))
+    {
+        fm_toggle_selection (app_active_panel ());
+    }
+
     //files delete
     else if (NPad (BUTTON_TRIANGLE))
     {
@@ -296,8 +302,29 @@ int fmapp_update(int dat)
         struct fm_panel *ps = app_active_panel ();
         if (ps->path)
         {
-            snprintf (sp, CBSIZE, "%s/%s", ps->path, ps->current->name);
-            fm_job_delete (sp, &fmapp_render);
+            //remove files - 2do: show dialog box for confirmation
+            if(ps->sels)
+            {
+                snprintf (sp, CBSIZE, "Do you want to delete the %u selected items?", ps->sels);
+                if (YesNoDialog(sp) == 1)
+                {
+                    struct fm_file *ptr = ps->entries;
+                    for (; ptr != NULL; ptr = ptr->next)
+                    {
+                       if(ptr->selected)
+                       {
+                           snprintf (sp, CBSIZE, "%s/%s", ps->path, ptr->name);
+                           if(fm_job_delete (ps, sp, &fmapp_render) == 0)
+                               {ptr->selected = FALSE; ps->sels--;}
+                       }
+                    }
+                }
+            }
+            else
+            {
+                snprintf (sp, CBSIZE, "%s/%s", ps->path, ps->current->name);
+                fm_job_delete (ps, sp, &fmapp_render);
+            }
             //reload for content refresh
             fm_panel_reload (ps);
         }
@@ -311,9 +338,30 @@ int fmapp_update(int dat)
         struct fm_panel *pd = app_inactive_panel ();
         if (ps->path && pd->path)
         {
-            snprintf (sp, CBSIZE, "%s/%s", ps->path, ps->current->name);
-            snprintf (dp, CBSIZE, "%s/", pd->path);
-            fm_job_copy (sp, dp, &fmapp_render);
+            if(ps->sels)
+            {
+                snprintf (sp, CBSIZE, "Do you want to copy the %u selected items?", ps->sels);
+                if (YesNoDialog(sp) == 1)
+                {
+                   struct fm_file *ptr = ps->entries;
+                   for (; ptr != NULL; ptr = ptr->next)
+                   {
+                      if(ptr->selected)
+                      {
+                          snprintf (sp, CBSIZE, "%s/%s", ps->path, ptr->name);
+                          snprintf (dp, CBSIZE, "%s/", pd->path);
+                          if(fm_job_copy (ps, sp, dp, &fmapp_render) == 0)
+                              {ptr->selected = FALSE; ps->sels--;}
+                      }
+                   }
+                }
+            }
+            else
+            {
+                snprintf (sp, CBSIZE, "%s/%s", ps->path, ps->current->name);
+                snprintf (dp, CBSIZE, "%s/", pd->path);
+                fm_job_copy (ps, sp, dp, &fmapp_render);
+            }
             //reload inactive panel for content refresh
             fm_panel_reload (app_inactive_panel ());
         }
@@ -373,18 +421,18 @@ int fmapp_cleanup(int dat)
 s32 fmapp_run()
 {
     //1 init
-	fmapp_init (0);
+    fmapp_init (0);
     _fmapp_restore (0);
-	// Ok, everything is setup. Now for the main loop.
-	while(1)
+    // Ok, everything is setup. Now for the main loop.
+    while(1)
     {
         //3
         if (fmapp_update (0) == -1)
             break;
-		//4
+        //4
         //cls ();
         fmapp_render (0);
-	}
+    }
     //5
     fmapp_cleanup (0);
     //

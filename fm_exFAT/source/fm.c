@@ -22,6 +22,8 @@
 #include "ff.h"
 #include "ntfs.h"
 
+static int frame = 0;
+
 //status message
 static char *s_msg[STATUS_H] = {NULL, NULL, NULL, NULL};
 //status message text color
@@ -56,6 +58,18 @@ int fm_status_draw (int dat)
             DrawString (0, (PANEL_H + i) * 8, s_msg[i]);
     }
     return 0;
+}
+
+void fm_toggle_selection (struct fm_panel *p)
+{
+    if (p->path)
+    {
+        p->current->selected ^= 1;
+        if(p->current->selected)
+           p->sels++;
+        else
+           p->sels--;
+    }
 }
 
 //enter current dir
@@ -173,6 +187,7 @@ int fm_panel_clear (struct fm_panel *p)
     p->files = 0;
     p->dirs = 0;
     p->fsize = 0;
+    p->sels = 0;
     //
     return 0;
 }
@@ -240,6 +255,11 @@ int fm_job_list (char *path)
 
 int fm_file_copy (char *src, char *dst, char srct, char dstt, unsigned long long ssz, int (*ui_render)(int dt))
 {
+    if(strcmp(src, dst) == 0)
+    {
+        NPrintf ("!fm_file_copy same source & destination %s\n", src);
+        return -1;
+    }
     FATFS fs;      /* Work area (filesystem object) for logical drives */
     int fsx = 0;
     BYTE *buffer = NULL;    // File copy buffer
@@ -257,7 +277,7 @@ int fm_file_copy (char *src, char *dst, char srct, char dstt, unsigned long long
     buffer = malloc (BSZ);
     if (buffer == NULL)
     {
-        NPrintf ("!failed to allocate buffer of %dbytes\n", BSZ);
+        NPrintf ("!fm_file_copy: failed to allocate buffer of %dbytes\n", BSZ);
         return -1;
     }
     //prepare source
@@ -283,24 +303,20 @@ int fm_file_copy (char *src, char *dst, char srct, char dstt, unsigned long long
             if (sysFsOpen (src, SYS_O_RDONLY, &f2src, NULL, 0))
             {
                 NPrintf ("!fm_file_copy: SYS src open %s\n", src);
-	            ret = -1;
+                ret = -1;
             }
             else
                 src_ok = 1;
         }
         break;
         case FS_TEXT:
-        {
-            
-        }
-        break;
         case FS_TNTFS:
         {
             fd3src = ps3ntfs_open (src, O_RDONLY, 0);
             if (fd3src < 0)
             {
                 NPrintf ("!fm_file_copy: NTFS src open %s\n", src);
-	            ret = -1;
+                ret = -1;
             }
             else
                 src_ok = 1;
@@ -344,17 +360,13 @@ int fm_file_copy (char *src, char *dst, char srct, char dstt, unsigned long long
         }
         break;
         case FS_TEXT:
-        {
-            
-        }
-        break;
         case FS_TNTFS:
         {
             fd3dst = ps3ntfs_open (dst, O_WRONLY | O_CREAT | O_TRUNC, 0);
             if (fd3dst < 0)
             {
                 NPrintf ("!fm_file_copy: NTFS dst create %s\n", dst);
-	            ret = -1;
+                ret = -1;
             }
             else
                 dst_ok = 1;
@@ -392,10 +404,6 @@ int fm_file_copy (char *src, char *dst, char srct, char dstt, unsigned long long
                 }
                 break;
                 case FS_TEXT:
-                {
-                    
-                }
-                break;
                 case FS_TNTFS:
                 {
                     br = ps3ntfs_read (fd3src, (char *)buffer, (size_t)BSZ);
@@ -430,13 +438,9 @@ int fm_file_copy (char *src, char *dst, char srct, char dstt, unsigned long long
                 }
                 break;
                 case FS_TEXT:
-                {
-                    
-                }
-                break;
                 case FS_TNTFS:
                 {
-                   bw = ps3ntfs_write (fd3dst, (char *)buffer, (size_t) br);
+                    bw = ps3ntfs_write (fd3dst, (char *)buffer, (size_t) br);
                 }
                 break;
             }
@@ -455,7 +459,7 @@ int fm_file_copy (char *src, char *dst, char srct, char dstt, unsigned long long
             //performance
             uint mbps = (dsz / MBSZ) / (timee - times);
             //time left
-            //xM .. ySEC > tM .. ?SEC >> 
+            //xM .. ySEC > tM .. ?SEC >>
             uint etae = 0;
             if (ssz && mbps)
                 etae = (ssz - dsz) / MBSZ / mbps;
@@ -503,10 +507,6 @@ int fm_file_copy (char *src, char *dst, char srct, char dstt, unsigned long long
         }
         break;
         case FS_TEXT:
-        {
-            
-        }
-        break;
         case FS_TNTFS:
         {
             if (src_ok)
@@ -535,10 +535,6 @@ int fm_file_copy (char *src, char *dst, char srct, char dstt, unsigned long long
         }
         break;
         case FS_TEXT:
-        {
-            
-        }
-        break;
         case FS_TNTFS:
         {
             if (dst_ok)
@@ -558,7 +554,7 @@ int fm_file_copy (char *src, char *dst, char srct, char dstt, unsigned long long
     return ret;
 }
 
-int fm_job_copy (char *src, char *dst, int (*ui_render)(int dt))
+int fm_job_copy (struct fm_panel *p, char *src, char *dst, int (*ui_render)(int dt))
 {
     struct fm_job fmjob;
     struct fm_job *job = &fmjob;
@@ -603,9 +599,16 @@ int fm_job_copy (char *src, char *dst, int (*ui_render)(int dt))
     //freeSize = (((u64)vfs.f_bsize * vfs.f_bfree));
     //FAT
     //
-    snprintf (lp, CBSIZE, "Do you want to copy the selected files and folders?\n\n%u items, %uMB", job->files + job->dirs, (uint)(job->fsize/MBSZ));
-    if (1 != YesNoDialog (lp))
-        return fm_job_clear (job);
+    if(p->sels == 0)
+    {
+        if(job->files)
+          snprintf (lp, CBSIZE, "Do you want to copy the selected file of %uMB?", (uint)(job->fsize/MBSZ));
+        else
+          snprintf (lp, CBSIZE, "Do you want to copy the selected folder?\n\n%u items, %uMB", job->dirs, (uint)(job->fsize/MBSZ));
+
+        if (1 != YesNoDialog (lp))
+            return fm_job_clear (job);
+    }
     //
     snprintf (lp, CBSIZE, "copy job: %dfiles, %ddirs, %lluMB to %s", job->files, job->dirs, job->fsize/MBSZ, job->dpath);
     fm_status_set (lp, 0, 0xeeeeeeFF);
@@ -679,10 +682,6 @@ int fm_job_copy (char *src, char *dst, int (*ui_render)(int dt))
                     }
                     break;
                     case FS_TEXT:
-                    {
-                        
-                    }
-                    break;
                     case FS_TNTFS:
                     {
                         if ((ret = ps3ntfs_mkdir (dp, 0777)))
@@ -783,10 +782,6 @@ int fm_job_rename (char *path, char *old, char *new)
         }
         break;
         case FS_TEXT:
-        {
-            
-        }
-        break;
         case FS_TNTFS:
         {
             char *npath = path + nsp;
@@ -798,7 +793,7 @@ int fm_job_rename (char *path, char *old, char *new)
             snprintf (np, CBSIZE, "%s/%s", npath, new);
             //
             if ((ret = ps3ntfs_rename (op, np)))
-                NPrintf ("!fm_job_delete: NTFS can't rename %s to %s in %s res %d\n", old, new, npath, ret);
+                NPrintf ("!fm_job_rename: NTFS can't rename %s to %s in %s res %d\n", old, new, npath, ret);
             //
             snprintf (lp, CBSIZE, "job: NTFS rename %s to %s in %s: %s", old, new, npath, ret?"KO":"OK");
             fm_status_set (lp, 3, ret?0xff0000FF:0x00ff00FF);
@@ -852,10 +847,6 @@ int fm_job_newdir (char *path, char *new)
         }
         break;
         case FS_TEXT:
-        {
-            
-        }
-        break;
         case FS_TNTFS:
         {
             char *npath = path + nsp;
@@ -876,7 +867,7 @@ int fm_job_newdir (char *path, char *new)
     return ret;
 }
 
-int fm_job_delete (char *src, int (*ui_render)(int dt))
+int fm_job_delete (struct fm_panel *p, char *src, int (*ui_render)(int dt))
 {
     struct fm_job fmjob;
     struct fm_job *job = &fmjob;
@@ -911,9 +902,15 @@ int fm_job_delete (char *src, int (*ui_render)(int dt))
     //
     char lp[CBSIZE];
     //remove files - 2do: show dialog box for confirmation
-    snprintf (lp, CBSIZE, "Do you want to delete the selected Files and Folders?\n\n%u items, %uMB", job->files + job->dirs, (uint)(job->fsize/MBSZ));
-    if (1 != YesNoDialog(lp))
-        return fm_job_clear (job);
+    if(p->sels == 0)
+    {
+        if(job->files)
+          snprintf (lp, CBSIZE, "Do you want to delete the selected file of %uMB?", (uint)(job->fsize/MBSZ));
+        else
+          snprintf (lp, CBSIZE, "Do you want to delete the selected folder?\n\n%u items, %uMB", job->dirs, (uint)(job->fsize/MBSZ));
+        if (1 != YesNoDialog(lp))
+            return fm_job_clear (job);
+    }
     snprintf (lp, CBSIZE, "delete job: %dfiles, %ddirs, %lluMB from %s", job->files, job->dirs, job->fsize/MBSZ, job->spath);
     fm_status_set (lp, 0, 0xeeeeeeFF);
     DoubleProgressBarDialog (lp);
@@ -980,10 +977,6 @@ int fm_job_delete (char *src, int (*ui_render)(int dt))
             }
             break;
             case FS_TEXT:
-            {
-                
-            }
-            break;
             case FS_TNTFS:
             {
                 snprintf (lp, CBSIZE, "job: NTFS delete file/dir %s", ptr->name);
@@ -1186,7 +1179,15 @@ int fm_panel_draw (struct fm_panel *p)
         {
             DrawRect2d (p->x, p->y + 8 + k * 8, 0, p->w, 8, 0x787878ff);
             //
-            fname[0] = '>';
+            if(++frame > 30)
+            {
+               fname[0] = (ptr->selected) ? '>' : ' ';
+               if(frame > 60) frame = 0;
+            }
+            else if (ptr->selected && p->active)
+               fname[0] = '*';
+            else
+               fname[0] = '>';
             fm_fname_get (ptr, 51, fname + 1);
             DrawString (p->x, p->y + 8 + k * 8, fname);
         }
@@ -1237,21 +1238,21 @@ int fm_panel_draw (struct fm_panel *p)
 static int add_before (struct fm_panel *p, struct fm_file *link, struct fm_file *next)
 {
     /* 4. Make prev of new node as prev of next_node */
-    link->prev = next->prev;  
-  
+    link->prev = next->prev;
+
     /* 5. Make the prev of next_node as new_node */
-    next->prev = link;  
-  
+    next->prev = link;
+
     /* 6. Make next_node as next of new_node */
-    link->next = next;  
-  
+    link->next = next;
+
     /* 7. Change next of new_node's previous node */
-    if (link->prev != NULL)  
-        link->prev->next = link;  
-    /* 8. If the prev of new_node is NULL, it will be 
+    if (link->prev != NULL)
+        link->prev->next = link;
+    /* 8. If the prev of new_node is NULL, it will be
        the new head node */
     else
-        (p->entries) = link; 
+        (p->entries) = link;
     return 0;
 }
 
@@ -1411,14 +1412,14 @@ int fm_panel_del (struct fm_panel *p, char *fn)
     {
         //printf("Linked List not initialized");
         return -1;
-    } 
+    }
     struct fm_file *current = p->entries;
     pre_node = current;
-    while (current->next != NULL && strcmp (current->name, fn) != 0) 
+    while (current->next != NULL && strcmp (current->name, fn) != 0)
     {
         pre_node = current;
         current = current->next;
-    }        
+    }
 
     if (strcmp (current->name, fn) == 0)
     {
