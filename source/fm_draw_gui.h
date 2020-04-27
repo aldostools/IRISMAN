@@ -1,3 +1,31 @@
+static char help1[] = {
+    "HELP - [ File Manager ]\n"
+    "\n"
+    "SELECT + START - Exit\n"
+    "CROSS - Action for files/folders (Opens Hex Editor if selected)\n"
+    "\n"
+    "TRIANGLE - Opens menu selector (from the device)\n"
+    "SQUARE - Single item selection\n"
+    "SELECT + SQUARE - Select/Deselect all files/folders\n"
+    "\n"
+    "UP/DOWN - Move the cursor\n"
+    "L1/R1 - Move the cursor by page\n"
+    "LEFT/RIGHT - Switch window.\n"
+    "SELECT+LEFT/RIGHT - Open current directory in the other window\n"
+    "\n"
+    "L2+R2 - Switch the window split mode (Vertical/Horizontal)\n"
+    "L3/R3 - Changes to different frequently used paths\n"
+};
+
+static void display_icon(int x, int y, int z, int icon)
+{
+    tiny3d_SetTextureWrap(0, Png_res_offset[7 + icon], Png_res[7 + icon].width,
+                          Png_res[7 + icon].height, Png_res[7 + icon].wpitch,
+                          TINY3D_TEX_FORMAT_A8R8G8B8,  TEXTWRAP_CLAMP, TEXTWRAP_CLAMP,1);
+
+    DrawTextBox(x+2, y, z, 18, 18, WHITE);
+}
+
 void draw_file_manager()
 {
         tiny3d_Flip();

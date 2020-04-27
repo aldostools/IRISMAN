@@ -64,6 +64,8 @@ int isDir(char* path );
 int zip_directory(const char* basedir, const char* inputdir, const char* output_filename);
 int extract_zip(const char* zip_file, const char* dest_path);
 
+void launch_luaplayer(char *lua_path);
+
 int sys_game_get_temperature(int sel, u32 *temperature);
 void draw_device_mkiso(float x, float y, int index, char *path);
 void load_background_picture();
@@ -169,7 +171,6 @@ int sel2 = 0;
 #define MAX_PATH_LEN   0x420
 
 static int audio_pane = 0;
-
 static char audio_file[MAX_PATH_LEN];
 
 static char path1[MAX_PATH_LEN];
@@ -177,6 +178,10 @@ static char path2[MAX_PATH_LEN];
 
 static bool update_devices1 = false;
 static bool update_devices2 = false;
+
+static int FullScreen = 0;
+static int png_signal = 0;
+static int exitcode = 0;
 
 static int update_device_sizes = 1|2; // flags to update the free device space calling to the function (1-> win1  | 2 -> win2)
 
@@ -186,40 +191,43 @@ u64 hex_filesize = 0;
 
 #define MAX_ENTRIES 2048
 
-sysFSDirent entries1[MAX_ENTRIES];
-sysFSDirent entries2[MAX_ENTRIES];
+static int tick1_move = 0;
+static int tick2_move = 0;
 
-int entries1_type[MAX_ENTRIES];
-int entries2_type[MAX_ENTRIES];
+static sysFSDirent entries1[MAX_ENTRIES];
+static sysFSDirent entries2[MAX_ENTRIES];
 
-s64 entries1_size[MAX_ENTRIES];
-s64 entries2_size[MAX_ENTRIES];
+static int entries1_type[MAX_ENTRIES];
+static int entries2_type[MAX_ENTRIES];
 
-int nentries1, nentries2;
-int selcount1, selcount2;
-s64 selsize1, selsize2;
+static s64 entries1_size[MAX_ENTRIES];
+static s64 entries2_size[MAX_ENTRIES];
 
-MATRIX mat_unit, mat_win1, mat_win2;
+static int nentries1, nentries2;
+static int selcount1, selcount2;
+static s64 selsize1, selsize2;
 
-u32 frame = 300;
-int fm_pane = 0;
+static MATRIX mat_unit, mat_win1, mat_win2;
 
-bool is_vsplit;
+static u32 frame = 300;
+static int fm_pane = 0;
 
-int set_menu2 = 0;
+static bool is_vsplit;
 
-int change_path1 = 0, change_path2 = 0;
+static int set_menu2 = 0;
 
-sysFSStat stat1;
-sysFSStat stat2;
+static int change_path1 = 0, change_path2 = 0;
 
-u64 free_device1 = 0ULL;
-u64 free_device2 = 0ULL;
+static sysFSStat stat1;
+static sysFSStat stat2;
+
+static u64 free_device1 = 0ULL;
+static u64 free_device2 = 0ULL;
 ////////////////
 
-u64 pos = 0;
-u64 readed = 0;
-int e_x = 0, e_y = 0;
+static u64 pos = 0;
+static u64 readed = 0;
+static int e_x = 0, e_y = 0;
 
 #define MSG_HOW_TO_UNMOUNT_DEVICE  " (USB_00%i) Press SELECT + [] to Unmount USB device"
 
@@ -523,192 +531,6 @@ static bool test_mark_flags(sysFSDirent *ent, int nent, int *nmarked)
     return ret;
 }
 #endif
-
-static void browse_file(char *ext, char *path, char *filename)
-{
-    if(strcasecmp(ext, ".html") == SUCCESS || strcasecmp(ext, ".htm") == SUCCESS)
-        sprintf(TEMP_PATH, "http://127.0.0.1%s/%s", path, filename);
-    else
-    {
-        sprintf(TEMP_PATH, "%s/USRDIR/temp.txt", self_path);
-        unlink_secure(TEMP_PATH);
-
-        sprintf(TEMP_PATH, "%s/USRDIR/temp.html", self_path);
-        unlink_secure(TEMP_PATH);
-
-        FILE *fd;
-
-        fd = fopen(TEMP_PATH, "w");
-
-        if(!strcasecmp(ext, ".cfg"))
-        {
-            sprintf(TEMP_PATH1, "%s/%s", path1, filename);
-            sprintf(TEMP_PATH2, "%s/USRDIR/temp.txt", self_path);
-            CopyFile(TEMP_PATH1, TEMP_PATH2);
-
-            sprintf(temp_buffer, "<body bgcolor=white text=blue leftmargin=0 rightmargin=0><font size=5>%s</font></br><iframe src='http://127.0.0.1/%s' border=0 ",
-                    filename, TEMP_PATH1);
-        }
-        else
-            sprintf(temp_buffer, "<body bgcolor=white text=blue leftmargin=0 rightmargin=0><font size=5>%s</font></br><iframe src='http://127.0.0.1/%s/%s' border=0 ",
-                    filename, path, filename);
-
-        strcat(temp_buffer, "width=100% height=100%></body>");
-        fputs (temp_buffer, fd);
-        fclose(fd);
-
-        sprintf(TEMP_PATH, "http://127.0.0.1/%s/USRDIR/temp.html", self_path);
-    }
-
-    char* launchargv[2];
-    memset(launchargv, 0, sizeof(launchargv));
-
-    int len = strlen(temp_buffer);
-    launchargv[0] = (char*)malloc(len + 1); strcpy(launchargv[0], TEMP_PATH);
-    launchargv[1] = NULL;
-
-    char self[256];
-    sprintf(self, "%s/USRDIR/browser.self", self_path);
-
-    if(file_exists(self))
-    {
-        fun_exit();
-        SaveGameList();
-
-        sysProcessExitSpawn2((const char*)self, (char const**)launchargv, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
-    }
-}
-
-static int toggle_path_l3(char *path1, char *path2, int change_path)
-{
-    ROT_INC(change_path, 6, 0);
-
-    switch(change_path)
-    {
-        case 0:
-            if((path1[1] != 0))
-            {
-                strcpy(path1, "/");
-                break;
-            }
-            else
-                change_path++;
-        case 1:
-            if(strcmp(path1, "/dev_usb000") != SUCCESS && file_exists("/dev_usb000"))
-            {
-                strcpy(path1, "/dev_usb000");
-                break;
-            }
-            else
-                change_path++;
-        case 2:
-            if(strcmp(path1, "/dev_usb001") != SUCCESS && file_exists("/dev_usb001"))
-            {
-                strcpy(path1, "/dev_usb001");
-                break;
-            }
-            else
-                change_path++;
-        case 3:
-            if(strcmp(path1, "/dev_usb006") != SUCCESS && file_exists("/dev_usb006"))
-            {
-                strcpy(path1, "/dev_usb006");
-                break;
-            }
-            else
-                change_path++;
-        case 4:
-            if(strcmp(path1, "/dev_bdvd") != SUCCESS && file_exists("/dev_bdvd"))
-            {
-                strcpy(path1, "/dev_bdvd");
-                break;
-            }
-            else
-                change_path++;
-        case 5:
-            if(strcmp(path1, self_path) != SUCCESS && file_exists(self_path))
-            {
-                strcpy(path1, self_path);
-                break;
-            }
-            else
-                change_path++;
-        default:
-            if(strcmp(path1, path2) != SUCCESS && file_exists(path2))
-            {
-                strcpy(path1, path2);
-                break;
-            }
-            else
-                {change_path = 0; strcpy(path1, "/");}
-    }
-    return change_path;
-}
-static int toggle_path_r3(char *path1, char *path2, int change_path)
-{
-    ROT_INC(change_path, 6, 0);
-
-    switch(change_path)
-    {
-        case 0:
-            if(strcmp(path1, "/dev_hdd0") != SUCCESS && file_exists("/dev_hdd0"))
-            {
-                strcpy(path1, "/dev_hdd0");
-                break;
-            }
-            else
-                change_path++;
-        case 1:
-            if(strcmp(path1, "/dev_hdd0/PS3ISO") != SUCCESS && file_exists("/dev_hdd0/PS3ISO"))
-            {
-                strcpy(path1, "/dev_hdd0/PS3ISO");
-                break;
-            }
-            else
-                change_path++;
-        case 2:
-            if(strcmp(path1, "/dev_hdd0/GAMES") != SUCCESS && file_exists("/dev_hdd0/GAMES"))
-            {
-                strcpy(path1, "/dev_hdd0/GAMES");
-                break;
-            }
-            else
-                change_path++;
-        case 3:
-            if(strcmp(path1, "/dev_hdd0/game") != SUCCESS && file_exists("/dev_hdd0/game"))
-            {
-                strcpy(path1, "/dev_hdd0/game");
-                break;
-            }
-            else
-                change_path++;
-        case 4:
-            if(strcmp(path1, "/dev_hdd0/packages") != SUCCESS && file_exists("/dev_hdd0/packages"))
-            {
-                strcpy(path1, "/dev_hdd0/packages");
-                break;
-            }
-            else
-                change_path++;
-        case 5:
-            if(strcmp(path1, "/dev_hdd0/home") != SUCCESS && file_exists("/dev_hdd0/home"))
-            {
-                strcpy(path1, "/dev_hdd0/home");
-                break;
-            }
-            else
-                change_path++;
-        default:
-            if(strcmp(path1, path2) != SUCCESS  && file_exists(path2) )
-            {
-                strcpy(path1, path2);
-                break;
-            }
-            else
-                {change_path = 0; strcpy(path1, "/dev_hdd0");}
-    }
-    return change_path;
-}
 
 static int reset_copy = 1;
 
@@ -1046,39 +868,687 @@ void draw_file_manager() {}
 int file_manager(char *pathw1, char *pathw2) {return 0;}
 #else
 
-static char help1[] = {
-    "HELP - [ File Manager ]\n"
-    "\n"
-    "SELECT + START - Exit\n"
-    "CROSS - Action for files/folders (Opens Hex Editor if selected)\n"
-    "\n"
-    "TRIANGLE - Opens menu selector (from the device)\n"
-    "SQUARE - Single item selection\n"
-    "SELECT + SQUARE - Select/Deselect all files/folders\n"
-    "\n"
-    "UP/DOWN - Move the cursor\n"
-    "L1/R1 - Move the cursor by page\n"
-    "LEFT/RIGHT - Switch window.\n"
-    "SELECT+LEFT/RIGHT - Open current directory in the other window\n"
-    "\n"
-    "L2+R2 - Switch the window split mode (Vertical/Horizontal)\n"
-    "L3/R3 - Changes to different frequently used paths\n"
-};
-
 static char cur_path1[MAX_PATH_LEN];
 static char cur_path2[MAX_PATH_LEN];
 
-static void display_icon(int x, int y, int z, int icon)
-{
-    tiny3d_SetTextureWrap(0, Png_res_offset[7 + icon], Png_res[7 + icon].width,
-                          Png_res[7 + icon].height, Png_res[7 + icon].wpitch,
-                          TINY3D_TEX_FORMAT_A8R8G8B8,  TEXTWRAP_CLAMP, TEXTWRAP_CLAMP,1);
-
-    DrawTextBox(x+2, y, z, 18, 18, WHITE);
-}
-
 #include "fm_draw_gui.h"
 #include "fm_hex_editor.h"
+
+static void extract_file(char *path1, char *path2, char *filename)
+{
+    char *dest_path = (old_pad & BUTTON_SELECT) ? path1 : path2;
+
+    if(!(old_pad & BUTTON_SELECT) && !strncmp(filename, "dev_", 4))
+    {
+        int len = sprintf(TEMP_PATH, "/%s", filename);
+        for(int i = 0; i < len; i++) if(*(TEMP_PATH + i) == '~') *(TEMP_PATH + i) = '/';
+        *(TEMP_PATH + len - 4) = 0; // remove .zip
+        dest_path = TEMP_PATH;
+    }
+
+    sprintf(MEM_MESSAGE, "Do you want to extract %s to %s?", filename, dest_path);
+    if(DrawDialogYesNo(MEM_MESSAGE) == YES)
+    {
+        sprintf(TEMP_PATH1, "%s/%s", path1, filename);
+        sprintf(TEMP_PATH2, "%s/", dest_path);
+
+        msgDialogAbort();
+        sprintf(MEM_MESSAGE, "Extracting %s...\nTo: %s", filename, dest_path);
+        DrawDialogTimer(MEM_MESSAGE, 500.0f);
+
+        extract_zip(TEMP_PATH1, TEMP_PATH2);
+        {update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
+        frame = 300; //force immediate refresh
+    }
+}
+
+static void browse_file(char *ext, char *path, char *filename)
+{
+    if(strcasecmp(ext, ".html") == SUCCESS || strcasecmp(ext, ".htm") == SUCCESS)
+        sprintf(TEMP_PATH, "http://127.0.0.1%s/%s", path, filename);
+    else
+    {
+        sprintf(TEMP_PATH, "%s/USRDIR/temp.txt", self_path);
+        unlink_secure(TEMP_PATH);
+
+        sprintf(TEMP_PATH, "%s/USRDIR/temp.html", self_path);
+        unlink_secure(TEMP_PATH);
+
+        FILE *fd;
+
+        fd = fopen(TEMP_PATH, "w");
+
+        if(!strcasecmp(ext, ".cfg"))
+        {
+            sprintf(TEMP_PATH1, "%s/%s", path1, filename);
+            sprintf(TEMP_PATH2, "%s/USRDIR/temp.txt", self_path);
+            CopyFile(TEMP_PATH1, TEMP_PATH2);
+
+            sprintf(temp_buffer, "<body bgcolor=white text=blue leftmargin=0 rightmargin=0><font size=5>%s</font></br><iframe src='http://127.0.0.1/%s' border=0 ",
+                    filename, TEMP_PATH1);
+        }
+        else
+            sprintf(temp_buffer, "<body bgcolor=white text=blue leftmargin=0 rightmargin=0><font size=5>%s</font></br><iframe src='http://127.0.0.1/%s/%s' border=0 ",
+                    filename, path, filename);
+
+        strcat(temp_buffer, "width=100% height=100%></body>");
+        fputs (temp_buffer, fd);
+        fclose(fd);
+
+        sprintf(TEMP_PATH, "http://127.0.0.1/%s/USRDIR/temp.html", self_path);
+    }
+
+    char* launchargv[2];
+    memset(launchargv, 0, sizeof(launchargv));
+
+    int len = strlen(temp_buffer);
+    launchargv[0] = (char*)malloc(len + 1); strcpy(launchargv[0], TEMP_PATH);
+    launchargv[1] = NULL;
+
+    char self[256];
+    sprintf(self, "%s/USRDIR/browser.self", self_path);
+
+    if(file_exists(self))
+    {
+        fun_exit();
+        SaveGameList();
+
+        sysProcessExitSpawn2((const char*)self, (char const**)launchargv, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
+    }
+}
+
+static int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_size)
+{
+    char *ext = get_extension(filename);
+
+    if((use_mamba || use_cobra) && !(d_type & IS_MARKED) &&
+           (strcasestr(".mp3|.ogg", ext) != NULL))
+    {
+        sprintf(TEMP_PATH, "%s/%s", path, filename);
+
+        if((snd_inited & INITED_AUDIOPLAYER) && strcmp(audio_file, TEMP_PATH) == 0)
+        {
+            StopAudio(); snd_inited &= ~INITED_AUDIOPLAYER;
+        }
+        else
+        {
+            audio_pane = 1;
+
+            sprintf(audio_file, "%s", TEMP_PATH);
+            if(PlayAudio(audio_file, 0, AUDIO_ONE_TIME) == 0) snd_inited|= INITED_AUDIOPLAYER;
+        }
+    }
+    else
+    if((use_mamba || use_cobra) && !(d_type & IS_MARKED) && is_audiovideo(ext))
+    {
+        sprintf(TEMP_PATH1, "%s/USRDIR/TEMP/showtime.iso", self_path);
+        sprintf(TEMP_PATH2, "%s/%s", path, filename);
+
+        launch_iso_build(TEMP_PATH1, TEMP_PATH2, true);
+    }
+    else if(!(d_type & IS_MARKED) && is_audiovideo(ext))
+    {
+        sprintf(TEMP_PATH, "%s/%s", path, filename);
+        launch_video(TEMP_PATH);
+    }
+    else if((use_mamba || use_cobra) && !(d_type & IS_MARKED) &&
+           (strcasestr(".iso|.bin|.img|.mdf|.iso.0", ext) != NULL))
+    {
+        sprintf(TEMP_PATH, "%s/%s", path, filename);
+        launch_iso_game(TEMP_PATH, DETECT_EMU_TYPE);
+    }
+    else if(!strcmpext(filename, ".BIN.ENC"))
+    {
+        sprintf(TEMP_PATH1, "%s/%s", path, filename);
+        sprintf(TEMP_PATH2, "%s", filename);
+        launch_ps2classic(TEMP_PATH1, TEMP_PATH2);
+    }
+    else if(!(d_type & IS_MARKED) && strcasecmp(ext, ".zip") == SUCCESS)
+    {
+        extract_file(path, path2, filename);
+    }
+
+    else if(!(d_type & IS_MARKED) &&
+            is_retro_file(path, filename))
+    {
+        char rom_path[MAXPATHLEN];
+        sprintf(rom_path, "%s/%s", path, filename);
+        launch_retro(rom_path);
+    }
+    else if(!(d_type & IS_MARKED) && strcasecmp(ext, ".lua") == SUCCESS)
+    {
+        char lua_path[MAXPATHLEN];
+        sprintf(lua_path, "%s/%s", path, filename);
+        launch_luaplayer(lua_path);
+    }
+    else if(!(d_type & IS_MARKED) && is_browser_file(ext))
+    {
+        browse_file(ext, path, filename);
+    }
+
+    else if(!(d_type & IS_MARKED) && strcasecmp(ext, ".p3t") == SUCCESS)
+    {
+        sprintf(MEM_MESSAGE, "Do you want to copy %s\nto dev_hdd0/theme folder?", filename);
+
+        if(DrawDialogYesNo(MEM_MESSAGE) == YES)
+        {
+          sprintf(TEMP_PATH1, "%s/%s", path, filename);
+          sprintf(TEMP_PATH2, "/dev_hdd0/theme/%s", filename);
+          CopyFile(TEMP_PATH1, TEMP_PATH2);
+
+          sprintf(MEM_MESSAGE, "%s has been copied to the dev_hdd0/theme.", filename);
+          DrawDialogOKTimer(MEM_MESSAGE, 2000.0f);
+        }
+    }
+
+    else if(!(d_type & IS_MARKED) && strcasecmp(ext, ".jpg") == SUCCESS)
+    {
+        sprintf(TEMP_PATH, "%s/%s", path, filename);
+
+        if(LoadTextureJPG(TEMP_PATH, TEMP_PICT) == SUCCESS)
+        {
+            png_signal = 300; FullScreen = 1;
+        }
+
+    }
+    else if(!(d_type & IS_MARKED) && (strcasecmp(ext, ".png") == SUCCESS || !strcmp(filename, "PS3LOGO.DAT")))
+    {
+        sprintf(TEMP_PATH, "%s/%s", path, filename);
+
+        if(LoadTexturePNG(TEMP_PATH, TEMP_PICT) == SUCCESS)
+        {
+            png_signal = 300; FullScreen = 1;
+        }
+    }
+    else if(!options_locked && !(d_type & IS_MARKED) && !strcmp(filename, "PARAM.SFO"))
+    {
+        sprintf(TEMP_PATH, "%s/%s", path, filename);
+        if(edit_title_param_sfo(TEMP_PATH) == SUCCESS) exitcode = REFRESH_GAME_LIST;
+    }
+    else if(!options_locked && !(d_type & IS_MARKED) && (use_cobra && !use_mamba) && strstr(filename, "webftp_server")!=NULL && (strcasecmp(ext, ".sprx") == SUCCESS))
+    {
+        sprintf(TEMP_PATH, "%s/%s", path, filename);
+
+        bool reboot=false; int size; char *boot_plugins = LoadFile("/dev_hdd0/boot_plugins.txt", &size);
+        unlink_secure("/dev_hdd0/tmp/wm_request");
+
+        if(size>=36 && strstr(boot_plugins, "/dev_hdd0/plugins/webftp_server.sprx")!=NULL)
+        {
+            if(file_exists("/dev_hdd0/plugins/webftp_server.sprx"))
+            {
+                unlink_secure("/dev_hdd0/plugins/webftp_server.sprx");
+                CopyFile(TEMP_PATH, "/dev_hdd0/webftp_server.sprx"); reboot=true;
+            }
+        }
+        else
+        if(size>=28 && strstr(boot_plugins, "/dev_hdd0/webftp_server.sprx")!=NULL)
+        {
+            sprintf(TEMP_PATH, "%s/%s", path, filename);
+            if(file_exists("/dev_hdd0/webftp_server.sprx"))
+            {
+                unlink_secure("/dev_hdd0/webftp_server.sprx");
+                CopyFile(TEMP_PATH, "/dev_hdd0/webftp_server.sprx"); reboot=true;
+            }
+        }
+
+        if(boot_plugins) free(boot_plugins);
+        if(reboot) sys_reboot();
+
+    }
+    else if(!options_locked && !(d_type & IS_MARKED) && (use_cobra || use_mamba) && (strcasecmp(ext, ".sprx") == SUCCESS))
+    {
+        cobra_unload_vsh_plugin(6);
+        sprintf(TEMP_PATH, "%s/%s", path, filename);
+        cobra_load_vsh_plugin(6, TEMP_PATH, NULL, 0);
+    }
+    else if(!options_locked && (selcount1>1 || !(d_type & IS_MARKED)) && strcasecmp(ext, ".pkg") == SUCCESS)
+    {
+        if(old_pad & BUTTON_SELECT)
+        {
+            sprintf(MEM_MESSAGE, "Do you want to mount %s/%s as /dev_bdvd?", path, filename);
+
+            if(is_ntfs_path(path) && DrawDialogYesNo(MEM_MESSAGE) == YES)
+            {
+                sprintf(TEMP_PATH1, "%s/USRDIR/TEMP/pkg.iso", self_path);
+                sprintf(TEMP_PATH2, "%s/%s", path, filename);
+
+                unlink_secure(TEMP_PATH1);
+                launch_iso_build(TEMP_PATH1, TEMP_PATH2, false);
+
+                {SaveGameList(); fun_exit(); exit(0);}
+            }
+
+            if(!is_ntfs_path(path))
+            {
+                sprintf(TEMP_PATH, "%s/%s", path, filename);
+                hex_editor(HEX_EDIT_FILE, TEMP_PATH, entry_size);
+            }
+            return 1;
+        }
+        else if(!fm_pane && (selcount1 > 1))
+        {
+            for(int r = 0; r < nentries1; r++)
+            {
+                if((entries1[r].d_type & IS_MARKED) && strcasestr(entries1[r].d_name, ".pkg")!=NULL)
+                {
+                    install_pkg(path, entries1[r].d_name, 0);
+                }
+            }
+            nentries1 = selcount1 = 0; frame = 300; //force immediate refresh
+        }
+        else if(fm_pane && (selcount2 > 1))
+        {
+            for(int r = 0; r < nentries2; r++)
+            {
+                if((entries2[r].d_type & IS_MARKED) && strcasestr(entries2[r].d_name, ".pkg")!=NULL)
+                {
+                    install_pkg(path, entries2[r].d_name, 0);
+                }
+            }
+            nentries2 = selcount2 = 0; frame = 300; //force immediate refresh
+        }
+        else
+        {
+            install_pkg(path, filename, 1);
+
+            sprintf(TEMP_PATH, "%s/%s", path, filename);
+            if(file_exists(TEMP_PATH) == false)
+            {
+                if(fm_pane) {nentries2 = 0; sel2--;} else {nentries1 = 0; sel1--;}
+                frame = 300; //force immediate refresh
+            }
+        }
+    }
+    else if(!(d_type & IS_MARKED) && strcasecmp(ext, ".self") == SUCCESS)
+    {
+        if((old_pad & BUTTON_SELECT) || is_ntfs_path(path))
+        {
+            sprintf(TEMP_PATH, "%s/%s", path, filename);
+            hex_editor(HEX_EDIT_FILE, TEMP_PATH, entry_size);
+            return 1;
+        }
+        else
+        {
+            fun_exit();
+            SaveGameList();
+
+            sprintf(TEMP_PATH, "%s/%s", path, filename);
+            sysProcessExitSpawn2(TEMP_PATH, NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
+            exit(0);
+        }
+    }
+    else if(!options_locked)
+    {
+        sprintf(MEM_MESSAGE, "Do you want to mount %s/%s as /dev_bdvd?", path, filename);
+
+        if(is_ntfs_path(path) && (old_pad & BUTTON_SELECT))
+        {
+            if(DrawDialogYesNo(MEM_MESSAGE) == YES)
+            {
+                sprintf(TEMP_PATH1, "%s/USRDIR/TEMP/pkg.iso", self_path);
+                sprintf(TEMP_PATH2, "%s/%s", path, filename);
+
+                int flen = strlen(TEMP_PATH2) - 4;
+
+                if(flen >= 0 && (strcasestr(".iso|.bin|.mdf|.img|so.0", TEMP_PATH2 + flen) != NULL))
+                    launch_iso_game(TEMP_PATH2, DETECT_EMU_TYPE);
+                else
+                {
+                    unlink_secure(TEMP_PATH1);
+                    launch_iso_build(TEMP_PATH1, TEMP_PATH2, false);
+                }
+
+                {SaveGameList(); fun_exit(); exit(0);}
+            }
+            return 1;
+        }
+
+        sprintf(TEMP_PATH, "%s/%s", path, filename);
+        hex_editor(HEX_EDIT_FILE, TEMP_PATH, entry_size);
+        return 1;
+    }
+	return 0;
+}
+
+static void set_background_picture(char *path, char *filename)
+{
+    // backup current background
+    sprintf(TEMP_PATH1, "%s/USRDIR/background/PICT8.JPG", self_path);
+    sprintf(TEMP_PATH2, "%s/USRDIR/background/PICT0.JPG", self_path);
+    if(file_exists(TEMP_PATH1) == false) CopyFile(TEMP_PATH2, TEMP_PATH1);
+
+    // replace PICT0.JPG
+    sprintf(TEMP_PATH1, "%s/%s", path, filename);
+    unlink_secure(TEMP_PATH2);
+    CopyFile(TEMP_PATH1, TEMP_PATH2);
+
+    bk_picture = 3;
+    load_background_picture();
+}
+
+static void change_dir(char *cur_path, char *path, char *dirname)
+{
+    int n;
+    s32 fd;
+    DIR_ITER *pdir = NULL;
+    bool is_ntfs;
+
+    frame = 300; //force immediate refresh
+
+    if(!strcmp(dirname, ".."))
+    {
+        if(old_pad & BUTTON_SELECT) n = 0;
+        else
+        {
+            n = strlen(path);
+            while(n > 0 && path[n] != '/') n--;
+        }
+
+        if(n == 0) {path[n] = '/'; strcpy(cur_path, &path[n+1]); path[n+1] = 0;} else {strcpy(cur_path, &path[n + 1]); path[n] = 0;}
+
+        is_ntfs = is_ntfs_path(path);
+
+        if(!is_ntfs && sysLv2FsOpenDir(path, &fd) == SUCCESS)
+            sysLv2FsCloseDir(fd);
+        else if(is_ntfs && (pdir = ps3ntfs_diropen(path)) != NULL)
+            ps3ntfs_dirclose(pdir);
+        else
+            path[1] = 0; // to root
+
+        if(fm_pane) nentries2 = 0; else nentries1 = 0;
+    }
+    else
+    {
+        n = strlen(path);
+        if(path[n - 1] != '/') strcat(path, "/");
+        strcat(path, dirname);
+
+        is_ntfs = is_ntfs_path(path);
+
+        if(!is_ntfs && use_cobra && (old_pad & BUTTON_SELECT))
+        {
+            if(bAllowNetGames && get_net_status() == SUCCESS)
+            {
+                char *url = temp_buffer;
+                sprintf(url, "/mount_ps3%s", path);
+                urldec(url);
+
+                call_webman(url);
+
+                // update the other panel
+                if(fm_pane)
+                    {if((path2[1] == 0) || strcmp(path2, "/dev_bdvd") == SUCCESS) nentries2 = 0;}
+                else
+                    {if((path1[1] == 0) || strcmp(path1, "/dev_bdvd") == SUCCESS) nentries1 = 0;}
+            }
+        }
+
+        if(!is_ntfs && sysLv2FsOpenDir(path, &fd) == SUCCESS)
+        {
+            if(fm_pane) nentries2 = 0; else nentries1 = 0;
+            sysLv2FsCloseDir(fd);
+        }
+        else if(is_ntfs && (pdir = ps3ntfs_diropen(path)) != NULL)
+        {
+            if(fm_pane) nentries2 = 0; else nentries1 = 0;
+            ps3ntfs_dirclose(pdir);
+        }
+        else
+            path[n] = 0;
+    }
+}
+
+static int toggle_path_l3(char *path1, char *path2, int change_path)
+{
+    ROT_INC(change_path, 6, 0);
+
+    switch(change_path)
+    {
+        case 0:
+            if((path1[1] != 0))
+            {
+                strcpy(path1, "/");
+                break;
+            }
+            else
+                change_path++;
+        case 1:
+            if(strcmp(path1, "/dev_usb000") != SUCCESS && file_exists("/dev_usb000"))
+            {
+                strcpy(path1, "/dev_usb000");
+                break;
+            }
+            else
+                change_path++;
+        case 2:
+            if(strcmp(path1, "/dev_usb001") != SUCCESS && file_exists("/dev_usb001"))
+            {
+                strcpy(path1, "/dev_usb001");
+                break;
+            }
+            else
+                change_path++;
+        case 3:
+            if(strcmp(path1, "/dev_usb006") != SUCCESS && file_exists("/dev_usb006"))
+            {
+                strcpy(path1, "/dev_usb006");
+                break;
+            }
+            else
+                change_path++;
+        case 4:
+            if(strcmp(path1, "/dev_bdvd") != SUCCESS && file_exists("/dev_bdvd"))
+            {
+                strcpy(path1, "/dev_bdvd");
+                break;
+            }
+            else
+                change_path++;
+        case 5:
+            if(strcmp(path1, self_path) != SUCCESS && file_exists(self_path))
+            {
+                strcpy(path1, self_path);
+                break;
+            }
+            else
+                change_path++;
+        default:
+            if(strcmp(path1, path2) != SUCCESS && file_exists(path2))
+            {
+                strcpy(path1, path2);
+                break;
+            }
+            else
+                {change_path = 0; strcpy(path1, "/");}
+    }
+    return change_path;
+}
+static int toggle_path_r3(char *path1, char *path2, int change_path)
+{
+    ROT_INC(change_path, 6, 0);
+
+    switch(change_path)
+    {
+        case 0:
+            if(strcmp(path1, "/dev_hdd0") != SUCCESS && file_exists("/dev_hdd0"))
+            {
+                strcpy(path1, "/dev_hdd0");
+                break;
+            }
+            else
+                change_path++;
+        case 1:
+            if(strcmp(path1, "/dev_hdd0/PS3ISO") != SUCCESS && file_exists("/dev_hdd0/PS3ISO"))
+            {
+                strcpy(path1, "/dev_hdd0/PS3ISO");
+                break;
+            }
+            else
+                change_path++;
+        case 2:
+            if(strcmp(path1, "/dev_hdd0/GAMES") != SUCCESS && file_exists("/dev_hdd0/GAMES"))
+            {
+                strcpy(path1, "/dev_hdd0/GAMES");
+                break;
+            }
+            else
+                change_path++;
+        case 3:
+            if(strcmp(path1, "/dev_hdd0/game") != SUCCESS && file_exists("/dev_hdd0/game"))
+            {
+                strcpy(path1, "/dev_hdd0/game");
+                break;
+            }
+            else
+                change_path++;
+        case 4:
+            if(strcmp(path1, "/dev_hdd0/packages") != SUCCESS && file_exists("/dev_hdd0/packages"))
+            {
+                strcpy(path1, "/dev_hdd0/packages");
+                break;
+            }
+            else
+                change_path++;
+        case 5:
+            if(strcmp(path1, "/dev_hdd0/home") != SUCCESS && file_exists("/dev_hdd0/home"))
+            {
+                strcpy(path1, "/dev_hdd0/home");
+                break;
+            }
+            else
+                change_path++;
+        default:
+            if(strcmp(path1, path2) != SUCCESS  && file_exists(path2) )
+            {
+                strcpy(path1, path2);
+                break;
+            }
+            else
+                {change_path = 0; strcpy(path1, "/dev_hdd0");}
+    }
+    return change_path;
+}
+
+void auto_png(char *path, char *filename, u32 d_type, u32 entry_type)
+{
+    struct stat st;
+    int signal = 0;
+
+    if((d_type & IS_DIRECTORY) && (path[12] == 'G' || path[10] == 'G' || path[10] == 'g' || path[10] == 'h' || path[5] == 'b'))
+    {
+        sprintf(temp_buffer, "%s/%s/PS3_GAME/ICON0.PNG", path, filename);
+        if(!stat(temp_buffer, &st)) signal = 1;
+        else
+        {
+            sprintf(temp_buffer, "%s/%s/ICON0.PNG", path, filename);
+            if(!stat(temp_buffer, &st)) signal = 1;
+            else
+            {
+                sprintf(temp_buffer, "%s/../ICON0.PNG", path);
+                if(!stat(temp_buffer, &st)) signal = 1;
+            }
+        }
+
+        if(fm_pane) tick2_move = 0; else tick1_move = 0;
+
+        if((signal != 0) && LoadTexturePNG(temp_buffer, TEMP_PICT) == SUCCESS)
+        {
+            png_signal = 120; FullScreen = 0;
+        }
+    }
+    else if(!(d_type & IS_DIRECTORY))
+    {
+        if(fm_pane) tick2_move = 0; else tick1_move = 0;
+
+        if(entry_type == FILE_TYPE_PNG)
+        {
+            sprintf(TEMP_PATH, "%s/%s", path, filename);
+            if(!stat(TEMP_PATH, &st)) signal = 1;
+
+            if(signal && LoadTexturePNG(TEMP_PATH, TEMP_PICT) == SUCCESS)
+            {
+                png_signal = 120; FullScreen = 0;
+            }
+        }
+        else if(entry_type == FILE_TYPE_JPG)
+        {
+            sprintf(TEMP_PATH, "%s/%s", path, filename);
+            if(!stat(TEMP_PATH, &st)) signal = 1;
+
+            if(signal && LoadTextureJPG(TEMP_PATH, TEMP_PICT) == SUCCESS)
+            {
+                png_signal = 120; FullScreen = 0;
+            }
+        }
+        else if (entry_type == FILE_TYPE_BIN)
+        {
+            sprintf(TEMP_PATH, "%s/../ICON0.PNG", path);
+            if(LoadTexturePNG(TEMP_PATH, TEMP_PICT) == SUCCESS)
+            {
+                png_signal = 120; FullScreen = 0;
+            }
+        }
+        else if(!strcmp(filename, "PS3LOGO.DAT"))
+        {
+            sprintf(TEMP_PATH, "%s/%s", path, filename);
+            if(LoadTexturePNG(TEMP_PATH, TEMP_PICT) == SUCCESS)
+            {
+                png_signal = 120; FullScreen = 0;
+            }
+        }
+        else if(strlen(filename) >= 40 && strstr(filename, "_00-") != NULL)
+        {
+            sprintf(TEMP_PATH, "/dev_hdd0/game/BLES80608/USRDIR/covers/%c%c%c%c%c%c%c%c%c.JPG",
+                    filename[ 7], filename[ 8], filename[ 9], filename[10],
+                    filename[11], filename[12], filename[13], filename[14], filename[15]);
+
+            if(LoadTextureJPG(TEMP_PATH, TEMP_PICT) == SUCCESS)
+            {
+                png_signal = 120; FullScreen = 0;
+            }
+            else
+            {
+                sprintf(TEMP_PATH, "/dev_hdd0/GAMES/covers/%c%c%c%c%c%c%c%c%c.JPG",
+                        filename[ 7], filename[ 8], filename[ 9], filename[10],
+                        filename[11], filename[12], filename[13], filename[14], filename[15]);
+
+                if(LoadTextureJPG(TEMP_PATH, TEMP_PICT) == SUCCESS)
+                {
+                    png_signal = 120; FullScreen = 0;
+                }
+            }
+        }
+        else
+        {
+            if(fm_pane) tick2_move = 0; else tick1_move = 0;
+            int len = sprintf(temp_buffer, "%s/%s", path, filename);
+
+            temp_buffer[len - 4] = 0;
+            strcat(temp_buffer, ".png");
+
+            if(file_exists(temp_buffer))
+            {
+                if(LoadTexturePNG(temp_buffer, TEMP_PICT) == SUCCESS)
+                {
+                    png_signal = 120; FullScreen = 0;
+                }
+            }
+            else
+            {
+                temp_buffer[len - 4] = 0;
+                strcat(temp_buffer, ".jpg");
+
+                if(file_exists(temp_buffer))
+                {
+                    if(LoadTextureJPG(temp_buffer, TEMP_PICT) == SUCCESS)
+                    {
+                        png_signal = 120; FullScreen = 0;
+                    }
+                }
+            }
+        }
+    }
+}
 
 int file_manager(char *pathw1, char *pathw2)
 {
@@ -1089,7 +1559,6 @@ int file_manager(char *pathw1, char *pathw2)
     frame = 300; //force immediate refresh
 
     int help = 0;
-    int exitcode = 0;
 
     nentries1 = nentries2 = 0;
 
@@ -1116,10 +1585,6 @@ int file_manager(char *pathw1, char *pathw2)
     int n, i;
 
     int img_width;
-    int FullScreen = 0;
-    int png_signal = 0;
-    int tick1_move = 0;
-    int tick2_move = 0;
 
     if(pathw1) strncpy(path1, pathw1, MAX_PATH_LEN);
     if(pathw2) strncpy(path2, pathw2, MAX_PATH_LEN);
@@ -1625,244 +2090,11 @@ int file_manager(char *pathw1, char *pathw2)
         // auto PNG
         if(tick1_move && (path1[1] != 0) && !fm_pane && png_signal < 110 && auto_up == 0 && auto_down == 0)
         {
-            struct stat st;
-            int signal = 0;
-
-            if((entries1[sel1].d_type & IS_DIRECTORY) && (path1[12] == 'G' || path1[10] == 'G' || path1[10] == 'g' || path1[10] == 'h' || path1[5] == 'b'))
-            {
-                sprintf(temp_buffer, "%s/%s/PS3_GAME/ICON0.PNG", path1, entries1[sel1].d_name);
-                if(!stat(temp_buffer, &st)) signal = 1;
-                else
-                {
-                    sprintf(temp_buffer, "%s/%s/ICON0.PNG", path1, entries1[sel1].d_name);
-                    if(!stat(temp_buffer, &st)) signal = 1;
-                    else
-                    {
-                        sprintf(temp_buffer, "%s/../ICON0.PNG", path1);
-                        if(!stat(temp_buffer, &st)) signal = 1;
-                    }
-                }
-
-                tick1_move = 0;
-
-                if((signal != 0) && LoadTexturePNG(temp_buffer, TEMP_PICT) == SUCCESS)
-                {
-                    png_signal = 120; FullScreen = 0;
-                }
-            }
-            else if(!(entries1[sel1].d_type & IS_DIRECTORY))
-            {
-                tick1_move = 0;
-
-                if(entries1_type[sel1] == FILE_TYPE_PNG)
-                {
-                    sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-                    if(!stat(TEMP_PATH, &st)) signal = 1;
-
-                    if(signal && LoadTexturePNG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                    {
-                        png_signal = 120; FullScreen = 0;
-                    }
-                }
-                else if(entries1_type[sel1] == FILE_TYPE_JPG)
-                {
-                    sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-                    if(!stat(TEMP_PATH, &st)) signal = 1;
-
-                    if(signal && LoadTextureJPG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                    {
-                        png_signal = 120; FullScreen = 0;
-                    }
-                }
-                else if (entries1_type[sel1] == FILE_TYPE_BIN)
-                {
-                    sprintf(TEMP_PATH, "%s/../ICON0.PNG", path1);
-                    if(LoadTexturePNG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                    {
-                        png_signal = 120; FullScreen = 0;
-                    }
-                }
-                else if(!strcmp(entries1[sel1].d_name, "PS3LOGO.DAT"))
-                {
-                    sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-                    if(LoadTexturePNG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                    {
-                        png_signal = 120; FullScreen = 0;
-                    }
-                }
-                else if(strlen(entries1[sel1].d_name) >= 40 && strstr(entries1[sel1].d_name, "_00-") != NULL)
-                {
-                    sprintf(TEMP_PATH, "/dev_hdd0/game/BLES80608/USRDIR/covers/%c%c%c%c%c%c%c%c%c.JPG",
-                            entries1[sel1].d_name[ 7], entries1[sel1].d_name[ 8], entries1[sel1].d_name[ 9], entries1[sel1].d_name[10],
-                            entries1[sel1].d_name[11], entries1[sel1].d_name[12], entries1[sel1].d_name[13], entries1[sel1].d_name[14], entries1[sel1].d_name[15]);
-
-                    if(LoadTextureJPG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                    {
-                        png_signal = 120; FullScreen = 0;
-                    }
-                    else
-                    {
-                        sprintf(TEMP_PATH, "/dev_hdd0/GAMES/covers/%c%c%c%c%c%c%c%c%c.JPG",
-                                entries1[sel1].d_name[ 7], entries1[sel1].d_name[ 8], entries1[sel1].d_name[ 9], entries1[sel1].d_name[10],
-                                entries1[sel1].d_name[11], entries1[sel1].d_name[12], entries1[sel1].d_name[13], entries1[sel1].d_name[14], entries1[sel1].d_name[15]);
-
-                        if(LoadTextureJPG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                        {
-                            png_signal = 120; FullScreen = 0;
-                        }
-                    }
-                }
-                else
-                {
-                    tick1_move = 0;
-                    sprintf(temp_buffer, "%s/%s", path1, entries1[sel1].d_name);
-
-                    temp_buffer[strlen(temp_buffer) - 4] = 0;
-                    strcat(temp_buffer, ".png");
-
-                    if(file_exists(temp_buffer))
-                    {
-                        if(LoadTexturePNG(temp_buffer, TEMP_PICT) == SUCCESS)
-                        {
-                            png_signal = 120; FullScreen = 0;
-                        }
-                    }
-                    else
-                    {
-                        temp_buffer[strlen(temp_buffer) - 4] = 0;
-                        strcat(temp_buffer, ".jpg");
-
-                        if(file_exists(temp_buffer))
-                        {
-                            if(LoadTextureJPG(temp_buffer, TEMP_PICT) == SUCCESS)
-                            {
-                                png_signal = 120; FullScreen = 0;
-                            }
-                        }
-                    }
-                }
-            }
+            auto_png(path1, entries1[sel1].d_name, entries1[sel1].d_type, entries1_type[sel1]);
         }
         else if (tick2_move && (path2[1] != 0) && fm_pane && png_signal < 110 && auto_up == 0 && auto_down == 0)
         {
-            struct stat st;
-            int signal = 0;
-
-            if((entries2[sel2].d_type & IS_DIRECTORY) && (path2[12] == 'G' || path2[10] == 'G' || path2[10] == 'g' || path2[10] == 'h' || path1[5] == 'b'))
-            {
-                sprintf(temp_buffer, "%s/%s/PS3_GAME/ICON0.PNG", path2, entries2[sel2].d_name);
-                if(!stat(temp_buffer, &st)) signal = 1;
-                else
-                {
-                    sprintf(temp_buffer, "%s/%s/ICON0.PNG", path2, entries2[sel2].d_name);
-                    if(!stat(temp_buffer, &st)) signal = 1;
-                    else
-                    {
-                        sprintf(temp_buffer, "%s/../ICON0.PNG", path2);
-                        if(!stat(temp_buffer, &st)) signal = 1;
-                    }
-                }
-
-                tick2_move = 0;
-
-                if((signal != 0) && LoadTexturePNG(temp_buffer, TEMP_PICT) == SUCCESS)
-                {
-                    png_signal = 120; FullScreen = 0;
-                }
-
-            }
-            else if(!(entries2[sel2].d_type & IS_DIRECTORY))
-            {
-                tick2_move = 0;
-
-                if(entries2_type[sel2] == FILE_TYPE_PNG)
-                {
-                    sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-                    if(!stat(TEMP_PATH, &st)) signal = 1;
-
-                    if(signal && LoadTexturePNG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                    {
-                        png_signal = 120; FullScreen = 0;
-                    }
-                }
-                else if(entries2_type[sel2] == FILE_TYPE_JPG)
-                {
-                    sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-                    if(!stat(TEMP_PATH, &st)) signal = 1;
-
-                    if(signal && LoadTextureJPG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                    {
-                        png_signal = 120; FullScreen = 0;
-                    }
-                }
-                else if (entries2_type[sel2] == FILE_TYPE_BIN)
-                {
-                    sprintf(TEMP_PATH, "%s/../ICON0.PNG", path2);
-                    if(LoadTexturePNG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                    {
-                        png_signal = 120; FullScreen = 0;
-                    }
-                }
-                else if(!strcmp(entries2[sel2].d_name, "PS3LOGO.DAT"))
-                {
-                    sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-                    if(LoadTexturePNG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                    {
-                        png_signal = 120; FullScreen = 0;
-                    }
-                }
-                else if(strlen(entries2[sel2].d_name) >= 40 && strstr(entries2[sel2].d_name, "_00-") != NULL)
-                {
-                    sprintf(TEMP_PATH, "/dev_hdd0/game/BLES80608/USRDIR/covers/%c%c%c%c%c%c%c%c%c.JPG",
-                            entries2[sel2].d_name[ 7], entries2[sel2].d_name[ 8], entries2[sel2].d_name[ 9], entries2[sel2].d_name[10],
-                            entries2[sel2].d_name[11], entries2[sel2].d_name[12], entries2[sel2].d_name[13], entries2[sel2].d_name[14], entries2[sel2].d_name[15]);
-
-                    if(LoadTextureJPG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                    {
-                        png_signal = 120; FullScreen = 0;
-                    }
-                    else
-                    {
-                        sprintf(TEMP_PATH, "/dev_hdd0/GAMES/covers/%c%c%c%c%c%c%c%c%c.JPG",
-                                entries2[sel2].d_name[ 7], entries2[sel2].d_name[ 8], entries2[sel2].d_name[ 9], entries2[sel2].d_name[10],
-                                entries2[sel2].d_name[11], entries2[sel2].d_name[12], entries2[sel2].d_name[13], entries2[sel2].d_name[14], entries2[sel2].d_name[15]);
-
-                        if(LoadTextureJPG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                        {
-                            png_signal = 120; FullScreen = 0;
-                        }
-                    }
-                }
-                else
-                {
-                    tick2_move = 0;
-                    sprintf(temp_buffer, "%s/%s", path2, entries2[sel2].d_name);
-
-                    temp_buffer[strlen(temp_buffer) - 4] = 0;
-                    strcat(temp_buffer, ".png");
-
-                    if(file_exists(temp_buffer))
-                    {
-                        if(LoadTexturePNG(temp_buffer, TEMP_PICT) == SUCCESS)
-                        {
-                            png_signal = 120; FullScreen = 0;
-                        }
-                    }
-                    else
-                    {
-                        temp_buffer[strlen(temp_buffer) - 4] = 0;
-                        strcat(temp_buffer, ".jpg");
-
-                        if(file_exists(temp_buffer))
-                        {
-                            if(LoadTextureJPG(temp_buffer, TEMP_PICT) == SUCCESS)
-                            {
-                                png_signal = 120; FullScreen = 0;
-                            }
-                        }
-                    }
-                }
-            }
+            auto_png(path2, entries2[sel2].d_name, entries2[sel2].d_type, entries2_type[sel2]);
         }
 
         if(png_signal)
@@ -2150,323 +2382,15 @@ int file_manager(char *pathw1, char *pathw2)
                     if((path1[1] == 0)) update_device_sizes |= 1;
 
                     for(n = 0; n < MAX_ENTRIES; n++) entries1_type[n] = 0;
-                    frame = 300; //force immediate refresh
 
-                    if(!strcmp(entries1[sel1].d_name, ".."))
-                    {
-                        if(old_pad & BUTTON_SELECT) n = 0;
-                        else
-                        {
-                            n = strlen(path1);
-                            while(n > 0 && path1[n] != '/') n--;
-                        }
-
-                        if(n == 0) {path1[n] = '/'; strcpy(cur_path1, &path1[n+1]); path1[n+1] = 0;} else {strcpy(cur_path1, &path1[n + 1]); path1[n] = 0;}
-
-                        is_ntfs = is_ntfs_path(path1);
-
-                        if(!is_ntfs && sysLv2FsOpenDir(path1, &fd) == SUCCESS)
-                            sysLv2FsCloseDir(fd);
-                        else if(is_ntfs && (pdir = ps3ntfs_diropen(path1)) != NULL)
-                            ps3ntfs_dirclose(pdir);
-                        else
-                            path1[1] = 0; // to root
-
-                        nentries1 = 0;
-                    }
-                    else
-                    {
-                        n = strlen(path1);
-                        if(path1[n - 1] != '/') strcat(path1, "/");
-                        strcat(path1, entries1[sel1].d_name);
-
-                        is_ntfs = is_ntfs_path(path1);
-
-                        if(!is_ntfs && use_cobra && (old_pad & BUTTON_SELECT))
-                        {
-                            if(bAllowNetGames && get_net_status() == SUCCESS)
-                            {
-                                char *url = temp_buffer;
-                                sprintf(url, "/mount_ps3%s", path1);
-                                urldec(url);
-
-                                call_webman(url);
-
-                                if((path2[1] == 0) || strcmp(path2, "/dev_bdvd") == SUCCESS) nentries2 = 0;
-                                frame = 300; //force refresh
-                            }
-                        }
-
-                        if(!is_ntfs && sysLv2FsOpenDir(path1, &fd) == SUCCESS)
-                        {
-                            nentries1 = 0;
-                            sysLv2FsCloseDir(fd);
-                        }
-                        else if(is_ntfs && (pdir = ps3ntfs_diropen(path1)) != NULL)
-                        {
-                            nentries1 = 0;
-                            ps3ntfs_dirclose(pdir);
-                        }
-                        else
-                            path1[n] = 0;
-                    }
+                    change_dir(cur_path1, path1, entries1[sel1].d_name);
 
                     pos1 = sel1 = 0;
                     update_device_sizes |= 1;
                 }
                 else
                 {
-                    char *ext = get_extension(entries1[sel1].d_name);
-
-                    if((use_mamba || use_cobra) && !(entries1[sel1].d_type & IS_MARKED) &&
-                           (strcasestr(".mp3|.ogg", ext) != NULL))
-                    {
-                        sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-
-                        if((snd_inited & INITED_AUDIOPLAYER) && strcmp(audio_file, TEMP_PATH)==0)
-                        {
-                            StopAudio(); snd_inited &= ~INITED_AUDIOPLAYER;
-                        }
-                        else
-                        {
-                            audio_pane = 1;
-
-                            sprintf(audio_file, "%s", TEMP_PATH);
-                            if(PlayAudio(audio_file, 0, AUDIO_ONE_TIME)==0) snd_inited|= INITED_AUDIOPLAYER;
-                        }
-                    }
-                    else
-                    if((use_mamba || use_cobra) && !(entries1[sel1].d_type & IS_MARKED) && is_audiovideo(ext))
-                    {
-                        sprintf(TEMP_PATH1, "%s/USRDIR/TEMP/showtime.iso", self_path);
-                        sprintf(TEMP_PATH2, "%s/%s", path1, entries1[sel1].d_name);
-
-                        launch_iso_build(TEMP_PATH1, TEMP_PATH2, true);
-                    }
-                    else if(!(entries1[sel1].d_type & IS_MARKED) && is_audiovideo(ext))
-                    {
-                        sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-                        launch_video(TEMP_PATH);
-                    }
-                    else if((use_mamba || use_cobra) && !(entries1[sel1].d_type & IS_MARKED) &&
-                           (strcasestr(".iso|.bin|.img|.mdf|.iso.0", ext) != NULL))
-                    {
-                        sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-                        launch_iso_game(TEMP_PATH, DETECT_EMU_TYPE);
-                    }
-                    else if(!strcmpext(entries1[sel1].d_name, ".BIN.ENC"))
-                    {
-                        sprintf(TEMP_PATH1, "%s/%s", path1, entries1[sel1].d_name);
-                        sprintf(TEMP_PATH2, "%s", entries1[sel1].d_name);
-                        launch_ps2classic(TEMP_PATH1, TEMP_PATH2);
-                    }
-                    else if(!(entries1[sel1].d_type & IS_MARKED) && strcasecmp(ext, ".zip") == SUCCESS)
-                    {
-                        char *dest_path = (old_pad & BUTTON_SELECT) ? path1 : path2;
-                        sprintf(MEM_MESSAGE, "Do you want to extract %s to %s?", entries1[sel1].d_name, dest_path);
-                        if(DrawDialogYesNo(MEM_MESSAGE) == YES)
-                        {
-                            sprintf(TEMP_PATH1, "%s/%s", path1, entries1[sel1].d_name);
-                            sprintf(TEMP_PATH2, "%s/", dest_path);
-
-                            msgDialogAbort();
-                            sprintf(MEM_MESSAGE, "Extracting %s...\nTo: %s", entries1[sel1].d_name, dest_path);
-                            DrawDialogTimer(MEM_MESSAGE, 500.0f);
-
-                            extract_zip(TEMP_PATH1, TEMP_PATH2);
-                            {update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
-                            frame = 300; //force immediate refresh
-                        }
-                    }
-
-                    else if(!(entries1[sel1].d_type & IS_MARKED) &&
-                            is_retro_file(path1, entries1[sel1].d_name))
-                    {
-                        char rom_path[MAXPATHLEN];
-                        sprintf(rom_path, "%s/%s", path1, entries1[sel1].d_name);
-                        launch_retro(rom_path);
-                    }
-                    else if(!(entries1[sel1].d_type & IS_MARKED) && strcasecmp(ext, ".lua") == SUCCESS)
-                    {
-                        char lua_path[MAXPATHLEN];
-                        sprintf(lua_path, "%s/%s", path1, entries1[sel1].d_name);
-                        launch_luaplayer(lua_path);
-                    }
-                    else if(!(entries1[sel1].d_type & IS_MARKED) && is_browser_file(ext))
-                    {
-                        browse_file(ext, path1, entries1[sel1].d_name);
-                    }
-
-                    else if(!(entries1[sel1].d_type & IS_MARKED) && strcasecmp(ext, ".p3t") == SUCCESS)
-                    {
-                        sprintf(MEM_MESSAGE, "Do you want to copy %s\nto dev_hdd0/theme folder?", entries1[sel1].d_name);
-
-                        if(DrawDialogYesNo(MEM_MESSAGE) == YES)
-                        {
-                          sprintf(TEMP_PATH1, "%s/%s", path1, entries1[sel1].d_name);
-                          sprintf(TEMP_PATH2, "/dev_hdd0/theme/%s", entries1[sel1].d_name);
-                          CopyFile(TEMP_PATH1, TEMP_PATH2);
-
-                          sprintf(MEM_MESSAGE, "%s has been copied to the dev_hdd0/theme.", entries1[sel1].d_name);
-                          DrawDialogOKTimer(MEM_MESSAGE, 2000.0f);
-                        }
-                    }
-
-                    else if(!(entries1[sel1].d_type & IS_MARKED) && strcasecmp(ext, ".jpg") == SUCCESS)
-                    {
-                        sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-
-                        if(LoadTextureJPG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                        {
-                            png_signal = 300; FullScreen = 1;
-                        }
-
-                    }
-                    else if(!(entries1[sel1].d_type & IS_MARKED) && (strcasecmp(ext, ".png") == SUCCESS || !strcmp(entries1[sel1].d_name, "PS3LOGO.DAT")))
-                    {
-                        sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-
-                        if(LoadTexturePNG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                        {
-                            png_signal = 300; FullScreen = 1;
-                        }
-                    }
-                    else if(!options_locked && !(entries1[sel1].d_type & IS_MARKED) && !strcmp(entries1[sel1].d_name, "PARAM.SFO"))
-                    {
-                        sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-                        if(edit_title_param_sfo(TEMP_PATH) == SUCCESS) exitcode = REFRESH_GAME_LIST;
-                    }
-                    else if(!options_locked && !(entries1[sel1].d_type & IS_MARKED) && (use_cobra && !use_mamba) && strstr(entries1[sel1].d_name, "webftp_server")!=NULL && (strcasecmp(ext, ".sprx") == SUCCESS))
-                    {
-                        sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-
-                        bool reboot=false; int size; char *boot_plugins = LoadFile("/dev_hdd0/boot_plugins.txt", &size);
-                        unlink_secure("/dev_hdd0/tmp/wm_request");
-
-                        if(size>=36 && strstr(boot_plugins, "/dev_hdd0/plugins/webftp_server.sprx")!=NULL)
-                        {
-                            if(file_exists("/dev_hdd0/plugins/webftp_server.sprx"))
-                            {
-                                unlink_secure("/dev_hdd0/plugins/webftp_server.sprx");
-                                CopyFile(TEMP_PATH, "/dev_hdd0/webftp_server.sprx"); reboot=true;
-                            }
-                        }
-                        else
-                        if(size>=28 && strstr(boot_plugins, "/dev_hdd0/webftp_server.sprx")!=NULL)
-                        {
-                            sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-                            if(file_exists("/dev_hdd0/webftp_server.sprx"))
-                            {
-                                unlink_secure("/dev_hdd0/webftp_server.sprx");
-                                CopyFile(TEMP_PATH, "/dev_hdd0/webftp_server.sprx"); reboot=true;
-                            }
-                        }
-
-                        if(boot_plugins) free(boot_plugins);
-                        if(reboot) sys_reboot();
-
-                    }
-                    else if(!options_locked && !(entries1[sel1].d_type & IS_MARKED) && (use_cobra || use_mamba) && (strcasecmp(ext, ".sprx") == SUCCESS))
-                    {
-                        cobra_unload_vsh_plugin(6);
-                        sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-                        cobra_load_vsh_plugin(6, TEMP_PATH, NULL, 0);
-                    }
-                    else if(!options_locked && (selcount1>1 || !(entries1[sel1].d_type & IS_MARKED)) && strcasecmp(ext, ".pkg") == SUCCESS)
-                    {
-                        if(old_pad & BUTTON_SELECT)
-                        {
-                            sprintf(MEM_MESSAGE, "Do you want to mount %s/%s as /dev_bdvd?", path1, entries1[sel1].d_name);
-
-                            if(is_ntfs_path(path1) && DrawDialogYesNo(MEM_MESSAGE) == YES)
-                            {
-                                sprintf(TEMP_PATH1, "%s/USRDIR/TEMP/pkg.iso", self_path);
-                                sprintf(TEMP_PATH2, "%s/%s", path1, entries1[sel1].d_name);
-
-                                unlink_secure(TEMP_PATH1);
-                                launch_iso_build(TEMP_PATH1, TEMP_PATH2, false);
-
-                                {SaveGameList(); fun_exit(); exit(0);}
-                            }
-
-                            if(!is_ntfs_path(path1))
-                            {
-                                sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-                                hex_editor(HEX_EDIT_FILE, TEMP_PATH, entries1_size[sel1]);
-                            }
-                            continue;
-                        }
-                        else if(selcount1 > 1)
-                        {
-                            for(int r = 0; r < nentries1; r++)
-                            {
-                                if((entries1[r].d_type & IS_MARKED) && strcasestr(entries1[r].d_name, ".pkg")!=NULL)
-                                {
-                                    install_pkg(path1, entries1[r].d_name, 0);
-                                }
-                            }
-                            nentries1 = selcount1 = 0; frame = 300; //force immediate refresh
-                        }
-                        else
-                        {
-                            install_pkg(path1, entries1[sel1].d_name, 1);
-
-                            sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-                            if(file_exists(TEMP_PATH) == false)
-                            {
-                                nentries1 = 0; sel1--;
-                                frame = 300; //force immediate refresh
-                            }
-                        }
-                    }
-                    else if(!(entries1[sel1].d_type & IS_MARKED) && strcasecmp(ext, ".self") == SUCCESS)
-                    {
-                        if((old_pad & BUTTON_SELECT) || is_ntfs_path(path1))
-                        {
-                            sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-                            hex_editor(HEX_EDIT_FILE, TEMP_PATH, entries1_size[sel1]);
-                            continue;
-                        }
-                        else
-                        {
-                            fun_exit();
-                            SaveGameList();
-
-                            sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-                            sysProcessExitSpawn2(TEMP_PATH, NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
-                            exit(0);
-                        }
-                    }
-                    else if(!options_locked)
-                    {
-                        sprintf(MEM_MESSAGE, "Do you want to mount %s/%s as /dev_bdvd?", path1, entries1[sel1].d_name);
-
-                        if(is_ntfs_path(path1) && (old_pad & BUTTON_SELECT))
-                        {
-                            if(DrawDialogYesNo(MEM_MESSAGE) == YES)
-                            {
-                                sprintf(TEMP_PATH1, "%s/USRDIR/TEMP/pkg.iso", self_path);
-                                sprintf(TEMP_PATH2, "%s/%s", path1, entries1[sel1].d_name);
-
-                                int flen = strlen(TEMP_PATH2) - 4;
-
-                                if(flen >= 0 && (strcasestr(".iso|.bin|.mdf|.img|so.0", TEMP_PATH2 + flen) != NULL))
-                                    launch_iso_game(TEMP_PATH2, DETECT_EMU_TYPE);
-                                else
-                                {
-                                    unlink_secure(TEMP_PATH1);
-                                    launch_iso_build(TEMP_PATH1, TEMP_PATH2, false);
-                                }
-
-                                {SaveGameList(); fun_exit(); exit(0);}
-                            }
-                            continue;
-                        }
-
-                        sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-                        hex_editor(HEX_EDIT_FILE, TEMP_PATH, entries1_size[sel1]);
-                        continue;
-                    }
+                    if(exec_item(path1, path2, entries1[sel1].d_name, entries1[sel1].d_type, entries1_size[sel1])) continue;
                 }
             } // cross
 
@@ -2476,16 +2400,7 @@ int file_manager(char *pathw1, char *pathw2)
                 {
                     if(FullScreen && strcasestr(".jpg|.png", get_extension(entries1[sel1].d_name)) != NULL)
                     {
-                        sprintf(TEMP_PATH1, "%s/USRDIR/background/PICT8.JPG", self_path);
-                        sprintf(TEMP_PATH2, "%s/USRDIR/background/PICT0.JPG", self_path);
-                        if(file_exists(TEMP_PATH1) == false) CopyFile(TEMP_PATH2, TEMP_PATH1);
-
-                        sprintf(TEMP_PATH1, "%s/%s", path1, entries1[sel1].d_name);
-
-                        unlink_secure(TEMP_PATH2);
-                        CopyFile(TEMP_PATH1, TEMP_PATH2);
-                        bk_picture = 3;
-                        load_background_picture();
+                        set_background_picture(path1, entries1[sel1].d_name);
                         break;
                     }
                     else
@@ -2611,323 +2526,15 @@ int file_manager(char *pathw1, char *pathw2)
                     if((path2[1] == 0)) update_device_sizes |= 2;
 
                     for(n = 0; n < MAX_ENTRIES; n++) entries2_type[n] = 0;
-                    frame = 300; //force immediate refresh
 
-                    if(!strcmp(entries2[sel2].d_name, ".."))
-                    {
-                        if(old_pad & BUTTON_SELECT) n = 0;
-                        else
-                        {
-                            n = strlen(path2);
-                            while(n > 0 && path2[n] != '/') n--;
-                        }
-
-                        if(n == 0) {path2[n] = '/'; strcpy(cur_path2, &path2[n+1]); path2[n+1] = 0;} else {strcpy(cur_path2, &path2[n + 1]); path2[n] = 0;}
-
-                        is_ntfs = is_ntfs_path(path2);
-
-                        if(!is_ntfs && sysLv2FsOpenDir(path2, &fd) == SUCCESS)
-                            sysLv2FsCloseDir(fd);
-                        else if(is_ntfs && (pdir = ps3ntfs_diropen(path2)) != NULL)
-                            ps3ntfs_dirclose(pdir);
-                        else
-                            path2[1] = 0; // to root
-
-                        nentries2 = 0;
-                    }
-                    else
-                    {
-                        n = strlen(path2);
-                        if(path2[n - 1] != '/') strcat(path2, "/");
-                        strcat(path2, entries2[sel2].d_name);
-
-                        is_ntfs = is_ntfs_path(path2);
-
-                        if(!is_ntfs && use_cobra && (old_pad & BUTTON_SELECT))
-                        {
-                            if(bAllowNetGames && get_net_status() == SUCCESS)
-                            {
-                                char *url = temp_buffer;
-                                sprintf(url, "/mount_ps3%s", path2);
-                                urldec(url);
-
-                                call_webman(url);
-
-                                if((path1[1] == 0) || strcmp(path1, "/dev_bdvd") == SUCCESS) nentries1 = 0;
-                                frame = 300; //force refresh
-                            }
-                        }
-
-                        if(!is_ntfs && sysLv2FsOpenDir(path2, &fd) == SUCCESS)
-                        {
-                            nentries2 = 0;
-                            sysLv2FsCloseDir(fd);
-                        }
-                        else if(is_ntfs && (pdir = ps3ntfs_diropen(path2)) != NULL)
-                        {
-                            nentries2 = 0;
-                            ps3ntfs_dirclose(pdir);
-                        }
-                        else
-                            path2[n] = 0;
-                    }
+                    change_dir(cur_path2, path2, entries2[sel2].d_name);
 
                     pos2 = sel2 = 0;
                     update_device_sizes |= 2;
                 }
                 else
                 {
-                    char *ext = get_extension(entries2[sel2].d_name);
-
-                    if((use_mamba || use_cobra) && !(entries2[sel2].d_type & IS_MARKED) &&
-                           (strcasestr(".mp3|.ogg", ext) != NULL))
-                    {
-                        sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-
-                        if((snd_inited & INITED_AUDIOPLAYER) && strcmp(audio_file, TEMP_PATH)==0)
-                        {
-                            StopAudio(); snd_inited &= ~INITED_AUDIOPLAYER;
-                        }
-                        else
-                        {
-                            audio_pane = 2;
-
-                            sprintf(audio_file, "%s", TEMP_PATH);
-                            if(PlayAudio(audio_file, 0, AUDIO_ONE_TIME)==0) snd_inited|= INITED_AUDIOPLAYER;
-                        }
-                    }
-                    else
-                    if((use_mamba || use_cobra) && !(entries2[sel2].d_type & IS_MARKED) && is_audiovideo(ext))
-                    {
-                        sprintf(TEMP_PATH1, "%s/USRDIR/TEMP/showtime.iso", self_path);
-                        sprintf(TEMP_PATH2, "%s/%s", path2, entries2[sel2].d_name);
-
-                        launch_iso_build(TEMP_PATH1, TEMP_PATH2, true);
-                    }
-                    else if(!(entries2[sel2].d_type & IS_MARKED) && is_audiovideo(ext))
-                    {
-                        sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-                        launch_video(TEMP_PATH);
-                    }
-                    else if((use_mamba || use_cobra) && !(entries2[sel2].d_type & IS_MARKED) &&
-                           (strcasestr(".iso|.bin|.img|.mdf|.iso.0", ext) != NULL))
-                    {
-                        sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-                        launch_iso_game(TEMP_PATH, DETECT_EMU_TYPE);
-                    }
-                    else if(!strcmpext(entries2[sel2].d_name, ".BIN.ENC"))
-                    {
-                        sprintf(TEMP_PATH1, "%s/%s", path2, entries2[sel2].d_name);
-                        sprintf(TEMP_PATH2, "%s", entries2[sel2].d_name);
-                        launch_ps2classic(TEMP_PATH1, TEMP_PATH2);
-                    }
-                    else if(!(entries2[sel2].d_type & IS_MARKED) && strcasecmp(ext, ".zip") == SUCCESS)
-                    {
-                        char *dest_path = (old_pad & BUTTON_SELECT) ? path2 : path1;
-                        sprintf(MEM_MESSAGE, "Do you want to extract %s to %s?", entries2[sel2].d_name, dest_path);
-                        if(DrawDialogYesNo(MEM_MESSAGE) == YES)
-                        {
-                            sprintf(TEMP_PATH1, "%s/%s", path2, entries2[sel2].d_name);
-                            sprintf(TEMP_PATH2, "%s/", dest_path);
-
-							msgDialogAbort();
-							sprintf(MEM_MESSAGE, "Extracting %s...\nTo: %s", entries2[sel2].d_name, dest_path);
-							DrawDialogTimer(MEM_MESSAGE, 500.0f);
-
-                            extract_zip(TEMP_PATH1, TEMP_PATH2);
-                            {update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
-                            frame = 300; //force immediate refresh
-                        }
-                    }
-
-                    else if(!(entries2[sel2].d_type & IS_MARKED) &&
-                            is_retro_file(path2, entries2[sel2].d_name))
-                    {
-                        char rom_path[MAXPATHLEN];
-                        sprintf(rom_path, "%s/%s", path2, entries2[sel2].d_name);
-                        launch_retro(rom_path);
-                    }
-                    else if(!(entries2[sel2].d_type & IS_MARKED) && strcasecmp(ext, ".lua") == SUCCESS)
-                    {
-                        char lua_path[MAXPATHLEN];
-                        sprintf(lua_path, "%s/%s", path2, entries2[sel2].d_name);
-                        launch_luaplayer(lua_path);
-                    }
-                    else if(!(entries2[sel2].d_type & IS_MARKED) && is_browser_file(ext))
-                    {
-                        browse_file(ext, path2, entries2[sel2].d_name);
-                    }
-
-                    else if(!(entries2[sel2].d_type & IS_MARKED) && strcasecmp(ext, ".p3t") == SUCCESS)
-                    {
-                        sprintf(MEM_MESSAGE, "Do you want to copy %s\nto dev_hdd0/theme folder?", entries2[sel2].d_name);
-
-                        if(DrawDialogYesNo(MEM_MESSAGE) == YES)
-                        {
-                          sprintf(TEMP_PATH1, "%s/%s", path2, entries2[sel2].d_name);
-                          sprintf(TEMP_PATH2, "/dev_hdd0/theme/%s", entries2[sel2].d_name);
-                          CopyFile(TEMP_PATH1, TEMP_PATH2);
-
-                          sprintf(MEM_MESSAGE, "%s has been copied to the dev_hdd0/theme.", entries2[sel2].d_name);
-                          DrawDialogOKTimer(MEM_MESSAGE, 2000.0f);
-                        }
-                    }
-
-                    else if(!(entries2[sel2].d_type & IS_MARKED) && strcasecmp(ext, ".jpg") == SUCCESS)
-                    {
-                        sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-
-                        if(LoadTextureJPG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                        {
-                            png_signal = 300; FullScreen = 1;
-                        }
-
-                    }
-                    else if(!(entries2[sel2].d_type & IS_MARKED) && (strcasecmp(ext, ".png") == SUCCESS || !strcmp(entries2[sel2].d_name, "PS3LOGO.DAT")))
-                    {
-                        sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-
-                        if(LoadTexturePNG(TEMP_PATH, TEMP_PICT) == SUCCESS)
-                        {
-                            png_signal = 300; FullScreen = 1;
-                        }
-                    }
-                    else if(!options_locked && !(entries2[sel2].d_type & IS_MARKED) && !strcmp(entries2[sel2].d_name, "PARAM.SFO"))
-                    {
-                        sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-                        if(edit_title_param_sfo(TEMP_PATH) == SUCCESS) exitcode = REFRESH_GAME_LIST;
-                    }
-                    else if(!options_locked && !(entries2[sel2].d_type & IS_MARKED) && (use_cobra && !use_mamba) && strstr(entries2[sel2].d_name, "webftp_server")!=NULL && (strcasecmp(ext, ".sprx") == SUCCESS))
-                    {
-                        sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-
-                        bool reboot=false; int size; char *boot_plugins = LoadFile("/dev_hdd0/boot_plugins.txt", &size);
-                        unlink_secure("/dev_hdd0/tmp/wm_request");
-
-                        if(size>=36 && strstr(boot_plugins, "/dev_hdd0/plugins/webftp_server.sprx")!=NULL)
-                        {
-                            if(file_exists("/dev_hdd0/plugins/webftp_server.sprx"))
-                            {
-                                unlink_secure("/dev_hdd0/plugins/webftp_server.sprx");
-                                CopyFile(TEMP_PATH, "/dev_hdd0/webftp_server.sprx"); reboot=true;
-                            }
-                        }
-                        else
-                        if(size>=28 && strstr(boot_plugins, "/dev_hdd0/webftp_server.sprx")!=NULL)
-                        {
-                            sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-                            if(file_exists("/dev_hdd0/webftp_server.sprx"))
-                            {
-                                unlink_secure("/dev_hdd0/webftp_server.sprx");
-                                CopyFile(TEMP_PATH, "/dev_hdd0/webftp_server.sprx"); reboot=true;
-                            }
-                        }
-
-                        if(boot_plugins) free(boot_plugins);
-                        if(reboot) sys_reboot();
-
-                    }
-                    else if(!options_locked && !(entries2[sel2].d_type & IS_MARKED) && (use_cobra || use_mamba) && (strcasecmp(ext, ".sprx") == SUCCESS))
-                    {
-                        cobra_unload_vsh_plugin(6);
-                        sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-                        cobra_load_vsh_plugin(6, TEMP_PATH, NULL, 0);
-                    }
-                    else if(!options_locked && (selcount2>1 || !(entries2[sel2].d_type & IS_MARKED)) && strcasecmp(ext, ".pkg") == SUCCESS)
-                    {
-                        if(old_pad & BUTTON_SELECT)
-                        {
-                            sprintf(MEM_MESSAGE, "Do you want to mount %s/%s as /dev_bdvd?", path2, entries2[sel2].d_name);
-
-                            if(is_ntfs_path(path2) && DrawDialogYesNo(MEM_MESSAGE) == YES)
-                            {
-                                sprintf(TEMP_PATH1, "%s/USRDIR/TEMP/pkg.iso", self_path);
-                                sprintf(TEMP_PATH2, "%s/%s", path2, entries2[sel2].d_name);
-
-                                unlink_secure(TEMP_PATH1);
-                                launch_iso_build(TEMP_PATH1, TEMP_PATH2, false);
-
-                                {SaveGameList(); fun_exit(); exit(0);}
-                            }
-
-                            if(!is_ntfs_path(path2))
-                            {
-                                sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-                                hex_editor(HEX_EDIT_FILE, TEMP_PATH, entries2_size[sel2]);
-                            }
-                            continue;
-                        }
-                        else if(selcount2 > 1)
-                        {
-                            for(int r = 0; r < nentries2; r++)
-                            {
-                                if((entries2[r].d_type & IS_MARKED) && strcasestr(entries2[r].d_name, ".pkg")!=NULL)
-                                {
-                                    install_pkg(path2, entries2[r].d_name, 0);
-                                }
-                            }
-                            nentries2 = selcount2 = 0; frame = 300; //force immediate refresh
-                        }
-                        else
-                        {
-                            install_pkg(path2, entries2[sel2].d_name, 1);
-
-                            sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-                            if(file_exists(TEMP_PATH) == false)
-                            {
-                                nentries2 = 0; sel2--;
-                                frame = 300; //force immediate refresh
-                            }
-                        }
-                    }
-                    else if(!(entries2[sel2].d_type & IS_MARKED) && strcasecmp(ext, ".self") == SUCCESS)
-                    {
-                        if((old_pad & BUTTON_SELECT) || is_ntfs_path(path2))
-                        {
-                            sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-                            hex_editor(HEX_EDIT_FILE, TEMP_PATH, entries2_size[sel2]);
-                            continue;
-                        }
-                        else
-                        {
-                            fun_exit();
-                            SaveGameList();
-
-                            sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-                            sysProcessExitSpawn2(TEMP_PATH, NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
-                            exit(0);
-                        }
-                    }
-                    else if(!options_locked)
-                    {
-                        sprintf(MEM_MESSAGE, "Do you want to mount %s/%s as /dev_bdvd?", path2, entries2[sel2].d_name);
-
-                        if(is_ntfs_path(path2) && (old_pad & BUTTON_SELECT))
-                        {
-                            if(DrawDialogYesNo(MEM_MESSAGE) == YES)
-                            {
-                                sprintf(TEMP_PATH1, "%s/USRDIR/TEMP/pkg.iso", self_path);
-                                sprintf(TEMP_PATH2, "%s/%s", path2, entries2[sel2].d_name);
-
-                                int flen = strlen(TEMP_PATH2) - 4;
-
-                                if(flen >= 0 && (strcasestr(".iso|.bin|.mdf|.img", TEMP_PATH2 + flen) != NULL))
-                                    launch_iso_game(TEMP_PATH2, DETECT_EMU_TYPE);
-                                else
-                                {
-                                    unlink_secure(TEMP_PATH1);
-                                    launch_iso_build(TEMP_PATH1, TEMP_PATH2, false);
-                                }
-
-                                {SaveGameList(); fun_exit(); exit(0);}
-                            }
-                            continue;
-                        }
-
-                        sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-                        hex_editor(HEX_EDIT_FILE, TEMP_PATH, entries2_size[sel2]);
-                        continue;
-                    }
+                    if(exec_item(path2, path1, entries2[sel2].d_name, entries2[sel2].d_type, entries2_size[sel2])) continue;
                 }
             } // cross
 
@@ -2937,16 +2544,7 @@ int file_manager(char *pathw1, char *pathw2)
                 {
                     if(FullScreen && strcasestr(".jpg|.png", get_extension(entries2[sel2].d_name)) != NULL)
                     {
-                        sprintf(TEMP_PATH1, "%s/USRDIR/background/PICT8.JPG", self_path);
-                        sprintf(TEMP_PATH2, "%s/USRDIR/background/PICT0.JPG", self_path);
-                        if(file_exists(TEMP_PATH1) == false) CopyFile(TEMP_PATH2, TEMP_PATH1);
-
-                        sprintf(TEMP_PATH1, "%s/%s", path2, entries2[sel2].d_name);
-
-                        unlink_secure(TEMP_PATH2);
-                        CopyFile(TEMP_PATH1, TEMP_PATH2);
-                        bk_picture = 3;
-                        load_background_picture();
+                        set_background_picture(path2, entries2[sel2].d_name);
                         break;
                     }
                     else
