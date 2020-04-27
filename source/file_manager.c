@@ -60,9 +60,14 @@
 
 #define ROOT_MENU          (max_menu2 == 7)
 
+int isDir(char* path );
+int zip_directory(const char* basedir, const char* inputdir, const char* output_filename);
+int extract_zip(const char* zip_file, const char* dest_path);
+
 int sys_game_get_temperature(int sel, u32 *temperature);
 void draw_device_mkiso(float x, float y, int index, char *path);
 void load_background_picture();
+void fun_exit();
 
 #define MAX_SECTIONS    ((0x10000-sizeof(rawseciso_args))/8)
 
@@ -247,7 +252,7 @@ extern char self_path[MAXPATHLEN];
 int mnt_mode = 1; // 0 = Mount NTFS file as fake ISO, 1 = Mount and exit to XMB
 
 int mount_option = 0;
-bool allow_shadow_copy = true;
+int allow_shadow_copy = 1;
 
 int exit_option = 0; // 0 = Exit File Manager, 1 = Exit to XMB, 2 = Restart the PS3
 
@@ -518,6 +523,192 @@ static bool test_mark_flags(sysFSDirent *ent, int nent, int *nmarked)
     return ret;
 }
 #endif
+
+static void browse_file(char *ext, char *path, char *filename)
+{
+    if(strcasecmp(ext, ".html") == SUCCESS || strcasecmp(ext, ".htm") == SUCCESS)
+        sprintf(TEMP_PATH, "http://127.0.0.1%s/%s", path, filename);
+    else
+    {
+        sprintf(TEMP_PATH, "%s/USRDIR/temp.txt", self_path);
+        unlink_secure(TEMP_PATH);
+
+        sprintf(TEMP_PATH, "%s/USRDIR/temp.html", self_path);
+        unlink_secure(TEMP_PATH);
+
+        FILE *fd;
+
+        fd = fopen(TEMP_PATH, "w");
+
+        if(!strcasecmp(ext, ".cfg"))
+        {
+            sprintf(TEMP_PATH1, "%s/%s", path1, filename);
+            sprintf(TEMP_PATH2, "%s/USRDIR/temp.txt", self_path);
+            CopyFile(TEMP_PATH1, TEMP_PATH2);
+
+            sprintf(temp_buffer, "<body bgcolor=white text=blue leftmargin=0 rightmargin=0><font size=5>%s</font></br><iframe src='http://127.0.0.1/%s' border=0 ",
+                    filename, TEMP_PATH1);
+        }
+        else
+            sprintf(temp_buffer, "<body bgcolor=white text=blue leftmargin=0 rightmargin=0><font size=5>%s</font></br><iframe src='http://127.0.0.1/%s/%s' border=0 ",
+                    filename, path, filename);
+
+        strcat(temp_buffer, "width=100% height=100%></body>");
+        fputs (temp_buffer, fd);
+        fclose(fd);
+
+        sprintf(TEMP_PATH, "http://127.0.0.1/%s/USRDIR/temp.html", self_path);
+    }
+
+    char* launchargv[2];
+    memset(launchargv, 0, sizeof(launchargv));
+
+    int len = strlen(temp_buffer);
+    launchargv[0] = (char*)malloc(len + 1); strcpy(launchargv[0], TEMP_PATH);
+    launchargv[1] = NULL;
+
+    char self[256];
+    sprintf(self, "%s/USRDIR/browser.self", self_path);
+
+    if(file_exists(self))
+    {
+        fun_exit();
+        SaveGameList();
+
+        sysProcessExitSpawn2((const char*)self, (char const**)launchargv, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
+    }
+}
+
+static int toggle_path_l3(char *path1, char *path2, int change_path)
+{
+    ROT_INC(change_path, 6, 0);
+
+    switch(change_path)
+    {
+        case 0:
+            if((path1[1] != 0))
+            {
+                strcpy(path1, "/");
+                break;
+            }
+            else
+                change_path++;
+        case 1:
+            if(strcmp(path1, "/dev_usb000") != SUCCESS && file_exists("/dev_usb000"))
+            {
+                strcpy(path1, "/dev_usb000");
+                break;
+            }
+            else
+                change_path++;
+        case 2:
+            if(strcmp(path1, "/dev_usb001") != SUCCESS && file_exists("/dev_usb001"))
+            {
+                strcpy(path1, "/dev_usb001");
+                break;
+            }
+            else
+                change_path++;
+        case 3:
+            if(strcmp(path1, "/dev_usb006") != SUCCESS && file_exists("/dev_usb006"))
+            {
+                strcpy(path1, "/dev_usb006");
+                break;
+            }
+            else
+                change_path++;
+        case 4:
+            if(strcmp(path1, "/dev_bdvd") != SUCCESS && file_exists("/dev_bdvd"))
+            {
+                strcpy(path1, "/dev_bdvd");
+                break;
+            }
+            else
+                change_path++;
+        case 5:
+            if(strcmp(path1, self_path) != SUCCESS && file_exists(self_path))
+            {
+                strcpy(path1, self_path);
+                break;
+            }
+            else
+                change_path++;
+        default:
+            if(strcmp(path1, path2) != SUCCESS && file_exists(path2))
+            {
+                strcpy(path1, path2);
+                break;
+            }
+            else
+                {change_path = 0; strcpy(path1, "/");}
+    }
+    return change_path;
+}
+static int toggle_path_r3(char *path1, char *path2, int change_path)
+{
+    ROT_INC(change_path, 6, 0);
+
+    switch(change_path)
+    {
+        case 0:
+            if(strcmp(path1, "/dev_hdd0") != SUCCESS && file_exists("/dev_hdd0"))
+            {
+                strcpy(path1, "/dev_hdd0");
+                break;
+            }
+            else
+                change_path++;
+        case 1:
+            if(strcmp(path1, "/dev_hdd0/PS3ISO") != SUCCESS && file_exists("/dev_hdd0/PS3ISO"))
+            {
+                strcpy(path1, "/dev_hdd0/PS3ISO");
+                break;
+            }
+            else
+                change_path++;
+        case 2:
+            if(strcmp(path1, "/dev_hdd0/GAMES") != SUCCESS && file_exists("/dev_hdd0/GAMES"))
+            {
+                strcpy(path1, "/dev_hdd0/GAMES");
+                break;
+            }
+            else
+                change_path++;
+        case 3:
+            if(strcmp(path1, "/dev_hdd0/game") != SUCCESS && file_exists("/dev_hdd0/game"))
+            {
+                strcpy(path1, "/dev_hdd0/game");
+                break;
+            }
+            else
+                change_path++;
+        case 4:
+            if(strcmp(path1, "/dev_hdd0/packages") != SUCCESS && file_exists("/dev_hdd0/packages"))
+            {
+                strcpy(path1, "/dev_hdd0/packages");
+                break;
+            }
+            else
+                change_path++;
+        case 5:
+            if(strcmp(path1, "/dev_hdd0/home") != SUCCESS && file_exists("/dev_hdd0/home"))
+            {
+                strcpy(path1, "/dev_hdd0/home");
+                break;
+            }
+            else
+                change_path++;
+        default:
+            if(strcmp(path1, path2) != SUCCESS  && file_exists(path2) )
+            {
+                strcpy(path1, path2);
+                break;
+            }
+            else
+                {change_path = 0; strcpy(path1, "/dev_hdd0");}
+    }
+    return change_path;
+}
 
 static int reset_copy = 1;
 
@@ -855,8 +1046,6 @@ void draw_file_manager() {}
 int file_manager(char *pathw1, char *pathw2) {return 0;}
 #else
 
-#include "hex_editor.h"
-
 static char help1[] = {
     "HELP - [ File Manager ]\n"
     "\n"
@@ -888,410 +1077,8 @@ static void display_icon(int x, int y, int z, int icon)
     DrawTextBox(x+2, y, z, 18, 18, WHITE);
 }
 
-void draw_file_manager()
-{
-        tiny3d_Flip();
-        ps3pad_read();
-
-        tiny3d_Project2D();
-        cls2();
-        update_twat(false);
-
-        //// Begin drawing File Manager screen ////
-
-        tiny3d_SetMatrixModelView(is_vsplit ? &mat_win1 : &mat_unit);
-        DrawBox(0, 0, 0, 816, is_vsplit ? 48 : 32, BLUE5);
-        DrawBox(816, 0, 0, 32, is_vsplit ? 48 : 32, (!fm_pane && (frame & BLINK_SLOW)) ? YELLOW : BLACK);
-        set_ttf_window(8, 0, is_vsplit ? 590 : 592, is_vsplit ? 48 : 32, WIN_AUTO_LF);
-        display_ttf_string(0, 0, (char *) path1, WHITE, 0, is_vsplit ? 16 : 12, 24);
-
-        set_ttf_window(600, 0, 200, 32, WIN_AUTO_LF);
-        if(free_device1 < 0x40000000LL)
-            sprintf(temp_buffer, "%1.1f MB FREE", ((double) free_device1) / 0x100000LL);
-        else
-            sprintf(temp_buffer, "%1.2f GB FREE", ((double) free_device1) / GIGABYTES);
-
-        if(free_device1 < GIGABYTES && strncmp(path1, "/dev_hdd0", 9) == SUCCESS)
-            display_ttf_string(0, 0, (char *) temp_buffer, (frame & BLINK_SLOW) ? RED1 : GRAY, 0, 24, 32);
-        else
-            display_ttf_string(0, 0, (char *) temp_buffer, GRAY, 0, 24, 32);
-
-        if(is_vsplit)
-        {
-            set_ttf_window(600, 29, 200, 24, WIN_AUTO_LF);
-            if(selcount1 <= 0)
-                sprintf(temp_buffer, "%i Items", nentries1);
-            else if(selsize1 < 0x100000LL)
-                sprintf(temp_buffer, "%i of %i (%1.1f KB)", selcount1, nentries1, (double) (selsize1  / 1024LL));
-            else if(selsize1 < 0x40000000LL)
-                sprintf(temp_buffer, "%i of %i (%1.1f MB)", selcount1, nentries1, (double) (selsize1 / 0x100000LL));
-            else
-                sprintf(temp_buffer, "%i of %i (%1.2f GB)", selcount1, nentries1, ((double) selsize1) / GIGABYTES);
-
-            display_ttf_string(0, 0, (char *) temp_buffer, GRAY, 0, 20, 24);
-        }
-
-        set_ttf_window(816, 0, 36, 32, WIN_AUTO_LF);
-        display_ttf_string(4, 0, (char *) "A", RED1, 0, 32, 32);
-
-        DrawBox2(0, is_vsplit ? 48 : 32, 0, 848, is_vsplit ? (512 - 48) * 3/2: 256 - 32 /*, 0x2080c0ff*/);
-
-        if(is_vsplit)
-        {
-            DrawLineBox(0, 0, 0, 848, 48, 0x2000ffff);
-
-            DrawLineBox(-1, 48, 0, 848, 24 * 24 + 16, 0x2000ffff);
-        }
-
-        tiny3d_SetMatrixModelView(is_vsplit ? &mat_win2 : &mat_unit);
-        DrawBox(0, 256, 0, 816, is_vsplit ? 48 : 32, BLUE5);
-        DrawBox(816, 256, 0, 32, is_vsplit ? 48 : 32, (fm_pane && (frame & BLINK_SLOW)) ? YELLOW : BLACK);
-        set_ttf_window(8, 256, is_vsplit ? 590 : 592, is_vsplit ? 48 : 32, WIN_AUTO_LF);
-        display_ttf_string(0, 0, (char *) path2, WHITE, 0, is_vsplit ? 16 : 12, 24);
-
-        set_ttf_window(600, 256, 200, 32, WIN_AUTO_LF);
-
-        if(free_device2 < 0x40000000LL)
-            sprintf(temp_buffer, "%1.1f MB FREE", ((double) free_device2) / 0x100000LL);
-        else
-            sprintf(temp_buffer, "%1.2f GB FREE", ((double) free_device2) / GIGABYTES);
-
-        if(free_device2 < GIGABYTES && strncmp(path2, "/dev_hdd0", 9) == SUCCESS)
-            display_ttf_string(0, 0, (char *) temp_buffer, (frame & BLINK_SLOW) ? RED1 : GRAY, 0, 24, 32);
-        else
-            display_ttf_string(0, 0, (char *) temp_buffer, GRAY, 0, 24, 32);
-
-        if(is_vsplit)
-        {
-            set_ttf_window(600, 285, 200, 24, WIN_AUTO_LF);
-            if(selcount2 <= 0)
-                sprintf(temp_buffer, "%i Items", nentries2);
-            else if(selsize2 < 0x100000LL)
-                sprintf(temp_buffer, "%i of %i (%1.1f KB)", selcount2, nentries2, (double) (selsize2  / 1024LL));
-            else if(selsize2 < 0x40000000LL)
-                sprintf(temp_buffer, "%i of %i (%1.1f MB)", selcount2, nentries2, (double) (selsize2 / 0x100000LL));
-            else
-                sprintf(temp_buffer, "%i of %i (%1.2f GB)", selcount2, nentries2, ((double) selsize2) / GIGABYTES);
-
-            display_ttf_string(0, 0, (char *) temp_buffer, GRAY, 0, 20, 24);
-        }
-
-        set_ttf_window(816, 256, 36, 32, WIN_AUTO_LF);
-        display_ttf_string(4, 0, (char *) "B", RED1, 0, 32, 32);
-
-        DrawBox2(0, (is_vsplit ? 48 : 32) + 256 , 0, 848, is_vsplit? (512 - 48) * 3/2 : 256 - 32/*, 0x2080c0ff*/);
-
-        if(is_vsplit)
-        {
-            DrawLineBox(0, 256, 0, 848, 48, 0x2000ffff);
-
-            DrawLineBox(-1, 48 + 256, 0, 848, 24 * 24 + 16, 0x2000ffff);
-        }
-
-        tiny3d_SetMatrixModelView(is_vsplit ? &mat_win1 : &mat_unit);
-
-        set_ttf_window(24, is_vsplit ? 48 : 32, 848-24, is_vsplit ? 656 - 48 : 256 - 32, 0);
-
-        if(nentries1)
-        {
-            int py = 0;
-
-            if(sel1 > nentries1) sel1 = nentries1 > 0 ? nentries1 - 1: 0;
-
-            if((sel1 >= pos1) && (frame & BLINK) && !fm_pane)
-                DrawBox(0, py + (is_vsplit ? 48 : 32) + 24 * (sel1 - pos1), 0, 848, 24, CURSORCOLOR);
-            else
-                DrawBox(0, py + (is_vsplit ? 48 : 32) + 24 * (sel1 - pos1), 0, 848, 24, INVISIBLE);
-
-            for(int n = 0; n < (is_vsplit? 24 : 9); n++)
-            {
-                if(pos1 + n >= nentries1) break;
-
-                u32 color = WHITE;
-
-                stat1.st_size = entries1_size[pos1 + n];
-                stat1.st_mode = entries1[pos1 + n].d_type;
-
-                if(entries1[pos1 + n].d_type & IS_DIRECTORY)
-                {
-                    if(entries1[pos1 + n].d_type & IS_NOT_AVAILABLE) color = YELLOW;
-                    else color = YELLOW2;
-                    display_icon(0, py + (is_vsplit ? 50 : 34), 0, FILE_TYPE_FOLDER);
-                }
-                else
-                {
-                    int type = entries1_type[pos1 + n];
-
-                    if(type < 1)
-                    {
-                        type = FILE_TYPE_NORMAL;
-                        char *ext = get_extension(entries1[pos1 + n].d_name);
-                        if(!strcasecmp(ext, ".pkg")) type = FILE_TYPE_PKG; else
-                        if(!strcasecmp(ext, ".self")) type = FILE_TYPE_SELF; else
-                        if(!strcasecmp(ext, ".png")) type = FILE_TYPE_PNG; else
-                        if(!strcasecmp(ext, ".jpg")) type = FILE_TYPE_JPG; else
-                        if(!strcasecmp(ext, ".zip")) type = FILE_TYPE_ZIP; else
-                        if(!strcasecmp(ext, ".lua")) type = FILE_TYPE_LUA; else
-                        if(strcasestr(".iso|.bin|.img|.mdf|.iso.0", ext) != NULL) type = FILE_TYPE_ISO; else
-                        if(is_audiovideo(ext)) type = FILE_TYPE_ISO;
-
-                        if(type == FILE_TYPE_ISO && strcmp(entries1[pos1 + n].d_name, "EBOOT.BIN") == SUCCESS)
-                        {
-                            color = CYAN;
-                            entries1_type[pos1 + n] = FILE_TYPE_BIN;
-                        }
-                        else
-                            entries1_type[pos1 + n] = type;
-                    }
-                    else if(type == FILE_TYPE_BIN)
-                    {
-                        color = CYAN;
-                        type = FILE_TYPE_ISO;
-                    }
-                    if (type == FILE_TYPE_JPG) type = FILE_TYPE_PNG;
-
-                    display_icon(0, py + (is_vsplit ? 50 : 34), 0, type);
-                }
-
-                if(entries1[pos1 + n].d_type & IS_MARKED)
-                    DrawBox(0, py + (is_vsplit ? 52 : 36), 0, 848, 16, 0x800080a0);
-
-                int dx = 0;
-
-                double fsize = 0;
-
-                if(/*sel1 == (pos1 + n) && */stat1.st_mode != 0xffffffff)
-                {
-                    if(stat1.st_mode == IS_DIRECTORY)
-                    {
-                        if((path1[1] == 0))
-                        {
-                            if(entries1_size[pos1 + n] > 0x10000) //if size > 64kb (1 cluster or more) use cached free space
-                                fsize = (double) stat1.st_size;
-                            else if(entries1[pos1 + n].d_name[0] == 'd' || entries1[pos1 + n].d_name[0] == 'n' || entries1[pos1 + n].d_name[0] == 'e') //dev_*, ntfs, ext
-                            {
-                                sprintf(TEMP_PATH, "/%s", entries1[pos1 + n].d_name);
-                                fsize = (double) get_free_space(TEMP_PATH, true);
-                                entries1_size[pos1 + n] = (s64) fsize;
-                            }
-                        }
-                    }
-                    else
-                        fsize = (double) stat1.st_size;
-
-                    if(stat1.st_mode == IS_DIRECTORY && fsize == 0)
-                    { /* skip folders */}
-                    else if(fsize < 1024LL)
-                        sprintf(temp_buffer, "%1.0f B", fsize);
-                    else if(fsize < 0x100000LL)
-                        sprintf(temp_buffer, "%1.1f KB", fsize / 1024LL);
-                    else if(fsize < 0x40000000LL)
-                        sprintf(temp_buffer, "%1.1f MB", fsize / 0x100000LL);
-                    else
-                        sprintf(temp_buffer, "%1.2f GB", fsize / GIGABYTES);
-
-                    dx = display_ttf_string(0, py, (char *) temp_buffer, 0, 0, is_vsplit ? 24 : 16, 24);
-                }
-
-                //set_ttf_window(24, is_vsplit ? 48 : 32, 848 - (dx + 24), 256 - 32, 0);
-                set_ttf_window(24, is_vsplit ? 48 : 32, 848 - (dx + 24), is_vsplit ? 656 - 48 : 256 - 32, 0);
-
-                int dxx = display_ttf_string(0, py, (char *) entries1[pos1 + n].d_name, color, 0, is_vsplit ? 24 : 16, 24);
-
-                if((path1[1] == 0) && !strncmp( (char *) entries1[pos1 + n].d_name, "ntfs", 4))
-                {
-                    sprintf(MEM_MESSAGE, MSG_HOW_TO_UNMOUNT_DEVICE, NTFS_Test_Device((char *) entries1[pos1 + n].d_name));
-                    display_ttf_string(dxx, py, MEM_MESSAGE, YELLOW, 0, is_vsplit ? 24 : 16, 24);
-                }
-                else
-                if((path1[1] == 0) && !strncmp( (char *) entries1[pos1 + n].d_name, "ext", 3))
-                {
-                    sprintf(MEM_MESSAGE, MSG_HOW_TO_UNMOUNT_DEVICE, NTFS_Test_Device((char *) entries1[pos1 + n].d_name));
-                    display_ttf_string(dxx, py, MEM_MESSAGE, YELLOW, 0, is_vsplit ? 24 : 16, 24);
-                }
-
-                if(stat1.st_mode == IS_DIRECTORY && fsize == 0)
-                {
-                    // don't show size for folders
-                }
-                else if(/*sel1 == (pos1 + n) && */stat1.st_mode != 0xffffffff)
-                {
-                    set_ttf_window(848 - dx, (is_vsplit ? 48 : 32), dx, is_vsplit ? 656 - 48 : 256 - 32, 0);
-                    display_ttf_string(0, py, (char *) temp_buffer, 0xffffffff, 0, is_vsplit ? 24 : 16, 24);
-                }
-
-                py += 24;
-
-            }
-        }
-
-        tiny3d_SetMatrixModelView(is_vsplit ? &mat_win2 : &mat_unit);
-
-        set_ttf_window(24, (is_vsplit ? 48 : 32 ) + 256, 848 - 24, is_vsplit ? 656 - 48 : 256 - 32, 0);
-
-        if(nentries2)
-        {
-            int py = 0;
-
-            if(sel2 > nentries2) sel2 = nentries2 > 0 ? nentries2 - 1: 0;
-
-            if((sel2 >= pos2) && (frame & BLINK) && fm_pane)
-                DrawBox(0, py + (is_vsplit ? 48 : 32) + 256 + 24 * (sel2 - pos2), 0, 848, 24, CURSORCOLOR);
-            else
-                DrawBox(0, py + (is_vsplit ? 48 : 32) + 256 + 24 * (sel2 - pos2), 0, 848, 24, INVISIBLE);
-
-            for(int n = 0; n < (is_vsplit? 24 : 9); n++)
-            {
-                if(pos2 + n >= nentries2) break;
-
-                u32 color = WHITE;
-
-                stat2.st_size = entries2_size[pos2 + n];
-                stat2.st_mode = entries2[pos2 + n].d_type;
-
-                if(entries2[pos2 + n].d_type & IS_DIRECTORY)
-                {
-                    if(entries2[pos2 + n].d_type & IS_NOT_AVAILABLE) color = YELLOW;
-                    else color = YELLOW2;
-                    display_icon(0, py + (is_vsplit ? 50 : 34) + 256 , 0, FILE_TYPE_FOLDER);
-                }
-                else
-                {
-                    int type = entries2_type[pos2 + n];
-
-                    if(type < 1)
-                    {
-                        type = FILE_TYPE_NORMAL;
-                        char *ext = get_extension(entries2[pos2 + n].d_name);
-                        if(!strcasecmp(ext, ".pkg")) type = FILE_TYPE_PKG; else
-                        if(!strcasecmp(ext, ".self")) type = FILE_TYPE_SELF; else
-                        if(!strcasecmp(ext, ".png")) type = FILE_TYPE_PNG; else
-                        if(!strcasecmp(ext, ".jpg")) type = FILE_TYPE_JPG; else
-                        if(!strcasecmp(ext, ".zip")) type = FILE_TYPE_ZIP; else
-                        if(!strcasecmp(ext, ".lua")) type = FILE_TYPE_LUA; else
-                        if(strcasestr(".iso|.bin|.img|.mdf|.iso.0", ext) != NULL) type = FILE_TYPE_ISO; else
-                        if(is_audiovideo(ext)) type = FILE_TYPE_ISO;
-
-                        if(type == FILE_TYPE_ISO && strcmp(entries2[pos2 + n].d_name, "EBOOT.BIN") == SUCCESS)
-                        {
-                            color = CYAN;
-                            entries2_type[pos2 + n] = FILE_TYPE_BIN;
-                        }
-                        else
-                            entries2_type[pos2 + n] = type;
-                    }
-                    else if(type == FILE_TYPE_BIN)
-                    {
-                        color = CYAN;
-                        type = FILE_TYPE_ISO;
-                    }
-                    if (type == FILE_TYPE_JPG) type = FILE_TYPE_PNG;
-
-                    display_icon(0, py + (is_vsplit ? 50 : 34) + 256, 0, type);
-                }
-
-                if(entries2[pos2 + n].d_type & IS_MARKED)
-                    DrawBox(0, py + (is_vsplit ? 52 : 36) + 256, 0, 848, 16, 0x800080a0);
-
-                int dx = 0;
-
-                double fsize = 0;
-
-                if(/*sel2 == (pos2 + n) && */stat2.st_mode != 0xffffffff)
-                {
-                    if(stat2.st_mode == IS_DIRECTORY)
-                    {
-                        if((path2[1] == 0))
-                        {
-                            if(entries2_size[pos2 + n] > 0x10000) //if size > 64kb (1 cluster or more) use cached free space
-                                fsize = (double) stat2.st_size;
-                            else if(entries2[pos2 + n].d_name[0] == 'd' || entries2[pos2 + n].d_name[0] == 'n' || entries2[pos2 + n].d_name[0] == 'e') //dev_*, ntfs, ext
-                            {
-                                sprintf(TEMP_PATH, "/%s", entries2[pos2 + n].d_name);
-                                fsize = (double) get_free_space(TEMP_PATH, true);
-                                entries2_size[pos2 + n] = (s64) fsize;
-                            }
-                        }
-                    }
-                    else
-                        fsize = (double) stat2.st_size;
-
-                    if(stat2.st_mode == IS_DIRECTORY && fsize == 0)
-                    { /* skip folders */}
-                    else if(fsize < 1024LL)
-                        sprintf(temp_buffer, "%1.0f B", fsize);
-                    else if(fsize < 0x100000LL)
-                        sprintf(temp_buffer, "%1.1f KB", fsize / 1024LL);
-                    else if(fsize < 0x40000000LL)
-                        sprintf(temp_buffer, "%1.1f MB", fsize / 0x100000LL);
-                    else
-                        sprintf(temp_buffer, "%1.2f GB", fsize / GIGABYTES);
-
-                    dx = display_ttf_string(0, py, (char *) temp_buffer, 0, 0, is_vsplit ? 24 : 16, 24);
-                }
-
-                //set_ttf_window(24, 256 + 32, 848 - (dx + 24), 256 - 32, 0);
-                set_ttf_window(24, (is_vsplit ? 48 : 32) + 256, 848 - (dx + 24), is_vsplit ? 656 - 48 : 256 - 32, 0);
-
-                int dxx = display_ttf_string(0, py, (char *) entries2[pos2 + n].d_name, color, 0, is_vsplit ? 24 : 16, 24);
-
-                if((path2[1] == 0) && !strncmp( (char *) entries2[pos2 + n].d_name, "ntfs", 4))
-                {
-                    sprintf(MEM_MESSAGE, MSG_HOW_TO_UNMOUNT_DEVICE, NTFS_Test_Device((char *) entries2[pos2 + n].d_name));
-                    display_ttf_string(dxx, py, MEM_MESSAGE, YELLOW, 0, is_vsplit ? 24 : 16, 24);
-                }
-                else
-                if((path2[1] == 0) && !strncmp( (char *) entries2[pos2 + n].d_name, "ext", 3))
-                {
-                    sprintf(MEM_MESSAGE, MSG_HOW_TO_UNMOUNT_DEVICE, NTFS_Test_Device((char *) entries2[pos2 + n].d_name));
-                    display_ttf_string(dxx, py, MEM_MESSAGE, YELLOW, 0, is_vsplit ? 24 : 16, 24);
-                }
-
-                if(stat2.st_mode == IS_DIRECTORY && fsize == 0)
-                {
-                    // don't show size for folders
-                }
-                else if(/*sel2 == (pos2 + n) && */stat2.st_mode != 0xffffffff)
-                {
-                    set_ttf_window(848 - dx, (is_vsplit ? 48 : 32) + 256, dx, is_vsplit ? 656 - 48 : 256 - 32, 0);
-                    display_ttf_string(0, py, (char *) temp_buffer, 0xffffffff, 0, is_vsplit ? 24 : 16, 24);
-                }
-
-                py += 24;
-
-            }
-        }
-
-        tiny3d_SetMatrixModelView(&mat_unit);
-
-        if(is_vsplit)
-        {
-            DrawBox(0, 512 - 32, 0, 848, 32, BLUE5);
-
-            DrawLineBox(10, 512 - 32, 0, 848, 32, 0x2000ffff);
-
-            set_ttf_window(0, 512 - 32, 480, 32, WIN_AUTO_LF);
-            display_ttf_string(0, 0, (char *) "- File Manager", 0x208098cf, 0, 32, 32);
-
-            // display temperature
-            static u32 temp = 0;
-            static u32 temp2 = 0;
-            static char temp_disp[64];
-
-            if(temp == 0 || (frame & 0x1f) == 0x0 )
-            {
-                sys_game_get_temperature(0, &temp);
-                sys_game_get_temperature(1, &temp2);
-                sprintf(temp_disp, "Temp CPU: %iºC RSX: %iºC", temp, temp2);
-            }
-
-            set_ttf_window(848 - 220, 512 - 30, 300, 32, WIN_AUTO_LF);
-            display_ttf_string(0, 0, temp_disp, 0xFFFFFF55, 0, 16, 32);
-        }
-
-
-        //// End drawing File Manager screen ////
-}
+#include "fm_draw_gui.h"
+#include "fm_hex_editor.h"
 
 int file_manager(char *pathw1, char *pathw2)
 {
@@ -2133,124 +1920,11 @@ int file_manager(char *pathw1, char *pathw2)
         // popup menu
 
         if(set_menu2)
-        {
-            int py = 0;
-            int max_menu2 = 8; bool is_dir=false;
-            if((!fm_pane && (path1[1] == 0)) || (fm_pane && (path2[1] == 0))) {max_menu2 = 7;}
-            else if(!fm_pane &&
-                    (strcmp(path1, "/dev_hdd0/game") == SUCCESS ||
-                     strstr(path1, "/GAME") != NULL ||
-                     strcmp(entries1[sel1].d_name, "game") == SUCCESS ||
-                     strcmp(entries1[sel1].d_name, "GAMES") == SUCCESS ||
-                     strcmp(entries1[sel1].d_name, "GAMEZ") == SUCCESS ||
-                     (strstr(path1, "/PS3ISO") != NULL &&
-                     (!strcmpext(entries1[sel1].d_name, ".iso") || !strcmpext(entries1[sel1].d_name, ".iso.0")))
-                   )) max_menu2 = 9;
-            else if(fm_pane &&
-                    (strcmp(path2, "/dev_hdd0/game") == SUCCESS ||
-                     strstr(path2, "/GAME") != NULL ||
-                     strcmp(entries2[sel2].d_name, "game") == SUCCESS ||
-                     strcmp(entries2[sel2].d_name, "GAMES") == SUCCESS ||
-                     strcmp(entries2[sel2].d_name, "GAMEZ") == SUCCESS ||
-                     (strstr(path2, "/PS3ISO")  != NULL &&
-                     (!strcmpext(entries2[sel2].d_name, ".iso") || !strcmpext(entries2[sel2].d_name, ".iso.0")))
-                   )) max_menu2 = 9;
-            else if( (!fm_pane && use_cobra && (entries1[sel1].d_type & IS_DIRECTORY) && strstr(path1, "/dev_bdvd")==NULL && !is_ntfs_path(path1))   ||
-                     ( fm_pane && use_cobra && (entries2[sel2].d_type & IS_DIRECTORY) && strstr(path2, "/dev_bdvd")==NULL && !is_ntfs_path(path2)) ) {max_menu2 = 9; is_dir=true;}
-            else if( (!fm_pane && use_cobra && is_ntfs_path(path1) && !(entries1[sel1].d_type & IS_DIRECTORY)) || ( fm_pane && use_cobra && is_ntfs_path(path2) && !(entries2[sel2].d_type & IS_DIRECTORY) ) ) {max_menu2 = 9;}
-
-            //else if(!(!fm_pane && (entries1[sel1].d_type & IS_DIRECTORY)) || !(fm_pane && (entries2[sel2].d_type & IS_DIRECTORY))) {max_menu2 = 9;}
-
-
-            DrawBox((848 - 224)/2, (512 - (24 * max_menu2 + 1))/2 - 20 - 20, 0, 224, (24 * max_menu2 + 1) + 40, GRAY);
-            DrawBox((848 - 216)/2, (512 - (24 * (max_menu2 + 1)))/2 - 20, 0, 216, (24 * (max_menu2 + 1)), POPUPMENUCOLOR);
-            set_ttf_window((848 - 200)/2, (512 - (24 * (max_menu2 + 1)) - 20)/2, 200, (24 * (max_menu2 + 1)), 0);
-
-            if(new_pad & BUTTON_CROSS_) frame = 300;
-
-            if(ROOT_MENU)
-            {
-                if(use_cobra == false || bAllowNetGames == false) mount_option = 0;
-
-                bool blink = (set_menu2 == 1  && (frame & BLINK));
-
-                display_ttf_string(0, py, "exFAT Manager",      (set_menu2 == 7  && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-
-                display_ttf_string(0, py, (mount_option == 1) ? "Mount /net_host0" :
-                                          (mount_option == 2) ? "Mount /net_host0/PKG" :
-                                          (mount_option == 3) ? "Mount /net_host0/VIDEO" :
-                                          (mount_option == 4) ? "Mount /net_host1" :
-                                          (mount_option == 5) ? "Mount /net_host1/PKG" :
-                                          (mount_option == 6) ? "Mount /net_host1/VIDEO" :
-                                          (mount_option == 7) ? "Unmount /dev_bdvd" :
-                                          !dev_blind ? "Mount /dev_blind" : "Unmount /dev_blind", blink ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-
-                display_ttf_string(0, py, "LV2 Dump",          (set_menu2 == 2  && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-
-                display_ttf_string(0, py, "LV1 Dump",          (set_menu2 == 3  && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-
-                display_ttf_string(0, py, "RAM Editor",        (set_menu2 == 4  && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-
-                display_ttf_string(0, py, "LV2 Editor",        (set_menu2 == 5  && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-
-                display_ttf_string(0, py, (exit_option == 1) ? "Exit to XMB" : (exit_option == 2) ? "Restart the PS3" : "Exit File Manager",
-                                                               (set_menu2 == 6  && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-            }
-            else
-            {
-                display_ttf_string(0, py, "New Folder",        (set_menu2 == 1 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-
-                display_ttf_string(0, py, "Rename",            (set_menu2 == 2 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-
-                if(allow_shadow_copy && !strncmp(path1, "/dev_hdd0", 9) && !strncmp(path1, path2, 9))
-                {
-                    display_ttf_string(0, py, "Shadow Copy",   (set_menu2 == 3 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-                }
-                else
-                {
-                    allow_shadow_copy = false;
-                    display_ttf_string(0, py, "Copy",          (set_menu2 == 3  && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-                }
-
-                display_ttf_string(0, py, "Move",              (set_menu2 == 4 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-
-                display_ttf_string(0, py, "Delete",            (set_menu2 == 5 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-
-                display_ttf_string(0, py, "Paste to New File", (set_menu2 == 6 && (frame & BLINK)) ? INVISIBLE : copy_len ? WHITE : GRAY, 0, 16, 24); py += 24;
-
-                display_ttf_string(0, py, ((!fm_pane && (entries1[sel1].d_type & IS_DIRECTORY)) || ( fm_pane && (entries2[sel2].d_type & IS_DIRECTORY))) ?
-                                          "Build ISO from Folder" : "Build ISO from File",
-                                                               (set_menu2 == 7 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-
-                display_ttf_string(0, py, ((!fm_pane && (entries1[sel1].d_type & IS_DIRECTORY)) || ( fm_pane && (entries2[sel2].d_type & IS_DIRECTORY))) ?
-                                          "Get Folder Info" : "Get File Info",
-                                                               (set_menu2 == 8 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
-
-                if(is_dir)
-                    {display_ttf_string(0, py, (mnt_mode == 1) ? "Mount + Exit to XMB" : (mnt_mode == 2) ? "Fix Permissions" : "Mount Folder",
-                                                               (set_menu2 == 9 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;}
-                else if(max_menu2 >= 9)
-                {
-                    //if(mnt_mode > 1) mnt_mode = 0;
-
-                    if( (!fm_pane && (!strcmpext(entries1[sel1].d_name, ".iso") || !strcmpext(entries1[sel1].d_name, ".iso.0"))) ||
-                        ( fm_pane && (!strcmpext(entries2[sel2].d_name, ".iso") || !strcmpext(entries2[sel2].d_name, ".iso.0"))) )
-                        {display_ttf_string(0, py, "Fix Game", (set_menu2 == 9 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;}
-                    else if((!fm_pane && use_cobra && is_ntfs_path(path1)) || ( fm_pane && use_cobra && is_ntfs_path(path2)))
-                        {display_ttf_string(0, py, (mnt_mode == 1) ? "Mount + Exit to XMB" : (mnt_mode == 2) ? "Make Fake ISO" : "Mount as /dev_bdvd",
-                                                               (set_menu2 == 9 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;}
-
-                    //else if(!(!fm_pane && (entries1[sel1].d_type & IS_DIRECTORY)) || !(fm_pane && (entries2[sel2].d_type & IS_DIRECTORY)))
-                    //    {display_ttf_string(0, py, (mnt_mode == 1) ? "Mount + Exit to XMB" : (mnt_mode == 2) ? "Make Fake ISO" : "Mount as /dev_bdvd",
-                    //                                           (set_menu2 == 9 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;}
-
-                    else
-                        {display_ttf_string(0, py, "Fix Game", (set_menu2 == 9 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;}
-                }
-            }
-        }
+		{
+            #include "fm_popup_menu_show.h"
+		}
         else
-            allow_shadow_copy = true;
+            allow_shadow_copy = 1;
 
 
         // help
@@ -2303,932 +1977,7 @@ int file_manager(char *pathw1, char *pathw2)
 
         if(set_menu2)
         {
-            int max_menu2 = 8; bool is_dir=false;
-            if((!fm_pane && (path1[1] == 0)) || (fm_pane && (path2[1] == 0))) max_menu2 = 7;
-            else if(!fm_pane &&
-                    (strcmp(path1, "/dev_hdd0/game") == SUCCESS ||
-                     strstr(path1, "/GAME") != NULL ||
-                     strcmp(entries1[sel1].d_name, "game") == SUCCESS ||
-                     strcmp(entries1[sel1].d_name, "GAMES") == SUCCESS ||
-                     strcmp(entries1[sel1].d_name, "GAMEZ") == SUCCESS ||
-                     (strstr(path1, "/PS3ISO") != NULL &&
-                     (!strcmpext(entries1[sel1].d_name, ".iso") || !strcmpext(entries1[sel1].d_name, ".iso.0")))
-                   )) max_menu2 = 9;
-            else if(fm_pane &&
-                    (strcmp(path2, "/dev_hdd0/game") == SUCCESS ||
-                     strstr(path2, "/GAME") != NULL ||
-                     strcmp(entries2[sel2].d_name, "game") == SUCCESS ||
-                     strcmp(entries2[sel2].d_name, "GAMES") == SUCCESS ||
-                     strcmp(entries2[sel2].d_name, "GAMEZ") == SUCCESS ||
-                     (strstr(path2, "/PS3ISO")  != NULL &&
-                     (!strcmpext(entries2[sel2].d_name, ".iso") || !strcmpext(entries2[sel2].d_name, ".iso.0")))
-                   )) max_menu2 = 9;
-            else if( (!fm_pane && (entries1[sel1].d_type & IS_DIRECTORY) && strstr(path1, "/dev_bdvd")==NULL && !is_ntfs_path(path1))   ||
-                     ( fm_pane && (entries2[sel2].d_type & IS_DIRECTORY) && strstr(path2, "/dev_bdvd")==NULL && !is_ntfs_path(path2)) ) {max_menu2 = 9; is_dir=true;}
-            else if( (!fm_pane && use_cobra && is_ntfs_path(path1) && !(entries1[sel1].d_type & IS_DIRECTORY)) || ( fm_pane && use_cobra && is_ntfs_path(path2) && !(entries2[sel2].d_type & IS_DIRECTORY) ) ) {max_menu2 = 9;}
-
-            //else if(!(!fm_pane && (entries1[sel1].d_type & IS_DIRECTORY)) || !(fm_pane && (entries2[sel2].d_type & IS_DIRECTORY))) {max_menu2 = 9;}
-
-            if(new_pad & BUTTON_UP)
-                ROT_DEC(set_menu2, 1, max_menu2)
-            else if(new_pad & BUTTON_DOWN)
-                ROT_INC(set_menu2, max_menu2, 1)
-            else if((set_menu2 == 1) && ROOT_MENU)
-            {
-                if(new_pad & BUTTON_LEFT)
-                    ROT_DEC(mount_option, 0, 7)
-                else if(new_pad & BUTTON_RIGHT)
-                    ROT_INC(mount_option, 7, 0)
-                else if(new_pad & BUTTON_SELECT)
-                    mount_option = 0;
-            }
-            else if((set_menu2 == 6) && ROOT_MENU)
-            {
-                if(new_pad & BUTTON_LEFT)
-                    ROT_DEC(exit_option, 0, 2)
-                else if(new_pad & BUTTON_RIGHT)
-                    ROT_INC(exit_option, 2, 0)
-                else if(new_pad & BUTTON_SELECT)
-                    exit_option = 0;
-            }
-            else if(set_menu2 == 9)
-            {
-                if(new_pad & BUTTON_LEFT)
-                    ROT_DEC(mnt_mode, 0, 2)
-                else if(new_pad & BUTTON_RIGHT)
-                    ROT_INC(mnt_mode, 2, 0)
-                else if(new_pad & BUTTON_SELECT)
-                    mnt_mode = 0;
-            }
-            else
-            if((set_menu2 == 3) && (!ROOT_MENU) && ((new_pad & BUTTON_LEFT) || (new_pad & BUTTON_RIGHT) || (new_pad & BUTTON_SELECT)))
-            {
-                allow_shadow_copy = !allow_shadow_copy;
-            }
-
-         if(new_pad & BUTTON_CROSS_)
-         {
-            char buffer1[256];
-            frame = 300; //force immediate refresh
-
-            if(options_locked)
-            {
-                if(set_menu2 != 7)
-                {
-                    DrawDialogOKTimer("Locked by Parental Control", 2000.0f);
-                    set_menu2 = 666; // for skip
-                }
-            }
-
-            if(ROOT_MENU)
-            {
-                if(set_menu2 == 1)
-                {
-                    if(mount_option)
-                    {
-                        if(bAllowNetGames && get_net_status() == SUCCESS)
-                        {
-                            if(mount_option == 1)
-                            {
-                                call_webman("/mount_ps3/net0/.");
-                                DrawDialogTimer("Mounted /net_host0 as local /dev_bdvd", 2000.0f);
-                            }
-                            else if(mount_option == 2)
-                            {
-                                call_webman("/mount_ps3/net0/PKG");
-                                DrawDialogTimer("Mounted /net_host0/PKG as local /dev_bdvd", 2000.0f);
-                            }
-                            else if(mount_option == 3)
-                            {
-                                call_webman("/mount_ps3/net0/VIDEO");
-                                DrawDialogTimer("Mounted /net_host0/VIDEO as local /dev_bdvd", 2000.0f);
-                            }
-                            else if(mount_option == 4)
-                            {
-                                call_webman("/mount_ps3/net1/.");
-                                DrawDialogTimer("Mounted /net_host1 as local /dev_bdvd", 2000.0f);
-                            }
-                            else if(mount_option == 5)
-                            {
-                                call_webman("/mount_ps3/net1/PKG");
-                                DrawDialogTimer("Mounted /net_host1/PKG as local /dev_bdvd", 2000.0f);
-                            }
-                            else if(mount_option == 6)
-                            {
-                                call_webman("/mount_ps3/net1/VIDEO");
-                                DrawDialogTimer("Mounted /net_host1/VIDEO as local /dev_bdvd", 2000.0f);
-                            }
-                            else if(mount_option == 7)
-                            {
-                                call_webman("/mount.ps3/unmount");
-                                DrawDialogTimer("Unmounted /dev_bdvd", 2000.0f);
-
-                                if(!strncmp(path1, "/dev_bdvd", 9)) {path1[1] = 0; nentries1 = 0;}
-                                if(!strncmp(path2, "/dev_bdvd", 9)) {path2[1] = 0; nentries2 = 0;}
-                            }
-
-                            if(mount_option != 7 && file_exists("/dev_bdvd"))
-                            {
-                                if(!fm_pane)
-                                {
-                                    sprintf(path1, "/dev_bdvd");
-                                    nentries1 = 0;
-                                }
-                                else
-                                {
-                                    sprintf(path2, "/dev_bdvd");
-                                    nentries2 = 0;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // mount/umount /dev_blind
-                        if(dev_blind)
-                        {
-                            sys_fs_umount("/dev_blind");
-                            sys_fs_umount("/dev_habib");
-                            sys_fs_umount("/dev_rebug");
-                            sys_fs_umount("/dev_rewrite");
-
-                            dev_blind = false;
-
-                            // return to root
-                            if(!strncmp(path1, "/dev_blind", 10) ||
-                               !strncmp(path1, "/dev_habib", 10) ||
-                               !strncmp(path1, "/dev_rebug", 10) ||
-                               !strncmp(path1, "/dev_rewrite", 12)) path1[1] = 0;
-
-                            if(!strncmp(path2, "/dev_blind", 10) ||
-                               !strncmp(path2, "/dev_habib", 10) ||
-                               !strncmp(path2, "/dev_rebug", 10) ||
-                               !strncmp(path2, "/dev_rewrite", 12)) path2[1] = 0;
-                        }
-                        else
-                            dev_blind = (sys_fs_mount("CELL_FS_IOS:BUILTIN_FLSH1", "CELL_FS_FAT", "/dev_blind", 0) == SUCCESS);
-                    }
-                    nentries1 = pos1 = sel1 = 0;
-                    nentries2 = pos2 = sel2 = 0;
-                } // mount/umount /dev_blind
-                else if(set_menu2 == 2 || set_menu2 == 3)
-                {   // lv2 / lv1 dump
-                    sprintf(temp_buffer, "/%s", !fm_pane ? entries1[sel1].d_name : entries2[sel2].d_name);
-
-                    if(strncmp(temp_buffer, "/dev_flash", 10) == SUCCESS || strstr("/host_root|/app_home|/dev_bdvd|/dev_blind|/dev_habib|/dev_rewrite|/dev_rebug|/dev_ps2disc", temp_buffer) != NULL)
-                        strcpy(temp_buffer, "/dev_hdd0");
-
-                    int flen = strlen(temp_buffer);
-
-                    int ret = level_dump(temp_buffer, 0x800400ULL, (set_menu2 == 3) ? 1 : 2);
-
-                    if(ret < 0)
-                    {
-                        sprintf(MEM_MESSAGE, "Error in %s dump: 0x%08x\n\n%s", (set_menu2 == 3) ? "LV1" : "LV2", ret, getlv2error(ret));
-                        DrawDialogOK(MEM_MESSAGE);
-                    }
-                    else
-                    if(!fm_pane)
-                    {
-                        update_device_sizes |= 1;
-                        nentries1 = pos1 = sel1 = 0;
-                        strncpy(path1, temp_buffer, flen);
-                    }
-                    else
-                    {
-                        update_device_sizes |= 2;
-                        nentries2 = pos2 = sel2 = 0;
-                        strncpy(path2, temp_buffer, flen);
-                    }
-                }   // lv2 / lv1 dump
-                else if(set_menu2 == 4)
-                {   // RAM area editor
-                    hex_editor(HEX_EDIT_RAM, "RAM Area Editor", 0x10000000ULL);
-                    frame = set_menu2 = 0;
-                    continue;
-                }   // RAM area editor
-                else if(set_menu2 == 5)
-                {   // LV2 editor
-                    hex_editor(HEX_EDIT_LV2, "LV2 Editor", 0x800000ULL);
-                    frame = set_menu2 = 0;
-                    continue;
-                }   // LV2 Editor
-                else if(set_menu2 == 6)
-                {
-                    if(exit_option == 1)
-                    {
-                        if(DrawDialogYesNo("Exit to XMB?") == YES) {unlink_secure("/dev_hdd0/tmp/wm_request"); SaveGameList(); fun_exit(); exit(0);}
-                    }
-                    else
-                    if(exit_option == 2)
-                    {
-                        if(DrawDialogYesNo("Restart the PS3?") == YES) {unlink_secure("/dev_hdd0/tmp/wm_request"); fun_exit(); set_install_pkg = true; SaveGameList(); sys_reboot();}
-                    }
-                    else
-                    {
-                        // Return to Game List
-                        set_menu2 = 0;
-                        break;
-                    }
-                    continue;
-                }   // Exit File Manager
-                else if(set_menu2 == 7)
-                {
-                    // exFAT File Manager
-                    extern s32 fmapp_run();
-                    fmapp_run();
-
-                    set_menu2 = 0;
-                    continue;
-                }
-            }
-            else if(set_menu2 == 1)
-            {
-                // new folder
-                sprintf(buffer1, "%s", "New");
-
-                if(Get_OSK_String("New Folder", buffer1, 256) == SUCCESS)
-                {
-                     if(buffer1[0] == 0) {set_menu2 = 0; continue;}
-
-                     sprintf(MEM_MESSAGE, "Do you want to create the new folder %s\non %s ?", buffer1, !fm_pane ? path1 : path2);
-
-                     ps3pad_read();
-
-                     if((old_pad | BUTTON_L2) || DrawDialogYesNo(MEM_MESSAGE) == YES)
-                     {
-                         exitcode = REFRESH_GAME_LIST;
-
-                         if(!fm_pane)
-                            sprintf(TEMP_PATH, "%s/%s", path1, buffer1);
-                         else
-                            sprintf(TEMP_PATH, "%s/%s", path2, buffer1);
-
-                         int ret;
-
-                         ret = mkdir_secure(TEMP_PATH);
-
-                         if(ret < 0)
-                         {
-                            sprintf(MEM_MESSAGE, "New folder error: 0x%08x\n\n%s", ret, getlv2error(ret));
-                            DrawDialogOK(MEM_MESSAGE);
-                         }
-
-                         if(strcmp(path1, path2) == SUCCESS)
-                            {update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
-                         else if(fm_pane)
-                            {update_device_sizes |= 2; pos2 = sel2 = nentries2 = 0;}
-                         else
-                            {update_device_sizes |= 1; pos1 = sel1 = nentries1 = 0;}
-
-                         frame = 300; //force immediate refresh
-                     }
-                }
-
-            } // new folder
-            else if(set_menu2 == 2)
-            {
-                if(!fm_pane)
-                   strcpy(buffer1, entries1[sel1].d_name);
-                else
-                   strcpy(buffer1, entries2[sel2].d_name);
-
-                if(Get_OSK_String("Rename", buffer1, 256) == SUCCESS)
-                {
-                     if(buffer1[0] == 0 || (!fm_pane && !strcmp(buffer1, entries1[sel1].d_name))
-                                        || ( fm_pane && !strcmp(buffer1, entries2[sel2].d_name))) {set_menu2 = 0; continue;}
-
-                     sprintf(MEM_MESSAGE, "Do you want to rename %s\nto %s ?",
-                                          !fm_pane ? entries1[sel1].d_name : entries2[sel2].d_name, buffer1);
-
-                     ps3pad_read();
-
-                     if((old_pad | BUTTON_L2) || DrawDialogYesNo(MEM_MESSAGE) == YES)
-                     {
-                         exitcode = REFRESH_GAME_LIST;
-
-                         if(!fm_pane)
-                         {
-                            sprintf(TEMP_PATH1, "%s/%s", path1, entries1[sel1].d_name);
-                            sprintf(TEMP_PATH2, "%s/%s", path1, buffer1);
-                         }
-                         else
-                         {
-                            sprintf(TEMP_PATH1, "%s/%s", path2, entries2[sel2].d_name);
-                            sprintf(TEMP_PATH2, "%s/%s", path2, buffer1);
-                         }
-
-                         int ret = rename_secure(TEMP_PATH1, TEMP_PATH2);
-
-                         if(ret < 0)
-                         {
-                            sprintf(MEM_MESSAGE, "Rename error: 0x%08x\n\n%s", ret, getlv2error(ret));
-                            DrawDialogOK(MEM_MESSAGE);
-                         }
-
-                         if(strcmp(path1, path2) == SUCCESS)
-                            {update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
-                         else if(fm_pane)
-                            {update_device_sizes |= 2; pos2 = sel2 = nentries2 = 0;}
-                         else
-                            {update_device_sizes |= 1; pos1 = sel1 = nentries1 = 0;}
-
-                         frame = 300; //force immediate refresh
-                     }
-                }
-
-            } // rename
-            else if(set_menu2 == 3)
-            {
-                // copy
-                int files;
-                int ret = 0;
-
-                if(!fm_pane)
-                {
-                    if(test_mark_flags(entries1, nentries1, &files))
-                    {
-                        // multiple
-                        if((path2[1] == 0) || !strcmp(path1, path2)) {set_menu2 = 0; continue;}
-
-                        ret = copy_file_manager(path1, path2, entries1, nentries1, -1, free_device2);
-                        exitcode = REFRESH_GAME_LIST;
-                    }
-                    else
-                    {
-                        if(!strcmp(entries1[sel1].d_name, "..") || (path2[1] == 0) || !strcmp(path1, path2)) {set_menu2 = 0; continue;}
-
-                        ret = copy_file_manager(path1, path2, entries1, nentries1, sel1, free_device2);
-                        exitcode = REFRESH_GAME_LIST;
-                    }
-                }
-                else
-                {
-                    if(test_mark_flags(entries2, nentries2, &files))
-                    {
-                        // multiple
-                        if((path1[1] == 0) || !strcmp(path1, path2)) {set_menu2 = 0; continue;}
-
-                        ret = copy_file_manager(path2, path1, entries2, nentries2, -1, free_device1);
-                        exitcode = REFRESH_GAME_LIST;
-                    }
-                    else
-                    {
-                        if(!strcmp(entries2[sel2].d_name, "..") || (path1[1] == 0) || !strcmp(path1, path2)) {set_menu2 = 0; continue;}
-
-                        ret = copy_file_manager(path2, path1, entries2, nentries2, sel2, free_device1);
-                        exitcode = REFRESH_GAME_LIST;
-                    }
-                }
-
-                if(ret < 0)
-                {
-                    sprintf(MEM_MESSAGE, "Copy error: 0x%08x\n\n%s", ret, getlv2error(ret));
-                    DrawDialogOK(MEM_MESSAGE);
-                }
-
-                if(strcmp(path1, path2) == SUCCESS)
-                    {update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
-                else if(!fm_pane)
-                    {update_device_sizes |= 2; pos2 = sel2 = nentries2 = 0;}
-                else
-                    {update_device_sizes |= 1; pos1 = sel1 = nentries1 = 0;}
-
-                frame = 300; //force immediate refresh
-
-            } // copy
-            else if(set_menu2 == 4)
-            {
-                // move
-                int files;
-                int ret = 0;
-
-                if(!fm_pane)
-                {
-                    if(test_mark_flags(entries1, nentries1, &files))
-                    {
-                        // multiple
-                        if((path2[1] == 0) || !strcmp(path1, path2))  {set_menu2 = 0; continue;}
-
-                        ret = move_file_manager(path1, path2, entries1, nentries1, -1, free_device2);
-                        exitcode = REFRESH_GAME_LIST;
-                    }
-                    else
-                    {
-                        if(!strcmp(entries1[sel1].d_name, "..") || (path2[1] == 0)  || !strcmp(path1, path2)) {set_menu2 = 0; continue;}
-
-                        ret = move_file_manager(path1, path2, entries1, nentries1, sel1, free_device2);
-                        exitcode = REFRESH_GAME_LIST;
-                    }
-                }
-                else
-                {
-                    if(test_mark_flags(entries2, nentries2, &files))
-                    {
-                        // multiple
-                        if((path1[1] == 0) || !strcmp(path1, path2)) {set_menu2 = 0; continue;}
-
-                        ret = move_file_manager(path2, path1, entries2, nentries2, -1, free_device1);
-                        exitcode = REFRESH_GAME_LIST;
-                    }
-                    else
-                    {
-                        if(!strcmp(entries2[sel2].d_name, "..") || (path1[1] == 0)  || !strcmp(path1, path2)) {set_menu2 = 0; continue;}
-
-                        ret = move_file_manager(path2, path1, entries2, nentries2, sel2, free_device1);
-                        exitcode = REFRESH_GAME_LIST;
-                    }
-                }
-
-                 if(ret < 0)
-                 {
-                    sprintf(MEM_MESSAGE, "Move error: 0x%08x\n\n%s", ret, getlv2error(ret));
-                    DrawDialogOK(MEM_MESSAGE);
-                 }
-
-                 update_device_sizes |= 1|2;
-                 nentries1 = pos1 = sel1 = 0;
-                 nentries2 = pos2 = sel2 = 0;
-                 frame = 300; //force immediate refresh
-
-            } // move
-            else if(set_menu2 == 5)
-            {
-                // delete
-                sysFSDirent *entries;
-                int nentries, sel;
-                char *path;
-
-                int files;
-                int ret = 0;
-                int cfiles = 0;
-
-                if(!fm_pane)
-                {
-                    entries = entries1;
-                    nentries = nentries1;
-                    sel = sel1;
-                    path = path1;
-                    update_device_sizes |= 1;
-                }
-                else
-                {
-                    entries = entries2;
-                    nentries = nentries2;
-                    sel = sel2;
-                    path = path2;
-                    update_device_sizes |= 2;
-                }
-
-                if(test_mark_flags(entries, nentries, &files))
-                {
-                    // multiple
-                    sprintf(MEM_MESSAGE, "Do you want to delete the selected Files and Folders?\n\n(%i) Items", files);
-
-                    if(DrawDialogYesNo(MEM_MESSAGE) == YES)
-                    {
-                        exitcode = REFRESH_GAME_LIST;
-
-                        single_bar("Deleting...");
-
-                        float parts = 100.0f / (float) files;
-                        float cpart = 0;
-
-                        for(n = 0; n < nentries; n++)
-                        {
-                            if(!(entries[n].d_type & IS_MARKED)) continue; // skip no marked
-                            if(progress_action == 2) break;
-
-                            cpart += parts;
-                            if(cpart >= 1.0f)
-                            {
-                                update_bar((u32) cpart);
-                                cpart-= (float) ((u32) cpart);
-                            }
-                            cfiles++;
-
-                            sprintf(temp_buffer, "%s/%s", path, entries[n].d_name);
-
-                            if(entries[n].d_type & IS_DIRECTORY)
-                            {
-                                DeleteDirectory(temp_buffer);
-                                if(is_ntfs_path(temp_buffer))
-                                    ret = ps3ntfs_unlink(temp_buffer);
-                                else
-                                    ret = rmdir_secure(temp_buffer);
-
-                            }
-                            else
-                            {
-                                if(is_ntfs_path(temp_buffer))
-                                    ret = ps3ntfs_unlink(temp_buffer);
-                                else
-                                    ret = unlink_secure(temp_buffer);
-                            }
-
-                            if(ret < 0) break;
-                        }
-                        sysUtilCheckCallback(); tiny3d_Flip();
-                        msgDialogAbort();
-                        usleep(250000);
-
-                        if(ret < 0)
-                        {
-                            sprintf(MEM_MESSAGE, "Delete error: 0x%08x\n\n%s", ret, getlv2error(ret));
-                            DrawDialogOK(MEM_MESSAGE);
-                        }
-
-                        if(strcmp(path1, path2) == SUCCESS)
-                           {update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
-                        else if(fm_pane)
-                           {update_device_sizes |= 2; pos2 = sel2 = nentries2 = 0;}
-                        else
-                           {update_device_sizes |= 1; pos1 = sel1 = nentries1 = 0;}
-
-                        frame = 300; //force immediate refresh
-                    }
-                }
-                else
-                {
-                    if(!strcmp(entries[sel].d_name, "..")) {set_menu2 = 0; continue;}
-
-                    sprintf(MEM_MESSAGE, "Do you want to delete %s?", entries[sel].d_name);
-
-                    if(DrawDialogYesNo(MEM_MESSAGE) == YES)
-                    {
-                        sprintf(temp_buffer, "%s/%s", path, entries[sel].d_name);
-
-                        if(entries[sel].d_type & IS_DIRECTORY)
-                        {
-                            DeleteDirectory(temp_buffer);
-                            if(is_ntfs_path(temp_buffer))
-                                ret = ps3ntfs_unlink(temp_buffer);
-                            else
-                                ret = rmdir_secure(temp_buffer);
-                        }
-                        else
-                        {
-                            if(is_ntfs_path(temp_buffer))
-                                ret = ps3ntfs_unlink(temp_buffer);
-                            else
-                                ret = unlink_secure(temp_buffer);
-                        }
-
-                        if(ret < 0)
-                        {
-                            sprintf(MEM_MESSAGE, "Delete error: 0x%08x\n\n%s", ret, getlv2error(ret));
-                            DrawDialogOK(MEM_MESSAGE);
-                        }
-
-                        if(strcmp(path1, path2) == SUCCESS)
-                           {update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
-                        else if(fm_pane)
-                           {update_device_sizes |= 2; pos2 = sel2 = nentries2 = 0;}
-                        else
-                           {update_device_sizes |= 1; pos1 = sel1 = nentries1 = 0;}
-
-                        frame = 300; //force immediate refresh
-                    }
-                }
-
-            } // delete
-            else if(set_menu2 == 6)
-            {
-                // Paste to New File
-                if(copy_len == 0 || !copy_mem) {DrawDialogOKTimer("Paste buffer is empty", 2000.0f); set_menu2 = 0; continue;}
-
-                sprintf(buffer1, "%s", "Newfile");
-
-                if(Get_OSK_String("Paste to New File", buffer1, 256) == SUCCESS)
-                {
-                     if(buffer1[0] == 0) {DrawDialogOKTimer("Invalid filename", 2000.0f); set_menu2 = 0; continue;}
-
-                     ps3pad_read();
-
-                     sprintf(MEM_MESSAGE, "Do you want to create the new file %s.bin\non %s ?", buffer1, !fm_pane ? path1 : path2);
-
-                     if((old_pad | BUTTON_L2) || DrawDialogYesNo(MEM_MESSAGE) == YES)
-                     {
-                         exitcode = REFRESH_GAME_LIST;
-
-                         if(!fm_pane)
-                         {
-                            update_device_sizes |= 1;
-                            sprintf(temp_buffer, "%s/%s.bin", path1, buffer1);
-                         }
-                         else
-                         {
-                            update_device_sizes |= 2;
-                            sprintf(temp_buffer, "%s/%s.bin", path2, buffer1);
-                         }
-
-                         s32 fd = FAILED;
-
-                         int ret;
-
-                         is_ntfs = is_ntfs_path(temp_buffer);
-
-                         if(is_ntfs) {fd = ps3ntfs_open(temp_buffer, O_WRONLY | O_CREAT | O_TRUNC, 0);if(fd < 0) ret = FAILED; else ret = SUCCESS;}
-                         else
-                            ret = sysLv2FsOpen(temp_buffer, SYS_O_WRONLY | SYS_O_CREAT | SYS_O_TRUNC, &fd, 0777, NULL, 0);
-
-                         if(ret == SUCCESS && fd >= SUCCESS)
-                         {
-                            if(!is_ntfs) sysLv2FsChmod(temp_buffer, FS_S_IFMT | 0777);
-                            ret = save_hex(is_ntfs, fd, 0LL, copy_mem, copy_len);
-                            if(fd >= SUCCESS) {if(is_ntfs) ps3ntfs_close(fd); else sysLv2FsClose(fd);}
-                         }
-
-                         if(ret != SUCCESS)
-                         {
-                            sprintf(MEM_MESSAGE, "New file error: 0x%08x\n\n%s", ret, getlv2error(ret));
-                            DrawDialogOK(MEM_MESSAGE);
-                         }
-                         else
-                         {
-                            sprintf(temp_buffer, "%d Bytes written", copy_len);
-                            DrawDialogOKTimer(temp_buffer, 2000.0f);
-                         }
-
-                         if(strcmp(path1, path2) == SUCCESS)
-                            {update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
-                         else if(fm_pane)
-                            {update_device_sizes |= 2; pos2 = sel2 = nentries2 = 0;}
-                         else
-                            {update_device_sizes |= 1; pos1 = sel1 = nentries1 = 0;}
-
-                         frame = 300; //force immediate refresh
-                     }
-                }
-
-            } // Paste to New File
-            else if(set_menu2 == 7)
-            {
-                // Build ISO from file
-                if(( fm_pane == 0 && ((path1[1] == 0) || strcmp(entries1[sel1].d_name, "..") == SUCCESS)) ||
-                    (fm_pane == 1 && ((path2[1] == 0) || strcmp(entries2[sel2].d_name, "..") == SUCCESS))) ;
-                else if((fm_pane == 0 && (entries1[sel1].d_type & IS_DIRECTORY)) ||
-                        (fm_pane == 1 && (entries2[sel2].d_type & IS_DIRECTORY)))
-                {
-                    if(!fm_pane)
-                        sprintf(TEMP_PATH1, "%s/%s", path1, entries1[sel1].d_name);
-                    else
-                        sprintf(TEMP_PATH1, "%s/%s", path2, entries2[sel2].d_name);
-
-                    menu_screen = SCR_TOOL_BUILD_ISO;
-                    while(menu_screen != SCR_MENU_GAME_OPTIONS)
-                    {
-                        cls();
-                        update_twat(false);
-                        draw_device_mkiso(0, 0, -1, TEMP_PATH1);
-                    }
-
-                    menu_screen = SCR_MAIN_GAME_LIST;
-                    exitcode = REFRESH_GAME_LIST;
-                    frame = 0;
-               }
-               else
-               {
-                    sprintf(TEMP_PATH1, "%s/USRDIR/TEMP/showtime.iso", self_path);
-
-                    if(!fm_pane)
-                        sprintf(TEMP_PATH2, "%s/%s", path1, entries1[sel1].d_name);
-                    else
-                        sprintf(TEMP_PATH2, "%s/%s", path2, entries2[sel2].d_name);
-
-                    launch_iso_build(TEMP_PATH1, TEMP_PATH2, true);
-               }
-            } // Build ISO from file
-            else if(set_menu2 == 8)
-            {
-                // Get file / folder info
-                int nfiles = 0, nfolders = 0;
-                u64 size = 0ULL;
-
-                set_menu2 = 0;
-
-                if((!fm_pane && (entries1[sel1].d_type & IS_DIRECTORY) && strcmp(entries1[sel1].d_name, "..") != 0) ||
-                   ( fm_pane && (entries2[sel2].d_type & IS_DIRECTORY) && strcmp(entries2[sel2].d_name, "..") != 0))
-                    DrawDialogTimer("Scanning folder ...", 500.0f);
-
-                if(!fm_pane)
-                    sprintf(TEMP_PATH, "%s/%s", path1, entries1[sel1].d_name);
-                else
-                    sprintf(TEMP_PATH, "%s/%s", path2, entries2[sel2].d_name);
-
-                if((!fm_pane && (path1[1] != 0) && strcmp(entries1[sel1].d_name, "..")) ||
-                   ( fm_pane && (path2[1] != 0) && strcmp(entries2[sel2].d_name, ".."))
-                  )
-                {
-                    CountFiles(TEMP_PATH, &nfiles, &nfolders, &size);
-
-                    if(!((!fm_pane && (entries1[sel1].d_type & IS_DIRECTORY)) || (fm_pane && (entries2[sel2].d_type & IS_DIRECTORY)))) nfiles = 1;
-
-                    if(size == 1LL)
-                        sprintf(MEM_MESSAGE, "%s\n\n%i Files, %i Folders\n\nTotal Size: 1 Byte", TEMP_PATH, nfiles, nfolders);
-                    else if(size < 1024LL)
-                        sprintf(MEM_MESSAGE, "%s\n\n%i Files, %i Folders\n\nTotal Size: %i Bytes", TEMP_PATH, nfiles, nfolders, (int) size);
-                    else
-                        if(size < 0x100000LL)
-                            sprintf(MEM_MESSAGE, "%s\n\n%i Files, %i Folders\n\nTotal Size: %1.1f KB (%1.0f Bytes)", TEMP_PATH, nfiles, nfolders, (double) (size  / 1024LL), (double) size);
-                        else if(size < 0x40000000LL)
-                            sprintf(MEM_MESSAGE, "%s\n\n%i Files, %i Folders\n\nTotal Size: %1.1f MB (%1.0f Bytes)", TEMP_PATH, nfiles, nfolders, (double) (size / 0x100000LL), (double) size);
-                        else
-                            sprintf(MEM_MESSAGE, "%s\n\n%i Files, %i Folders\n\nTotal Size: %1.2f GB (%1.0f Bytes)", TEMP_PATH, nfiles, nfolders, ((double) size) / GIGABYTES, (double) size);
-
-                    DrawDialogOK(MEM_MESSAGE);
-                }
-            } // Getfile / folder info
-            else if(set_menu2 == 9 && max_menu2 >= 9)
-            {
-                 // Fix game / Mount folder
-                 if(!fm_pane)
-                     sprintf(temp_buffer, "%s/%s", path1, entries1[sel1].d_name);
-                 else
-                     sprintf(temp_buffer, "%s/%s", path2, entries2[sel2].d_name);
-
-                 if(mnt_mode == 2)
-                 {
-                     if((fm_pane == 0 && (entries1[sel1].d_type & IS_DIRECTORY)) ||
-                        (fm_pane == 1 && (entries2[sel2].d_type & IS_DIRECTORY)))
-                     {
-                        pause_music(1);
-
-                        // sys8_perm_mode(1);
-                        DCls();
-                        FixDirectory(temp_buffer, 0);
-                        DCls();
-                        // sys8_perm_mode(0);
-
-                        msgDialogAbort();
-                        msgDialogClose(0);
-
-                        pause_music(0);
-                     }
-                     else if(!fm_pane && use_cobra && is_ntfs_path(path1))
-                     {
-                         DrawDialogTimer("Creating fake ISO ...", 500.0f);
-
-                         mkdir_secure("/dev_hdd0/tmp/wmtmp");
-
-                         for(int s = 0; s < nentries1; s++)
-                         {
-                             if((entries1[s].d_type & IS_MARKED) || (selcount1==0 && s==sel1))
-                             {
-                                 int flen=strlen(entries1[s].d_name)-4;
-                                 if((entries1[s].d_type & IS_DIRECTORY) || (flen>0 && strcasestr(".iso|.bin|.mdf|.img|so.0", entries1[s].d_name + flen)!=NULL)) ;
-                                 else
-                                 {
-                                     sprintf(temp_buffer, "%s/%s", path1, entries1[s].d_name);
-                                     sprintf(TEMP_PATH1, "/dev_hdd0/tmp/wmtmp/%s.iso", entries1[s].d_name);
-                                     launch_iso_build(TEMP_PATH1, temp_buffer, false);
-                                 }
-                             }
-                         }
-                         strcpy(path1, "/dev_hdd0/tmp/wmtmp\0"); nentries1 = pos1 = sel1 = 0; update_device_sizes = 1|2;
-
-                         if(get_net_status() != SUCCESS) continue;
-                         call_webman("/refresh.ps3");
-                     }
-                     else if(fm_pane && use_cobra && is_ntfs_path(path2))
-                     {
-                         DrawDialogTimer("Creating fake ISO ...", 500.0f);
-
-                         mkdir_secure("/dev_hdd0/tmp/wmtmp");
-
-                         for(int s = 0; s < nentries2; s++)
-                         {
-                             if((entries2[s].d_type & IS_MARKED) || (selcount2==0 && s==sel2))
-                             {
-                                 int flen=strlen(entries2[s].d_name)-4;
-                                 if((entries2[s].d_type & IS_DIRECTORY) || (flen>0 && strcasestr(".iso|.bin|.mdf|.img|so.0", entries2[s].d_name + flen)!=NULL)) ;
-                                 else
-                                 {
-                                     sprintf(temp_buffer, "%s/%s", path2, entries2[s].d_name);
-                                     sprintf(TEMP_PATH2, "/dev_hdd0/tmp/wmtmp/%s.iso", entries2[s].d_name);
-                                     launch_iso_build(TEMP_PATH2, temp_buffer, false);
-                                 }
-                             }
-                         }
-                         strcpy(path2, "/dev_hdd0/tmp/wmtmp\0"); nentries2 = pos2 = sel2 = 0; update_device_sizes = 1|2;
-
-                         if(get_net_status() != SUCCESS) continue;
-                         call_webman("/refresh.ps3");
-                     }
-                     else
-                         sysLv2FsChmod(temp_buffer, FS_S_IFMT | 0777);
-
-                     mnt_mode  = 1;
-                     set_menu2 = 0;
-                     continue;
-                 }
-
-                 if( (!fm_pane && (!strcmpext(entries1[sel1].d_name, ".iso") || !strcmpext(entries1[sel1].d_name, ".iso.0"))) ||
-                     ( fm_pane && (!strcmpext(entries2[sel2].d_name, ".iso") || !strcmpext(entries2[sel2].d_name, ".iso.0"))) )
-                 {
-                     if((!fm_pane && selcount1<2) || (fm_pane && selcount2<2))
-                         patchps3iso(temp_buffer, 0);
-                     else if(fm_pane == 0)
-                     {
-                         for(int s = 0; s < nentries1; s++)
-                         {
-                             if((entries1[s].d_type & IS_MARKED) &&
-                                (!strcmpext(entries1[s].d_name, ".iso") || !strcmpext(entries1[s].d_name, ".iso.0")))
-                             {
-                                 sprintf(temp_buffer, "%s/%s", path1, entries1[s].d_name);
-                                 patchps3iso(temp_buffer, 1);
-                             }
-                         }
-                     }
-                     else if(fm_pane == 1)
-                     {
-                         for(int s = 0; s < nentries2; s++)
-                         {
-                             if((entries2[s].d_type & IS_MARKED) &&
-                                (!strcmpext(entries2[s].d_name, ".iso") || !strcmpext(entries2[s].d_name, ".iso.0")))
-                             {
-                                 sprintf(temp_buffer, "%s/%s", path2, entries2[s].d_name);
-                                 patchps3iso(temp_buffer, 1);
-                             }
-                         }
-                     }
-                 }
-
-                 //else if(use_cobra && !((!fm_pane && (entries1[sel1].d_type & IS_DIRECTORY)) || (fm_pane && (entries2[sel2].d_type & IS_DIRECTORY))))
-                 else if(use_cobra && ( (!fm_pane && is_ntfs_path(path1)) || (fm_pane && is_ntfs_path(path2)) ))
-                 {
-                     sprintf(TEMP_PATH1, "%s/USRDIR/TEMP/pkg.iso", self_path);
-
-                     if(!fm_pane)
-                         sprintf(TEMP_PATH2, "%s/%s", path1, entries1[sel1].d_name);
-                     else
-                         sprintf(TEMP_PATH2, "%s/%s", path2, entries2[sel2].d_name);
-
-                     int flen = strlen(TEMP_PATH2) - 4;
-
-                     cobra_send_fake_disc_eject_event();
-                     usleep(4000);
-                     cobra_umount_disc_image();
-
-                     cobra_unset_psp_umd();
-                     sys_map_path((char*)"/dev_bdvd", NULL);
-                     sys_map_path((char*)"/app_home", NULL);
-
-                     if(flen >= 0 && (strcasestr(".iso|.bin|.mdf|.img|so.0", TEMP_PATH2 + flen) != NULL))
-                         launch_iso_game(TEMP_PATH2, DETECT_EMU_TYPE);
-                     else
-                     {
-                         unlink_secure(TEMP_PATH1);
-                         launch_iso_build(TEMP_PATH1, TEMP_PATH2, false);
-
-                         if(!fm_pane)
-                            {strcpy(path1, "/dev_bdvd\0"); nentries1 = pos1 = sel1 = 0;}
-                         else
-                            {strcpy(path2, "/dev_bdvd\0"); nentries2 = pos2 = sel2 = 0;}
-                     }
-
-                     if((mnt_mode == 1) || (old_pad & BUTTON_SELECT)) {SaveGameList(); fun_exit(); exit(0);}
-                 }
-                 else
-                 if(is_dir)
-                 {
-                     cobra_send_fake_disc_eject_event();
-                     usleep(4000);
-                     cobra_umount_disc_image();
-
-                     sys_map_path("/dev_bdvd", temp_buffer);
-                     sys_map_path("/app_home", temp_buffer);
-
-                     cobra_send_fake_disc_insert_event();
-
-                     if(!fm_pane)
-                        {strcpy(path1, "/dev_bdvd\0"); nentries1 = pos1 = sel1 = 0;}
-                     else
-                        {strcpy(path2, "/dev_bdvd\0"); nentries2 = pos2 = sel2 = 0;}
-
-                     if(mnt_mode == 1 || (old_pad & BUTTON_SELECT)) {SaveGameList(); fun_exit(); exit(0);}
-                 }
-                 else
-                 {
-                    pause_music(1);
-                    patch_error_09(temp_buffer, 0);
-
-                    DCls();
-                    FixDirectory(temp_buffer, 0);
-                    DCls();
-
-                    msgDialogAbort();
-                    msgDialogClose(0);
-
-                    pause_music(0);
-                 }
-
-            } // fix game
-
-            set_menu2 = 0;
-            continue;
-         }
-
+            #include "fm_popup_menu_exec.h"
         }
         else
         {
@@ -3511,6 +2260,24 @@ int file_manager(char *pathw1, char *pathw2)
                         sprintf(TEMP_PATH2, "%s", entries1[sel1].d_name);
                         launch_ps2classic(TEMP_PATH1, TEMP_PATH2);
                     }
+                    else if(!(entries1[sel1].d_type & IS_MARKED) && strcasecmp(ext, ".zip") == SUCCESS)
+                    {
+                        char *dest_path = (old_pad & BUTTON_SELECT) ? path1 : path2;
+                        sprintf(MEM_MESSAGE, "Do you want to extract %s to %s?", entries1[sel1].d_name, dest_path);
+                        if(DrawDialogYesNo(MEM_MESSAGE) == YES)
+                        {
+                            sprintf(TEMP_PATH1, "%s/%s", path1, entries1[sel1].d_name);
+                            sprintf(TEMP_PATH2, "%s/", dest_path);
+
+                            msgDialogAbort();
+                            sprintf(MEM_MESSAGE, "Extracting %s...\nTo: %s", entries1[sel1].d_name, dest_path);
+                            DrawDialogTimer(MEM_MESSAGE, 500.0f);
+
+                            extract_zip(TEMP_PATH1, TEMP_PATH2);
+                            {update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
+                            frame = 300; //force immediate refresh
+                        }
+                    }
 
                     else if(!(entries1[sel1].d_type & IS_MARKED) &&
                             is_retro_file(path1, entries1[sel1].d_name))
@@ -3527,57 +2294,7 @@ int file_manager(char *pathw1, char *pathw2)
                     }
                     else if(!(entries1[sel1].d_type & IS_MARKED) && is_browser_file(ext))
                     {
-                        if(strcasecmp(ext, ".html") == SUCCESS || strcasecmp(ext, ".htm") == SUCCESS)
-                            sprintf(TEMP_PATH, "http://127.0.0.1%s/%s", path1, entries1[sel1].d_name);
-                        else
-                        {
-                            sprintf(TEMP_PATH, "%s/USRDIR/temp.txt", self_path);
-                            unlink_secure(TEMP_PATH);
-
-                            sprintf(TEMP_PATH, "%s/USRDIR/temp.html", self_path);
-                            unlink_secure(TEMP_PATH);
-
-                            FILE *fd;
-
-                            fd = fopen(TEMP_PATH, "w");
-
-                            if(!strcasecmp(ext, ".cfg"))
-                            {
-                                sprintf(TEMP_PATH1, "%s/%s", path1, entries1[sel1].d_name);
-                                sprintf(TEMP_PATH2, "%s/USRDIR/temp.txt", self_path);
-                                CopyFile(TEMP_PATH1, TEMP_PATH2);
-
-                                sprintf(temp_buffer, "<body bgcolor=white text=blue leftmargin=0 rightmargin=0><font size=5>%s</font></br><iframe src='http://127.0.0.1/%s' border=0 ",
-                                        entries1[sel1].d_name, TEMP_PATH1);
-                            }
-                            else
-                                sprintf(temp_buffer, "<body bgcolor=white text=blue leftmargin=0 rightmargin=0><font size=5>%s</font></br><iframe src='http://127.0.0.1/%s/%s' border=0 ",
-                                        entries1[sel1].d_name, path1, entries1[sel1].d_name);
-
-                            strcat(temp_buffer, "width=100% height=100%></body>");
-                            fputs (temp_buffer, fd);
-                            fclose(fd);
-
-                            sprintf(TEMP_PATH, "http://127.0.0.1/%s/USRDIR/temp.html", self_path);
-                        }
-
-                        char* launchargv[2];
-                        memset(launchargv, 0, sizeof(launchargv));
-
-                        int len = strlen(temp_buffer);
-                        launchargv[0] = (char*)malloc(len + 1); strcpy(launchargv[0], TEMP_PATH);
-                        launchargv[1] = NULL;
-
-                        char self[256];
-                        sprintf(self, "%s/USRDIR/browser.self", self_path);
-
-                        if(file_exists(self))
-                        {
-                            fun_exit();
-                            SaveGameList();
-
-                            sysProcessExitSpawn2((const char*)self, (char const**)launchargv, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
-                        }
+                        browse_file(ext, path1, entries1[sel1].d_name);
                     }
 
                     else if(!(entries1[sel1].d_type & IS_MARKED) && strcasecmp(ext, ".p3t") == SUCCESS)
@@ -3837,142 +2554,20 @@ int file_manager(char *pathw1, char *pathw2)
 
             if(new_pad & BUTTON_L3)
             {
-                ROT_INC(change_path1, 6, 0);
-
                 nentries1 = pos1 = sel1 = 0;
-
                 frame = 300; //force immediate refresh
                 update_device_sizes |= 1;
 
-                switch(change_path1)
-                {
-                    case 0:
-                        if((path1[1] != 0))
-                        {
-                            strcpy(path1, "/");
-                            break;
-                        }
-                        else
-                            change_path1++;
-                    case 1:
-                        if(strcmp(path1, "/dev_usb000") != SUCCESS && file_exists("/dev_usb000"))
-                        {
-                            strcpy(path1, "/dev_usb000");
-                            break;
-                        }
-                        else
-                            change_path1++;
-                    case 2:
-                        if(strcmp(path1, "/dev_usb001") != SUCCESS && file_exists("/dev_usb001"))
-                        {
-                            strcpy(path1, "/dev_usb001");
-                            break;
-                        }
-                        else
-                            change_path1++;
-                    case 3:
-                        if(strcmp(path1, "/dev_usb006") != SUCCESS && file_exists("/dev_usb006"))
-                        {
-                            strcpy(path1, "/dev_usb006");
-                            break;
-                        }
-                        else
-                            change_path1++;
-                    case 4:
-                        if(strcmp(path1, "/dev_bdvd") != SUCCESS && file_exists("/dev_bdvd"))
-                        {
-                            strcpy(path1, "/dev_bdvd");
-                            break;
-                        }
-                        else
-                            change_path1++;
-                    case 5:
-                        if(strcmp(path1, self_path) != SUCCESS && file_exists(self_path))
-                        {
-                            strcpy(path1, self_path);
-                            break;
-                        }
-                        else
-                            change_path1++;
-                    default:
-                        if(strcmp(path1, path2) != SUCCESS && file_exists(path2))
-                        {
-                            strcpy(path1, path2);
-                            break;
-                        }
-                        else
-                            {change_path1 = 0; strcpy(path1, "/");}
-                }
+                change_path1 = toggle_path_l3(path1, path2, change_path1);
             } // l3
 
             else if(new_pad & BUTTON_R3)
             {
-                ROT_INC(change_path1, 6, 0);
-
                 nentries1 = pos1 = sel1 = 0;
-
                 frame = 300; //force immediate refresh
                 update_device_sizes |= 1;
 
-                switch(change_path1)
-                {
-                    case 0:
-                        if(strcmp(path1, "/dev_hdd0") != SUCCESS && file_exists("/dev_hdd0"))
-                        {
-                            strcpy(path1, "/dev_hdd0");
-                            break;
-                        }
-                        else
-                            change_path1++;
-                    case 1:
-                        if(strcmp(path1, "/dev_hdd0/PS3ISO") != SUCCESS && file_exists("/dev_hdd0/PS3ISO"))
-                        {
-                            strcpy(path1, "/dev_hdd0/PS3ISO");
-                            break;
-                        }
-                        else
-                            change_path1++;
-                    case 2:
-                        if(strcmp(path1, "/dev_hdd0/GAMES") != SUCCESS && file_exists("/dev_hdd0/GAMES"))
-                        {
-                            strcpy(path1, "/dev_hdd0/GAMES");
-                            break;
-                        }
-                        else
-                            change_path1++;
-                    case 3:
-                        if(strcmp(path1, "/dev_hdd0/game") != SUCCESS && file_exists("/dev_hdd0/game"))
-                        {
-                            strcpy(path1, "/dev_hdd0/game");
-                            break;
-                        }
-                        else
-                            change_path1++;
-                    case 4:
-                        if(strcmp(path1, "/dev_hdd0/packages") != SUCCESS && file_exists("/dev_hdd0/packages"))
-                        {
-                            strcpy(path1, "/dev_hdd0/packages");
-                            break;
-                        }
-                        else
-                            change_path1++;
-                    case 5:
-                        if(strcmp(path1, "/dev_hdd0/home") != SUCCESS && file_exists("/dev_hdd0/home"))
-                        {
-                            strcpy(path1, "/dev_hdd0/home");
-                            break;
-                        }
-                        else
-                            change_path1++;
-                    default:
-                        if(strcmp(path1, path2) != SUCCESS  && file_exists(path2) )
-                        {
-                            strcpy(path1, path2);
-                            break;
-                        }
-                        else
-                            {change_path1 = 0; strcpy(path1, "/dev_hdd0");}
-                }
+                change_path1 = toggle_path_r3(path1, path2, change_path1);
             } // r3
         }
 
@@ -4126,6 +2721,24 @@ int file_manager(char *pathw1, char *pathw2)
                         sprintf(TEMP_PATH2, "%s", entries2[sel2].d_name);
                         launch_ps2classic(TEMP_PATH1, TEMP_PATH2);
                     }
+                    else if(!(entries2[sel2].d_type & IS_MARKED) && strcasecmp(ext, ".zip") == SUCCESS)
+                    {
+                        char *dest_path = (old_pad & BUTTON_SELECT) ? path2 : path1;
+                        sprintf(MEM_MESSAGE, "Do you want to extract %s to %s?", entries2[sel2].d_name, dest_path);
+                        if(DrawDialogYesNo(MEM_MESSAGE) == YES)
+                        {
+                            sprintf(TEMP_PATH1, "%s/%s", path2, entries2[sel2].d_name);
+                            sprintf(TEMP_PATH2, "%s/", dest_path);
+
+							msgDialogAbort();
+							sprintf(MEM_MESSAGE, "Extracting %s...\nTo: %s", entries2[sel2].d_name, dest_path);
+							DrawDialogTimer(MEM_MESSAGE, 500.0f);
+
+                            extract_zip(TEMP_PATH1, TEMP_PATH2);
+                            {update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
+                            frame = 300; //force immediate refresh
+                        }
+                    }
 
                     else if(!(entries2[sel2].d_type & IS_MARKED) &&
                             is_retro_file(path2, entries2[sel2].d_name))
@@ -4142,57 +2755,7 @@ int file_manager(char *pathw1, char *pathw2)
                     }
                     else if(!(entries2[sel2].d_type & IS_MARKED) && is_browser_file(ext))
                     {
-                        if(strcasecmp(ext, ".html") == SUCCESS || strcasecmp(ext, ".htm") == SUCCESS)
-                            sprintf(TEMP_PATH, "http://127.0.0.1%s/%s", path2, entries2[sel2].d_name);
-                        else
-                        {
-                            sprintf(TEMP_PATH, "%s/USRDIR/temp.txt", self_path);
-                            unlink_secure(TEMP_PATH);
-
-                            sprintf(TEMP_PATH, "%s/USRDIR/temp.html", self_path);
-                            unlink_secure(TEMP_PATH);
-
-                            FILE *fd;
-
-                            fd = fopen(TEMP_PATH, "w");
-
-                            if(!strcasecmp(ext, ".cfg"))
-                            {
-                                sprintf(TEMP_PATH1, "%s/%s", path2, entries2[sel2].d_name);
-                                sprintf(TEMP_PATH2, "%s/USRDIR/temp.txt", self_path);
-                                CopyFile(TEMP_PATH1, TEMP_PATH2);
-
-                                sprintf(temp_buffer, "%s%s</font></br><iframe src='http://127.0.0.1/%s' border=0 ", "<body bgcolor=white text=blue leftmargin=0 rightmargin=0><font size=5>",
-                                        entries2[sel2].d_name, TEMP_PATH1);
-                            }
-                            else
-                                sprintf(temp_buffer, "%s%s</font></br><iframe src='http://127.0.0.1/%s/%s' border=0 ", "<body bgcolor=white text=blue leftmargin=0 rightmargin=0><font size=5>",
-                                        entries2[sel2].d_name, path2, entries2[sel2].d_name);
-
-                            strcat(temp_buffer, "width=100% height=100%></body>");
-                            fputs (temp_buffer, fd);
-                            fclose(fd);
-
-                            sprintf(TEMP_PATH, "http://127.0.0.1/%s/USRDIR/temp.html", self_path);
-                        }
-
-                        char* launchargv[2];
-                        memset(launchargv, 0, sizeof(launchargv));
-
-                        int len = strlen(temp_buffer);
-                        launchargv[0] = (char*)malloc(len + 1); strcpy(launchargv[0], TEMP_PATH);
-                        launchargv[1] = NULL;
-
-                        char self[256];
-                        sprintf(self, "%s/USRDIR/browser.self", self_path);
-
-                        if(file_exists(self))
-                        {
-                            fun_exit();
-                            SaveGameList();
-
-                            sysProcessExitSpawn2((const char*)self, (char const**)launchargv, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
-                        }
+                        browse_file(ext, path2, entries2[sel2].d_name);
                     }
 
                     else if(!(entries2[sel2].d_type & IS_MARKED) && strcasecmp(ext, ".p3t") == SUCCESS)
@@ -4448,146 +3011,24 @@ int file_manager(char *pathw1, char *pathw2)
                         }
                     }
                 }
-
             } // select+square
 
             if(new_pad & BUTTON_L3)
             {
-                ROT_INC(change_path2, 6, 0);
-
                 nentries2 = pos2 = sel2 = 0;
                 frame = 300; //force immediate refresh
                 update_device_sizes |= 2;
 
-                switch(change_path2)
-                {
-                    case 0:
-                        if((path2[1] != 0))
-                        {
-                            strcpy(path2, "/");
-                            break;
-                        }
-                        else
-                            change_path2++;
-                    case 1:
-                        if(strcmp(path2, "/dev_usb000") != SUCCESS && file_exists("/dev_usb000"))
-                        {
-                            strcpy(path2, "/dev_usb000");
-                            break;
-                        }
-                        else
-                            change_path2++;
-                    case 2:
-                        if(strcmp(path2, "/dev_usb001") != SUCCESS && file_exists("/dev_usb001"))
-                        {
-                            strcpy(path2, "/dev_usb001");
-                            break;
-                        }
-                        else
-                            change_path2++;
-                    case 3:
-                        if(strcmp(path2, "/dev_usb006") != SUCCESS && file_exists("/dev_usb006"))
-                        {
-                            strcpy(path2, "/dev_usb006");
-                            break;
-                        }
-                        else
-                            change_path2++;
-                    case 4:
-                        if(strcmp(path2, "/dev_bdvd") != SUCCESS && file_exists("/dev_bdvd"))
-                        {
-                            strcpy(path2, "/dev_bdvd");
-                            break;
-                        }
-                        else
-                            change_path2++;
-                    case 5:
-                        if(strcmp(path2, self_path) != SUCCESS && file_exists(self_path))
-                        {
-                            strcpy(path2, self_path);
-                            break;
-                        }
-                        else
-                            change_path2++;
-                    default:
-                        if(strcmp(path2, path1) != SUCCESS && file_exists(path1))
-                        {
-                            strcpy(path2, path1);
-                            break;
-                        }
-                        else
-                            {change_path2 = 0; strcpy(path2, "/");}
-                }
+                change_path2 = toggle_path_l3(path2, path1, change_path2);
             } // l3
 
             else if(new_pad & BUTTON_R3)
             {
-                ROT_INC(change_path2, 6, 0);
-
                 nentries2 = pos2 = sel2 = 0;
                 frame = 300; //force immediate refresh
                 update_device_sizes |= 2;
 
-                switch(change_path2)
-                {
-                    case 0:
-                        if(strcmp(path2, "/dev_hdd0") != SUCCESS && file_exists("/dev_hdd0"))
-                        {
-                            strcpy(path2, "/dev_hdd0");
-                            break;
-                        }
-                        else
-                            change_path2++;
-                    case 1:
-                        if(strcmp(path2, "/dev_hdd0/PS3ISO") != SUCCESS && file_exists("/dev_hdd0/PS3ISO"))
-                        {
-                            strcpy(path2, "/dev_hdd0/PS3ISO");
-                            break;
-                        }
-                        else
-                            change_path2++;
-                    case 2:
-                        if(strcmp(path2, "/dev_hdd0/GAMES") != SUCCESS && file_exists("/dev_hdd0/GAMES"))
-                        {
-                            strcpy(path2, "/dev_hdd0/GAMES");
-                            break;
-                        }
-                        else
-                            change_path2++;
-                    case 3:
-                        if(strcmp(path2, "/dev_hdd0/game") != SUCCESS && file_exists("/dev_hdd0/game"))
-                        {
-                            strcpy(path2, "/dev_hdd0/game");
-                            break;
-                        }
-                        else
-                            change_path2++;
-                    case 4:
-                        if(strcmp(path2, "/dev_hdd0/packages") != SUCCESS && file_exists("/dev_hdd0/packages"))
-                        {
-                            strcpy(path2, "/dev_hdd0/packages");
-                            break;
-                        }
-                        else
-                            change_path2++;
-                    case 5:
-                        if(strcmp(path2, "/dev_hdd0/home") != SUCCESS && file_exists("/dev_hdd0/home"))
-                        {
-                            strcpy(path2, "/dev_hdd0/home");
-                            break;
-                        }
-                        else
-                            change_path2++;
-                    default:
-                        if(strcmp(path2, path1) != SUCCESS  && file_exists(path1) )
-                        {
-                            strcpy(path2, path1);
-                            break;
-                        }
-                        else
-                            {change_path2 = 0; strcpy(path2, "/dev_hdd0");}
-                }
-
+                change_path2 = toggle_path_r3(path2, path1, change_path2);
             } // r3
         }
         }// set menu

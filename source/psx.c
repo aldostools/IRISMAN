@@ -2246,7 +2246,6 @@ void unload_psx_payload()
 
 void load_psx_payload()
 {
-    int n;
     static int one = 0;
 
     if(one) return;
@@ -2267,6 +2266,7 @@ void load_psx_payload()
 /*
     if(lv2peek(addr) != 0x45505331454D5531ULL)
     {
+        int n;
         for(n = 0; n < psx_storage_bin_size + 8; n+= 8)
         {
             if(lv2peek(addr + (u64) n))

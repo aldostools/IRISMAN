@@ -76,7 +76,7 @@ INCLUDES	+=  include/payload480  include/payload480dex  include/payload480deh  i
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS		:=	../lib/libaudioplayer.a ../lib/libcobra.a ../lib/libsfm_ps3.a ../lib/libfatfs.a ../lib/libntfs_ext.a -lfreetype -lz -ltiny3d -lnetctl -lnet -lsysfs -lpngdec -ljpgdec -lsimdmath -lgcm_sys -lio -lsysutil -lrt -llv2 -lsysmodule \
+LIBS		:=	../lib/libaudioplayer.a ../lib/libcobra.a ../lib/libsfm_ps3.a ../lib/libfatfs.a ../lib/libntfs_ext.a -lfreetype -lzip -lz -ltiny3d -lnetctl -lnet -lsysfs -lpngdec -ljpgdec -lsimdmath -lgcm_sys -lio -lsysutil -lrt -llv2 -lsysmodule \
 			-lhttputil -lhttp -lssl \
 			-lmpg123 -logg \
 			-lmod -lspu_sound -laudio -lm $(PORTLIBS)/modules/spu_soundmodule.bin.a

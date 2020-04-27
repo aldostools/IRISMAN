@@ -42,3 +42,5 @@ int fflib_ss_set(int idx, int ss);
 //FR_NO_PATH Could not find the path. A directory in the path name could not be found.
 //or other errors according to f_stat
 int fflib_is_fatfs (char *path);
+
+int fflib_file_to_sectors(const char *path, uint32_t *sec_out, uint32_t *size_out, int max, int phys);

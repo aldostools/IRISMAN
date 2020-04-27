@@ -333,7 +333,7 @@ int rootfs_probe ()
                     if((mounts[k])->name[0])
                     {
                         snprintf (devfs, 14, "%s:/", (mounts[k])->name);
-                        if(strncmp((mounts[k])->name, "ext", 3))
+                        if(!strncmp((mounts[k])->name, "ext", 3))
                             _attach_fs (k, &flag, &fs_ext_k, FS_TEXT, devfs);
                         else
                             _attach_fs (k, &flag, &fs_ntfs_k, FS_TNTFS, devfs);
