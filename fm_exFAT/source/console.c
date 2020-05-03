@@ -38,7 +38,7 @@ void debugInit ()
   inet_pton (AF_INET, DEBUG_IP, &stSockAddr.sin_addr);
 
   netConnect (SocketFD, (struct sockaddr *)&stSockAddr, sizeof stSockAddr);
-	
+
   NPrintf ("network debug module initialized\n") ;
   NPrintf ("ready to have a lot of fun\n") ;
 #endif
@@ -74,7 +74,7 @@ int con_x = 0, con_y =0;
 void cls2()
 {
     tiny3d_Clear(0xff000000, TINY3D_CLEAR_ALL);
-        
+
     // Enable alpha Test
     tiny3d_AlphaTest(1, 0x10, TINY3D_ALPHA_FUNC_GEQUAL);
 
@@ -117,11 +117,11 @@ void DbgDraw()
     SetFontAutoCenter(0);
     SetCurrentFont(2);
     SetFontSize(8, 8);
-    
+
     for(n = 0; n < CONSOLE_HEIGHT; n++) {
        DrawString(0, 56 + n * 16, &dbg_data[128 * n]);
     }
-    
+
     SetFontColor(0xffffffff, 0x00000000);
     SetCurrentFont(2);
 
@@ -139,7 +139,7 @@ void DPrintf(char *format, ...)
 {
     char *str = (char *) buff;
     va_list	opt;
-	
+
 	va_start(opt, format);
 	vsprintf( (void *) buff, format, opt);
 	va_end(opt);
@@ -168,9 +168,9 @@ void DPrintf(char *format, ...)
                 con_y = CONSOLE_HEIGHT - 1;
                 memcpy(dbg_data, dbg_data + 128, 128 * (CONSOLE_HEIGHT -1));
                 dbg_data[128 * (CONSOLE_HEIGHT -1)] = 0;
-               
+
             }
-            
+
             dbg_data[128 * con_y + con_x] = *str;
             dbg_data[128 * con_y + con_x + 1] = 0;
             con_x++;

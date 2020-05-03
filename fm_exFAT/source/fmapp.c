@@ -24,6 +24,8 @@
 // font 2: 255 chr from 0 to 254, 8 x 8 pix 1 bit depth
 extern unsigned char msx[];
 
+extern int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_size);
+
 #include "console.h"
 
 #include "ff.h"
@@ -103,6 +105,53 @@ struct fm_panel *app_inactive_panel ()
         return &rp;
     return &lp;
 }
+
+static void update_info(void)
+{
+    char sp[CBSIZE];
+    struct fm_panel *ps = app_active_panel();
+    if(ps->current && ps->current->name)
+    {
+        char *path = (ps->fs_type == FS_TSYS && ps->path && ps->path[5] == '/') ? (ps->path + 5) : ps->path;
+        if(ps->current->dir)
+        {
+          if(path)
+              snprintf (sp, CBSIZE, "%s/%s", path, ps->current->name);
+          else
+              snprintf (sp, CBSIZE, "%s", ps->current->name);
+        }
+        else
+            snprintf (sp, CBSIZE, "%s/%s -> %lu bytes", path, ps->current->name, ps->current->size);
+    }
+    else
+        *sp = 0;
+
+    fm_status_set (sp, 0, 0xeeeeeeFF);
+}
+
+static void refresh_active_panel(u8 all)
+{
+    struct fm_panel *ps = app_active_panel();
+    if(!ps) return;
+
+    char sp[CBSIZE];
+    if(ps->current && ps->current->name)
+        snprintf (sp, CBSIZE, "%s", ps->current->name);
+    else
+        *sp = 0;
+
+    fm_panel_reload (ps);
+    if(*sp) fm_panel_locate (ps, sp);
+
+    if( all || (lp.path && rp.path && !strcmp(lp.path, rp.path)))
+    {
+        ps = app_inactive_panel();
+        fm_panel_reload (ps);
+    }
+
+    update_info();
+}
+
 //restore app state after other module was executed
 int _fmapp_restore (char init)
 {
@@ -136,10 +185,10 @@ int fmapp_init (int dt)
     fm_panel_scan (&lp, NULL);
     fm_panel_scan (&rp, NULL);
     //
-    fm_status_set ("SQUARE   - Copy content", 0, 0xffff00FF);
-    fm_status_set ("TRIANGLE - Erase content", 1, 0xff0000FF);
-    fm_status_set ("LEFT / RIGHT - Switch active panel", 2, 0x00ff00FF);
-    fm_status_set ("L1 / R1  - Navigate folders as well as CROSS and CIRCLE", 3, 0xeeeeeeFF);
+    fm_status_set ("L1 / R1  - Navigate folders as well as CROSS and CIRCLE", 0, 0xeeeeeeFF);
+    fm_status_set ("LEFT / RIGHT - Switch active panel", 1, 0x00ff00FF);
+    fm_status_set ("SQUARE   - Copy content", 2, 0xffff00FF);
+    fm_status_set ("TRIANGLE - Erase content", 3, 0xff0000FF);
     //
     return 1;
 }
@@ -181,43 +230,87 @@ int fmapp_update(int dat)
     //activate left panel
     else if (NPad (BUTTON_LEFT))
     {
-        if(lp.active)
-            fm_panel_exit (app_active_panel ());
+        struct fm_panel *ps = app_active_panel ();
+        if(PPad (BUTTON_SELECT))
+        {
+            fm_panel_clear (&lp);
+            if (fm_panel_scan (&lp, rp.path) == 0)
+            {
+                //add to navigation history
+                fm_entry_add (&lp.history, rp.path, 1, 0);
+            }
+            lp.active = 1;
+            rp.active = 0;
+        }
+        else if(lp.active)
+            fm_panel_exit (ps);
         else
         {
             lp.active = 1;
             rp.active = 0;
         }
+        update_info();
     }
     //activate right panel
     else if (NPad (BUTTON_RIGHT))
     {
+        if(PPad (BUTTON_SELECT))
+        {
+            fm_panel_clear (&rp);
+            if (fm_panel_scan (&rp, lp.path) == 0)
+            {
+                //add to navigation history
+                fm_entry_add (&rp.history, lp.path, 1, 0);
+            }
+        }
         lp.active = 0;
         rp.active = 1;
+        update_info();
     }
     //scroll panel up
     else if (APad (BUTTON_UP))
     {
-        fm_panel_scroll (app_active_panel (), FALSE);
+        u8 i, n = 1;
+        if(PPad (BUTTON_R2)) n = 20;
+        for(i = 0; i < n; i++)
+        {
+            fm_panel_scroll (app_active_panel (), FALSE);
+            if(PPad (BUTTON_L2)) fm_toggle_selection (app_active_panel ());
+        }
+        update_info();
     }
     //scroll panel dn
     else if (APad (BUTTON_DOWN))
     {
-        fm_panel_scroll (app_active_panel (), TRUE);
+        u8 i, n = 1;
+        if(PPad (BUTTON_R2)) n = 20;
+        for(i = 0; i < n; i++)
+        {
+            fm_panel_scroll (app_active_panel (), TRUE);
+            if(PPad (BUTTON_L2)) fm_toggle_selection (app_active_panel ());
+        }
+        update_info();
     }
     //enter dir
     else if (NPad (BUTTON_R1))
     {
-        fm_panel_enter (app_active_panel ());
+        struct fm_panel *ps = app_active_panel ();
+        fm_panel_enter (ps);
+        update_info();
     }
     //exit dir
     else if (NPad (BUTTON_L1))
     {
-        fm_panel_exit (app_active_panel ());
+        struct fm_panel *ps = app_active_panel ();
+        if(PPad (BUTTON_SELECT))
+            fm_panel_scan (ps, NULL);
+        else
+            fm_panel_exit (ps);
+        update_info();
     }
 
-    //rename
-    else if (NPad (BUTTON_START))
+    //rename (R3)
+    else if (NPad (BUTTON_R3))
     {
         char sp[CBSIZE];
         struct fm_panel *ps = app_active_panel ();
@@ -242,18 +335,23 @@ int fmapp_update(int dat)
                     //
                     fm_job_rename (ps->path, ps->current->name, sp);
                     //reload for content refresh
-                    fm_panel_reload (ps);
-                    fm_panel_locate (ps, sp);
+                    refresh_active_panel(0);
                 }
             }
         }
     }
-    //new dir
-    else if (NPad (BUTTON_SELECT))
+    //new dir (L3)
+    else if (NPad (BUTTON_L3))
     {
         char sp[CBSIZE];
         struct fm_panel *ps = app_active_panel ();
-        if (ps->path)
+        if(PPad (BUTTON_SELECT))
+        {
+            char sel = (ps->current) ? ps->current->selected : 1;
+            refresh_active_panel(0);                          // SELECT + L3 = Refresh / Select None
+            if(PPad (BUTTON_L2)) fm_panel_select_all (ps, sel); // SELECT + L2 + L3 = Toggle All
+        }
+        else if (ps->path)
         {
             fm_status_set ("", 1, 0xffeeeeFF);
             //check if we're allowed to create dir?!
@@ -273,8 +371,7 @@ int fmapp_update(int dat)
                     fm_status_set (lp, 0, 0xffeeeeFF);
                     fm_job_newdir (ps->path, sp);
                     //reload for content refresh
-                    fm_panel_reload (ps);
-                    fm_panel_locate (ps, sp);
+                    refresh_active_panel(0);
                 }
             }
         }
@@ -283,10 +380,35 @@ int fmapp_update(int dat)
     //cross - action: enter dir
     else if (NPad (BUTTON_CROSS))
     {
-        if(fm_panel_enter (app_active_panel ()))
-            fm_toggle_selection (app_active_panel ());
+        struct fm_panel *ps = app_active_panel();
+        if(fm_panel_enter (ps))
+        {
+            if(ps->current)
+            {
+                char *path1 = ps->path;
+                char *path2 = app_inactive_panel()->path;
+                char *curfile = ps->current->name;
+                uint64_t size = ps->current->size;
+
+                if(!path1 || strncmp(path1, "sys:/", 5))
+                    fm_toggle_selection (ps);
+                else
+                {
+                    if(path1 && !strncmp(path1, "sys:/", 5)) path1 += 5; else path1 = (char*)"/";
+                    if(path2 && !strncmp(path2, "sys:/", 5)) path2 += 5; else path2 = path1;
+
+                    if(exec_item(path1, path2, curfile, 0, size)) return -1;
+
+                    if( strcasestr(curfile, ".png") || strcasestr(curfile, ".jpg") ||
+                        strcasestr(curfile, ".gif") || strcasestr(curfile, ".bmp") ||
+                        strstr(curfile, ".SFO") ) return -1;
+
+                    if(strcasestr(curfile, ".zip")) refresh_active_panel(1);
+                }
+            }
+        }
     }
-    else if (NPad (BUTTON_R3))
+    else if (PPad (BUTTON_SELECT) && NPad (BUTTON_START))
     {
         return -1;
     }
@@ -302,8 +424,19 @@ int fmapp_update(int dat)
         struct fm_panel *ps = app_active_panel ();
         if (ps->path)
         {
+            if(PPad (BUTTON_SELECT))
+            {
+                char *pp = strrchr (ps->path, '/'); if (pp) *pp = 0;
+
+                if(strchr(ps->path, '/'))
+                {
+                    fm_panel_reload (ps);
+                }
+                else
+                    fm_panel_scan (ps, NULL);
+            }
             //remove files - 2do: show dialog box for confirmation
-            if(ps->sels)
+            else if(ps->sels)
             {
                 snprintf (sp, CBSIZE, "Do you want to delete the %u selected items?", ps->sels);
                 if (YesNoDialog(sp) == 1)
@@ -326,7 +459,7 @@ int fmapp_update(int dat)
                 fm_job_delete (ps, sp, &fmapp_render);
             }
             //reload for content refresh
-            fm_panel_reload (ps);
+            refresh_active_panel(0);
         }
     }
     //files copy
@@ -363,7 +496,7 @@ int fmapp_update(int dat)
                 fm_job_copy (ps, sp, dp, &fmapp_render);
             }
             //reload inactive panel for content refresh
-            fm_panel_reload (app_inactive_panel ());
+            refresh_active_panel(0);
         }
     }
     //

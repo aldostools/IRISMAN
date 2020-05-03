@@ -416,6 +416,8 @@ int fs_path_scan (struct fm_panel *p)
 
 static int sys_scan_path (struct fm_panel *p)
 {
+    if (!p->path) return -1;
+
     char lp[256];
 	int dfd;
 	u64 read;
@@ -425,7 +427,7 @@ static int sys_scan_path (struct fm_panel *p)
     if (res)
     {
         NPrintf ("!failed sysLv2FsOpenDir path %s, res %d\n", p->path, res);
-		return res;
+        return 0; //res;
     }
     for (; !sysLv2FsReadDir (dfd, &dir, &read); )
     {
@@ -457,6 +459,8 @@ static int sys_scan_path (struct fm_panel *p)
 
 static int fat_scan_path (struct fm_panel *p)
 {
+    if (!p->path) return -1;
+
     char lp[256];
     FRESULT res = 0;
     FDIR dir;
@@ -504,6 +508,8 @@ static int fat_scan_path (struct fm_panel *p)
 
 static int ntfs_scan_path (struct fm_panel *p)
 {
+    if (!p->path) return -1;
+
     char lp[256];
     DIR_ITER *pdir = NULL;
     sysFSDirent dir;
@@ -549,6 +555,8 @@ static int ntfs_scan_path (struct fm_panel *p)
 
 static int sys_job_scan (struct fm_job *p, char *path)
 {
+    if (!path) return -1;
+
     char lp[256];
     int dfd;
     u64 read;
@@ -603,6 +611,8 @@ static int sys_job_scan (struct fm_job *p, char *path)
 
 int fat_job_scan (struct fm_job *p, char *path)
 {
+    if (!path) return -1;
+
     char lp[256];
     FRESULT res;
     FDIR dir;
@@ -676,6 +686,8 @@ int fat_job_scan (struct fm_job *p, char *path)
 
 static int ntfs_job_scan (struct fm_job *p, char *path)
 {
+    if (!path) return -1;
+
     char lp[256];
     DIR_ITER *pdir = NULL;
     sysFSDirent dir;

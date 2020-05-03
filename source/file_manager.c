@@ -426,6 +426,7 @@ void test_audio_file(bool stop_audio)
         if(PlayAudio(audio_file, 0, AUDIO_ONE_TIME)==0) snd_inited|= INITED_AUDIOPLAYER;
     }
 }
+
 static void progress_callback(msgButton button, void *userdata)
 {
     switch(button)
@@ -957,7 +958,9 @@ static void browse_file(char *ext, char *path, char *filename)
     }
 }
 
-static int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_size)
+int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_size);
+
+int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_size)
 {
     char *ext = get_extension(filename);
 

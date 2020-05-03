@@ -75,6 +75,7 @@ int fm_status_draw (int dat);
 //set status message for index
 int fm_status_set (char *sm, int idx, int col);
 void fm_toggle_selection (struct fm_panel *p);
+void fm_panel_select_all (struct fm_panel *p, char sel);
 
 int fm_panel_enter (struct fm_panel *p);
 int fm_panel_exit (struct fm_panel *p);
