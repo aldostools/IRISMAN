@@ -1485,8 +1485,7 @@ void video_adjust()
 
 void Select_games_folder()
 {
-
-    DIR  *dir, *dir2;
+    DIR  *dir; //DIR *dir2;
     int selected = 0;
     char tmp[256];
 
@@ -1499,7 +1498,7 @@ void Select_games_folder()
         mkdir_secure("/dev_hdd0/GAMES");
         return;
     }
-
+/*
     dir = opendir("/host_root");
     if(dir)
     {
@@ -1550,7 +1549,7 @@ void Select_games_folder()
         }
         closedir(dir);
     }
-
+*/
     dir = opendir("/dev_hdd0/video");
     if(dir)
     {
@@ -2026,6 +2025,7 @@ static int locate_game_url(u8 *mem, int pos, int size, char *key, int *length)
         if(mem[pos] == '<')
         {
             end = pos - start;
+            mem[pos] = 0;
             break;
         }
 
@@ -2045,13 +2045,18 @@ static void parse_mygames_xml()
 
     int n = 0;
     int file_size = 0;
-    int m = 0, l = 0;
+    int m = 0, l = 0, t = 0;
     u8 *mem = (u8 *) LoadFile("/dev_hdd0/xmlhost/game_plugin/mygames.xml", &file_size);
 
     while(n < file_size)
     {
         n = m + l + 1;
-        m = locate_game_url(mem, n, file_size, "<String>http://127.0.0.1/mount_ps3/", &l);
+
+        t = locate_game_url(mem, n, file_size, "<Pair key=\"title\"><String>", &l);
+
+        if(t < 0) break;
+
+        m = locate_game_url(mem, t, file_size, "<String>/mount_ps3/", &l);
 
         if(m < 0) break;
 
@@ -2087,14 +2092,14 @@ static void parse_mygames_xml()
         else
             continue;
 
+        char *pos = strstr(game_path, "?"); if(pos) *pos = 0;
+
         // add net game
         strcpy(directories[ndirectories].title_id, NETHOST);
-        strncpy(directories[ndirectories].path_name, game_path, l);
+        sprintf(directories[ndirectories].path_name, "%s", game_path);
 
-        char *pos = strstr(directories[ndirectories].path_name, "?");
-        if(pos) *pos = 0;
-
-        sprintf(directories[ndirectories].title, "%s", get_filename(directories[ndirectories].path_name));
+        //sprintf(directories[ndirectories].title, "%s", get_filename(directories[ndirectories].path_name));
+        sprintf(directories[ndirectories].title, "%s", (char*)&mem[t]);
         urldec(directories[ndirectories].title);
 
         directories[ndirectories].title[63] = 0;
@@ -2606,9 +2611,9 @@ s32 main(s32 argc, const char* argv[])
 
     if(use_cobra)
     {
-        bAllowNetGames = get_vsh_plugin_slot_by_name("WWWD") > 0;
+        bAllowNetGames = is_ps3hen || (get_vsh_plugin_slot_by_name("WWWD") > 0);
 
-        if(!bAllowNetGames && !is_ps3hen)
+        if(!bAllowNetGames)
         {
             int slot = get_vsh_plugin_free_slot();
 
@@ -3203,10 +3208,8 @@ s32 main(s32 argc, const char* argv[])
 
         if(cached_game_list) {forcedevices = 0; fdevices_old = fdevices; signal_force = false; frame_count = 300; goto skip_refresh;}
 
-
         if(forcedevices || (frame_count & 63) == 0 || signal_force)
         {
-
           if(refresh_game_list && (game_list_category == GAME_LIST_NETHOST && retro_mode == NET_GAMES)) {parse_mygames_xml(); refresh_game_list = false; bSkipParseXML = true; cached_game_list = true; bCachedGameList = false;}
 
           for(find_device = HDD0_DEVICE; find_device <= BDVD_DEVICE; find_device++)
@@ -10773,8 +10776,8 @@ void draw_toolsoptions(float x, float y)
 
     y2+= 52;
 
-    DrawButton1_UTF8(box_left, y2, 520, "Control Fan & USB Wakeup", (flash && (select_option == 7)));
-
+    if(!is_ps3hen)
+        DrawButton1_UTF8(box_left, y2, 520, "Control Fan & USB Wakeup", (flash && (select_option == 7)));
 
 
     SetCurrentFont(FONT_TTF);
@@ -10861,7 +10864,7 @@ void draw_toolsoptions(float x, float y)
                 return;
 
             case 7: // Control Fan & USB Wakeup
-                draw_controlfan_options();
+                if(!is_ps3hen) draw_controlfan_options();
 
                 return_to_game_list(false);
                 return;
@@ -10920,12 +10923,26 @@ void draw_toolsoptions(float x, float y)
     else if(new_pad & BUTTON_UP)
     {
         frame_count = 32;
-        ROT_DEC(select_option, 0, 7);
+        if(is_ps3hen)
+        {
+            ROT_DEC(select_option, 0, 6);
+        }
+        else
+        {
+            ROT_DEC(select_option, 0, 7);
+        }
     }
     else if(new_pad & BUTTON_DOWN)
     {
         frame_count = 32;
-        ROT_INC(select_option, 7, 0);
+        if(is_ps3hen)
+        {
+            ROT_INC(select_option, 6, 0);
+        }
+        else
+        {
+            ROT_INC(select_option, 7, 0);
+        }
     }
 }
 
