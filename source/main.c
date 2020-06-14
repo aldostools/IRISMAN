@@ -2611,7 +2611,7 @@ s32 main(s32 argc, const char* argv[])
 
     if(use_cobra)
     {
-        bAllowNetGames = is_ps3hen || (get_vsh_plugin_slot_by_name("WWWD") > 0);
+        bAllowNetGames = is_ps3hen || (sys8_mamba() == 0x666) || (get_vsh_plugin_slot_by_name("WWWD") > 0);
 
         if(!bAllowNetGames)
         {

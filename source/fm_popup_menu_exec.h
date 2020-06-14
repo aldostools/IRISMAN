@@ -1,7 +1,8 @@
 // called from file_manager.c
 {
-    int max_menu2 = 8; bool is_dir=false;
-    if((!fm_pane && (path1[1] == 0)) || (fm_pane && (path2[1] == 0))) max_menu2 = 7;
+
+	int max_menu2 = 8; bool is_dir=false;
+    if((!fm_pane && (path1[1] == 0)) || (fm_pane && (path2[1] == 0))) {max_menu2 = 7;}
     else if(!fm_pane &&
             (strcmp(path1, "/dev_hdd0/game") == SUCCESS ||
              strstr(path1, "/GAME") != NULL ||
@@ -20,8 +21,8 @@
              (strstr(path2, "/PS3ISO")  != NULL &&
              (!strcmpext(entries2[sel2].d_name, ".iso") || !strcmpext(entries2[sel2].d_name, ".iso.0")))
            )) max_menu2 = 9;
-    else if( (!fm_pane && (entries1[sel1].d_type & IS_DIRECTORY) && strstr(path1, "/dev_bdvd")==NULL && !is_ntfs_path(path1))   ||
-             ( fm_pane && (entries2[sel2].d_type & IS_DIRECTORY) && strstr(path2, "/dev_bdvd")==NULL && !is_ntfs_path(path2)) ) {max_menu2 = 9; is_dir=true;}
+    else if( (!fm_pane && use_cobra && (entries1[sel1].d_type & IS_DIRECTORY) && strstr(path1, "/dev_bdvd")==NULL && !is_ntfs_path(path1))   ||
+             ( fm_pane && use_cobra && (entries2[sel2].d_type & IS_DIRECTORY) && strstr(path2, "/dev_bdvd")==NULL && !is_ntfs_path(path2)) ) {max_menu2 = 9; is_dir=true;}
     else if( (!fm_pane && use_cobra && is_ntfs_path(path1) && !(entries1[sel1].d_type & IS_DIRECTORY)) || ( fm_pane && use_cobra && is_ntfs_path(path2) && !(entries2[sel2].d_type & IS_DIRECTORY) ) ) {max_menu2 = 9;}
 
     //else if(!(!fm_pane && (entries1[sel1].d_type & IS_DIRECTORY)) || !(fm_pane && (entries2[sel2].d_type & IS_DIRECTORY))) {max_menu2 = 9;}
