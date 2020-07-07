@@ -355,67 +355,65 @@ int get_icon(char * path, const int num_dir)
         {
             strcpy(path, directories[num_dir].path_name);
 
-            if(is_ps2_classic && strlen(path) > 8)
-            {
-                path[strlen(path) - 8] = 0;
+            int path_len = strlen(path);
 
-                int n = strlen(path);
-                path[n] = 0; strcat(path, ".jpg");
+            if(is_ps2_classic && path_len > 8)
+            {
+                path_len -= 8; path[path_len] = 0;
+
+                strcpy(path + path_len, ".jpg");
                 if(file_exists(path)) return 1;
-                path[n] = 0; strcat(path, ".png");
+                strcpy(path + path_len, ".png");
                 if(file_exists(path)) return 2;
-                path[n] = 0; strcat(path, ".JPG");
+                strcpy(path + path_len, ".JPG");
                 if(file_exists(path)) return 1;
-                path[n] = 0; strcat(path, ".PNG");
+                strcpy(path + path_len, ".PNG");
                 if(file_exists(path)) return 2;
 
                 strcpy(path, directories[num_dir].path_name);
             }
 
-            if(strlen(path) > 4)
+            if(path_len > 4)
             {
-                path[strlen(path) - 4] = 0;
+                path_len -= 4; path[path_len] = 0;
 
-                int n = strlen(path);
-                path[n] = 0; strcat(path, ".jpg");
+                strcpy(path + path_len, ".jpg");
                 if(file_exists(path)) return 1;
-                path[n] = 0; strcat(path, ".png");
+                strcpy(path + path_len, ".png");
                 if(file_exists(path)) return 2;
-                path[n] = 0; strcat(path, ".JPG");
+                strcpy(path + path_len, ".JPG");
                 if(file_exists(path)) return 1;
-                path[n] = 0; strcat(path, ".PNG");
+                strcpy(path + path_len, ".PNG");
                 if(file_exists(path)) return 2;
 
                 strcpy(path, directories[num_dir].path_name);
             }
 
-            if(is_retro && strlen(path) > 3 && path[strlen(path) - 3] == '.')
+            if(is_retro && (path_len > 3) && (path[path_len - 3] == '.'))
             {
-                path[strlen(path) - 3] = 0;
+                path_len -= 3; path[path_len] = 0;
 
-                int n = strlen(path);
-                path[n] = 0; strcat(path, ".jpg");
+                strcpy(path + path_len, ".jpg");
                 if(file_exists(path)) return 1;
-                path[n] = 0; strcat(path, ".png");
+                strcpy(path + path_len, ".png");
                 if(file_exists(path)) return 2;
-                path[n] = 0; strcat(path, ".JPG");
+                strcpy(path + path_len, ".JPG");
                 if(file_exists(path)) return 1;
-                path[n] = 0; strcat(path, ".PNG");
+                strcpy(path + path_len, ".PNG");
                 if(file_exists(path)) return 2;
             }
             else
-            if(is_retro && strlen(path) > 5 && path[strlen(path) - 5] == '.')
+            if(is_retro && (path_len > 5) && (path[path_len - 5] == '.'))
             {
-                path[strlen(path) - 5] = 0;
+                path_len -= 5; path[path_len] = 0;
 
-                int n = strlen(path);
-                path[n] = 0; strcat(path, ".jpg");
+                strcpy(path + path_len, ".jpg");
                 if(file_exists(path)) return 1;
-                path[n] = 0; strcat(path, ".png");
+                strcpy(path + path_len, ".png");
                 if(file_exists(path)) return 2;
-                path[n] = 0; strcat(path, ".JPG");
+                strcpy(path + path_len, ".JPG");
                 if(file_exists(path)) return 1;
-                path[n] = 0; strcat(path, ".PNG");
+                strcpy(path + path_len, ".PNG");
                 if(file_exists(path)) return 2;
             }
         }
@@ -498,13 +496,13 @@ int get_icon(char * path, const int num_dir)
             if(path[strlen(path) - 1] == '0') path[strlen(path) - 6] = 0; else path[strlen(path) - 4] = 0;
 
             int n = strlen(path);
-            path[n] = 0; strcat(path, ".jpg");
+            strcpy(path + n, ".jpg");
             if(file_exists(path)) return cover_type;
-            path[n] = 0; strcat(path, ".png");
+            strcpy(path + n, ".png");
             if(file_exists(path)) return cover_type;
-            path[n] = 0; strcat(path, ".JPG");
+            strcpy(path + n, ".JPG");
             if(file_exists(path)) return cover_type;
-            path[n] = 0; strcat(path, ".PNG");
+            strcpy(path + n, ".PNG");
             if(file_exists(path)) return cover_type;
 
             sprintf(path, "%s/COVER.JPG", directories[num_dir].path_name);
@@ -528,13 +526,13 @@ int get_icon(char * path, const int num_dir)
             strcpy(path, directories[num_dir].path_name);
             if(path[strlen(path) - 1] == '0') path[strlen(path) - 6] = 0; else path[strlen(path) - 4] = 0;
             int n = strlen(path);
-            path[n] = 0; strcat(path, ".jpg");
+            strcpy(path + n, ".jpg");
             if(file_exists(path)) return 1;
-            path[n] = 0; strcat(path, ".png");
+            strcpy(path + n, ".png");
             if(file_exists(path)) return 1;
-            path[n] = 0; strcat(path, ".JPG");
+            strcpy(path + n, ".JPG");
             if(file_exists(path)) return 1;
-            path[n] = 0; strcat(path, ".PNG");
+            strcpy(path + n, ".PNG");
             if(file_exists(path)) return 1;
 
             return FAILED;
@@ -595,13 +593,13 @@ int get_icon(char * path, const int num_dir)
                                                 strcpy(path, directories[num_dir].path_name);
                                                 if(path[strlen(path) - 1] == '0') path[strlen(path) - 6] = 0; else path[strlen(path) - 4] = 0;
                                                 int n = strlen(path);
-                                                strcat(path, ".jpg");
+                                                strcpy(path + n, ".jpg");
                                                 if(file_exists(path)) return 1;
-                                                path[n] = 0; strcat(path, ".JPG");
+                                                strcpy(path + n, ".JPG");
                                                 if(file_exists(path)) return 1;
-                                                path[n] = 0; strcat(path, ".png");
+                                                strcpy(path + n, ".png");
                                                 if(file_exists(path)) return 2;
-                                                path[n] = 0; strcat(path, ".PNG");
+                                                strcpy(path + n, ".PNG");
                                                 if(file_exists(path)) return 2;
 
                                                 sprintf(path, "%s/PS3_GAME/ICON0.PNG", directories[num_dir].path_name);

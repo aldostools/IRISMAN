@@ -879,12 +879,15 @@ static void extract_file(char *path1, char *path2, char *filename)
 {
     char *dest_path = (old_pad & BUTTON_SELECT) ? path1 : path2;
 
-    if(!(old_pad & BUTTON_SELECT) && !strncmp(filename, "dev_", 4))
+    if(!(old_pad & BUTTON_SELECT) && !strncmp(filename, "PS3~", 4))
     {
-        int len = sprintf(TEMP_PATH, "/%s", filename);
+        int len = sprintf(TEMP_PATH, "/%s", filename + 4);
         for(int i = 0; i < len; i++) if(*(TEMP_PATH + i) == '~') *(TEMP_PATH + i) = '/';
         *(TEMP_PATH + len - 4) = 0; // remove .zip
         dest_path = TEMP_PATH;
+
+        if(!strncmp(dest_path, "/dev_blind/", 11))
+            sys_fs_mount("CELL_FS_IOS:BUILTIN_FLSH1", "CELL_FS_FAT", "/dev_blind", 0);
     }
 
     sprintf(MEM_MESSAGE, "Do you want to extract %s to %s?", filename, dest_path);

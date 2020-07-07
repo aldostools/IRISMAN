@@ -89,6 +89,7 @@ typedef struct
 } __attribute__((packed)) psxseciso_args;
 
 
+extern bool is_ps3hen;
 extern u16 * ttf_texture;
 extern bool update_title_utf8;
 extern u8 string_title_utf8[128];
@@ -2351,6 +2352,8 @@ void psx_launch(void)
 
     add_sys8_bdvd(self_path, NULL);
     build_sys8_path_table();
+
+    if(is_ps3hen) ; else // do not check fan
 
     if(!test_controlfan_compatibility())
     {
