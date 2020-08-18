@@ -163,30 +163,33 @@ int extract_zip(const char* zip_file, const char* dest_path)
 		FILE* tfd = fopen(path, "wb");
 		if(!tfd) {
 			zip_fclose(zfd);
-            zip_close(archive);
+			zip_close(archive);
 			end_progress_bar();
-            //LOG("Error opening temporary file '%s'.", path);
-            return 0;
+			//LOG("Error opening temporary file '%s'.", path);
+			return 0;
 		}
 
 		uint64_t pos = 0, count;
-		uint8_t* buffer = malloc(0x1000);
-		while (pos < st.size) {
-			count = min64(0x1000, st.size - pos);
-			if (zip_fread(zfd, buffer, count) != count) {
-				free(buffer);
-                fclose(tfd);
-                zip_fclose(zfd);
-                zip_close(archive);
-				end_progress_bar();
-                //LOG("Error reading from zip.");
-                return 0;
-			}
+		uint8_t* buffer = malloc(0x10000);
+		if(buffer)
+		{
+			while (pos < st.size) {
+				count = min64(0x10000, st.size - pos);
+				if (zip_fread(zfd, buffer, count) != count) {
+					free(buffer);
+					fclose(tfd);
+					zip_fclose(zfd);
+					zip_close(archive);
+					end_progress_bar();
+					//LOG("Error reading from zip.");
+					return 0;
+				}
 
-			fwrite(buffer, count, 1, tfd);
-			pos += count;
+				fwrite(buffer, count, 1, tfd);
+				pos += count;
+			}
+			free(buffer);
 		}
-		free(buffer);
 
 		zip_fclose(zfd);
 		fclose(tfd);

@@ -29,7 +29,13 @@ int lv1_insert_htab_entry341(uint64_t htab_id, uint64_t hpte_group, uint64_t hpt
                          SYSCALL(HVSC_SYSCALL_341) "mr %0, %%r3;" "mr %1, %%r4;" "mr %2, %%r5;" "mr %3, %%r6;":"=r"(ret),
                          "=r"(ret_hpte_index), "=r"(ret_hpte_evicted_v), "=r"(ret_hpte_evicted_r)
                          :"r"(htab_id), "r"(hpte_group), "r"(hpte_v), "r"(hpte_r), "r"(bolted_flag), "r"(flags)
+                         // GCC now diagnoses inline assembly that clobbers register r2.
+                         // This has always been invalid code, and is no longer quietly tolerated.
+                         #if __GNUC__ >= 7
+                         :"r0", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "lr", "ctr", "xer",
+                         #else
                          :"r0", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "lr", "ctr", "xer",
+                         #endif
                          "cr0", "cr1", "cr5", "cr6", "cr7", "memory");
 
     REMOVE_HVSC_REDIRECT();
@@ -39,7 +45,6 @@ int lv1_insert_htab_entry341(uint64_t htab_id, uint64_t hpte_group, uint64_t hpt
     *hpte_evicted_r = ret_hpte_evicted_r;
     return (int) ret;
 }
-
 
 int lv1_undocumented_function_114_341(uint64_t start, uint64_t page_size, uint64_t size, uint64_t * lpar_addr)
 {
