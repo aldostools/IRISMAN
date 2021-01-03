@@ -433,7 +433,7 @@ int get_controlfan_offsets()
        // enables sys_set_leds
        sys386_offset = 0x800000000000A47CULL;
 
-    } else if((firmware == 0x475C) || (firmware == 0x476C) || (firmware == 0x478C) || (firmware == 0x481C) || (firmware == 0x482C) || (firmware == 0x483C) || (firmware == 0x484C) || (firmware == 0x485C) || (firmware == 0x486C) || (firmware == 0x487C)) { // firmware 4.75-4.87 cex
+    } else if((firmware == 0x475C) || (firmware == 0x476C) || (firmware == 0x478C) || (firmware == 0x481C) || (firmware == 0x482C) || (firmware == 0x483C) || (firmware == 0x484C) || (firmware == 0x485C) || (firmware == 0x486C) || (firmware == 0x487C) || (firmware == 0x488C)) { // firmware 4.75-4.88 cex
 
        // enables sys_game_get_temperature
        sys383_offset = 0x800000000000C6A8ULL;
@@ -444,8 +444,8 @@ int get_controlfan_offsets()
        // enables sys_set_leds
        sys386_offset = 0x800000000000A3FCULL;
 
-    } else if((firmware == 0x475D) || (firmware == 0x476D) || (firmware == 0x478D) || (firmware == 0x481D) || (firmware == 0x482D) || (firmware == 0x483D) || (firmware == 0x484D) || (firmware == 0x485D) || (firmware == 0x486D) || (firmware == 0x487D)
-           || (firmware == 0x475E) || (firmware == 0x476E) || (firmware == 0x478E) || (firmware == 0x481E) || (firmware == 0x482E) || (firmware == 0x483E) || (firmware == 0x484E) || (firmware == 0x485E) || (firmware == 0x486E) || (firmware == 0x487E)) { // firmware 4.75-4.87 dex / deh
+    } else if((firmware == 0x475D) || (firmware == 0x476D) || (firmware == 0x478D) || (firmware == 0x481D) || (firmware == 0x482D) || (firmware == 0x483D) || (firmware == 0x484D) || (firmware == 0x485D) || (firmware == 0x486D) || (firmware == 0x487D) || (firmware == 0x488D)
+           || (firmware == 0x475E) || (firmware == 0x476E) || (firmware == 0x478E) || (firmware == 0x481E) || (firmware == 0x482E) || (firmware == 0x483E) || (firmware == 0x484E) || (firmware == 0x485E) || (firmware == 0x486E) || (firmware == 0x487E) || (firmware == 0x488E)) { // firmware 4.75-4.88 dex / deh
 
        // enables sys_game_get_temperature
        sys383_offset = 0x800000000000C728ULL;

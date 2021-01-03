@@ -399,11 +399,12 @@ int fmapp_update(int dat)
 
                     if(exec_item(path1, path2, curfile, 0, size)) return -1;
 
-                    if( strcasestr(curfile, ".png") || strcasestr(curfile, ".jpg") ||
-                        strcasestr(curfile, ".gif") || strcasestr(curfile, ".bmp") ||
-                        strstr(curfile, ".SFO") ) return -1;
+                    char *ext = curfile + MAX(strlen(curfile) - 4, 0);
 
-                    if(strcasestr(curfile, ".zip")) refresh_active_panel(1);
+                    if( strcasestr(".png|.jpg|.gif.bmp", ext) ||
+                        strstr(".SFO", ext) ) return -1;
+
+                    if(strcasestr(".zip", ext)) refresh_active_panel(1);
                 }
             }
         }

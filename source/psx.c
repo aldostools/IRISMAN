@@ -2364,7 +2364,7 @@ void psx_launch(void)
     else
         set_fan_mode(-1);
 
-    if(!(psx_options.flags & PSX_PAYLOAD) && plugin_args && use_cobra && noBDVD == MODE_DISCLESS)
+    if(is_ps3hen || (!(psx_options.flags & PSX_PAYLOAD) && plugin_args && use_cobra && noBDVD == MODE_DISCLESS))
     {
 
         cobra_send_fake_disc_eject_event();

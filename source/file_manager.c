@@ -573,7 +573,6 @@ static int CountFiles(char* path, int *nfiles, int *nfolders, u64 *size)
 
     }
 
-
     if(is_ntfs)
     {
         pdir = ps3ntfs_diropen(path);
@@ -1001,7 +1000,7 @@ int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_siz
            (strcasestr(".iso|.bin|.img|.mdf|.iso.0", ext) != NULL))
     {
         sprintf(TEMP_PATH, "%s/%s", path, filename);
-        launch_iso_game(TEMP_PATH, DETECT_EMU_TYPE);
+        launch_iso_game(TEMP_PATH, DETECT_EMU_TYPE); // mount_game.h
     }
     else if(!strcmpext(filename, ".BIN.ENC"))
     {
@@ -1197,7 +1196,7 @@ int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_siz
                 int flen = strlen(TEMP_PATH2) - 4;
 
                 if(flen >= 0 && (strcasestr(".iso|.bin|.mdf|.img|so.0", TEMP_PATH2 + flen) != NULL))
-                    launch_iso_game(TEMP_PATH2, DETECT_EMU_TYPE);
+                    launch_iso_game(TEMP_PATH2, DETECT_EMU_TYPE); // mount_game.h
                 else
                 {
                     unlink_secure(TEMP_PATH1);
@@ -1606,8 +1605,8 @@ int file_manager(char *pathw1, char *pathw2)
         if(file_exists(TEMP_PATH)) {n = MAX_PATH_LEN; char *buff = LoadFile(TEMP_PATH, &n); sprintf(path2, buff); if(buff) free(buff);}
     }
 
-    if(path1[0] == 0 || file_exists(path1) == false) strncpy(path1, "/", MAX_PATH_LEN);
-    if(path2[0] == 0 || file_exists(path2) == false) strncpy(path2, "/", MAX_PATH_LEN);
+    if((path1[0] == 0) || is_ntfs_path(path1) || (file_exists(path1) == false)) sprintf(path1, "/");
+    if((path2[0] == 0) || is_ntfs_path(path2) || (file_exists(path2) == false)) sprintf(path2, "/");
 
     s32 fd;
     DIR_ITER *pdir = NULL;

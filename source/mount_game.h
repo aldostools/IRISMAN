@@ -424,12 +424,12 @@ int launch_iso_game(char *path, int mtype)
        flen >= 0 && (strcasestr(".iso|.bin|.mdf|.img", path + flen) != NULL))
     {
         ps3pad_read();
-        if((use_cobra || use_mamba) && (old_pad & BUTTON_SELECT))
+        if(is_ps3hen || ((use_cobra || use_mamba) && (old_pad & BUTTON_SELECT)))
         {
             mtype = EMU_PSX; // Mount using Cobra method if launched with SELECT+X
             goto mount_iso;
         }
-        else if(is_ps3hen || is_ntfs_path(path))
+        else if(is_ntfs_path(path))
         {
             mtype = EMU_PSX; // Mount using Cobra method if PSX ISO is on NTFS/ext
         }
@@ -728,7 +728,6 @@ mount_with_mamba:
     if(plugin_args) free(plugin_args); plugin_args = NULL;
 
     return FAILED;
-
 }
 
 int launch_iso_game_mamba(char *path, int mtype)

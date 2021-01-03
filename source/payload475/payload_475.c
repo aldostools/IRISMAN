@@ -101,7 +101,7 @@ static inline void _poke32(u64 addr, uint32_t val)
 
 int is_firm_475(void)
 {
-   // TOC 4.75 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86)
+   // TOC 4.75 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86, 4.87)
    u64 toc;
    toc = peekq(0x8000000000003000ULL);
    if(toc == 0x800000000034FBB0ULL)
@@ -116,7 +116,7 @@ int is_firm_475(void)
 
 int is_firm_476(void)
 {
-   // TOC 4.76 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86)
+   // TOC 4.76 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86, 4.87)
    u64 toc;
    toc =peekq(0x8000000000003000ULL);
    if(toc == 0x800000000034FBB0ULL)
@@ -131,7 +131,7 @@ int is_firm_476(void)
 
 int is_firm_478(void)
 {
-   // TOC 4.78 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86)
+   // TOC 4.78 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86, 4.87)
    u64 toc;
    toc =peekq(0x8000000000003000ULL);
    if(toc == 0x800000000034FBB0ULL)
@@ -146,7 +146,7 @@ int is_firm_478(void)
 
 int is_firm_481(void)
 {
-   // TOC 4.81 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86)
+   // TOC 4.81 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86, 4.87)
    u64 toc;
    toc = peekq(0x8000000000003000ULL);
    if(toc == 0x800000000034FBB0ULL)
@@ -161,7 +161,7 @@ int is_firm_481(void)
 
 int is_firm_482(void)
 {
-   // TOC 4.82 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86)
+   // TOC 4.82 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86, 4.87)
    u64 toc;
    toc = peekq(0x8000000000003000ULL);
    if(toc == 0x800000000034FBB0ULL)
@@ -176,7 +176,7 @@ int is_firm_482(void)
 
 int is_firm_483(void)
 {
-   // TOC 4.83 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86)
+   // TOC 4.83 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86, 4.87)
    u64 toc;
    toc = peekq(0x8000000000003000ULL);
    if(toc == 0x800000000034FBB0ULL)
@@ -191,7 +191,7 @@ int is_firm_483(void)
 
 int is_firm_484(void)
 {
-   // TOC 4.84 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86)
+   // TOC 4.84 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86, 4.87)
    u64 toc;
    toc = peekq(0x8000000000003000ULL);
    if(toc == 0x800000000034FBB0ULL)
@@ -206,7 +206,7 @@ int is_firm_484(void)
 
 int is_firm_485(void)
 {
-   // TOC 4.85 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86)
+   // TOC 4.85 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86, 4.87)
    u64 toc;
    toc = peekq(0x8000000000003000ULL);
    if(toc == 0x800000000034FBB0ULL)
@@ -221,7 +221,7 @@ int is_firm_485(void)
 
 int is_firm_486(void)
 {
-   // TOC 4.86 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86)
+   // TOC 4.86 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86, 4.87)
    u64 toc;
    toc = peekq(0x8000000000003000ULL);
    if(toc == 0x800000000034FBB0ULL)
@@ -234,20 +234,36 @@ int is_firm_486(void)
    }
 }
 
-int is_firm_48X(void)
+int is_firm_487(void)
 {
-   // TOC 4.86 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86)
+   // TOC 4.87 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86, 4.87)
    u64 toc;
    toc = peekq(0x8000000000003000ULL);
    if(toc == 0x800000000034FBB0ULL)
    {
-      return (peekq(0x80000000002FCB68ULL) > 0x323032302F30312FULL); //timestamp: 2020/01/
+      return (peekq(0x80000000002FCB68ULL) == 0x323032302F30372FULL); //timestamp: 2020/07/
    }
    else
    {
       return 0;
    }
 }
+
+int is_firm_48X(void)
+{
+   // TOC 4.88 (same as 4.75, 4.76, 4.78, 4.81, 4.82, 4.83, 4.84, 4.85, 4.86, 4.87)
+   u64 toc;
+   toc = peekq(0x8000000000003000ULL);
+   if(toc == 0x800000000034FBB0ULL)
+   {
+      return (peekq(0x80000000002FCB68ULL) > 0x323032302F30372FULL); //timestamp: 2020/07/
+   }
+   else
+   {
+      return 0;
+   }
+}
+
 extern u64 syscall_base;
 
 int is_payload_loaded_475(void)
