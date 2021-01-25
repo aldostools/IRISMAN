@@ -24,6 +24,8 @@
 // font 2: 255 chr from 0 to 254, 8 x 8 pix 1 bit depth
 extern unsigned char msx[];
 
+#define MAX(a, b)		((a) >= (b) ? (a) : (b))
+
 extern int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_size);
 
 #include "console.h"

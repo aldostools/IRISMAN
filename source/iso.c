@@ -686,17 +686,20 @@ u8 *create_fake_file_iso_mem(char *filename, u64 size)
 
     u8 *mem = malloc(sizeof(build_iso_data));
     if(!mem) return NULL;
+
     u16 *string = (u16 *) malloc(256);
     if(!string) {free(mem); return NULL;}
 
-    char name[65];
-    strncpy(name, filename, 64);
-    name[64] = 0;
+    #define MAX_NAME_LEN	110
 
-    if(strlen(filename) > 64)
+    char name[MAX_NAME_LEN + 1];
+    strncpy(name, filename, MAX_NAME_LEN);
+    name[MAX_NAME_LEN] = 0;
+
+    if(strlen(filename) > MAX_NAME_LEN)
     {
         // break the string
-        int pos = 63 - strlen(get_extension(filename));
+        int pos = MAX_NAME_LEN - 1 - strlen(get_extension(filename));
         while(pos > 0 && (name[pos] & 192) == 128) pos--; // skip UTF extra codes
         strcpy(&name[pos], get_extension(filename));
     }
