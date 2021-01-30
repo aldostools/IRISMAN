@@ -68,17 +68,29 @@
 
         display_ttf_string(0, py, "Rename",            (set_menu2 == 2 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
 
-        if((allow_shadow_copy == 1) && !strncmp(path1, "/dev_hdd0", 9) && !strncmp(path1, path2, 9))
+        if(copy_mode == 1)
         {
-            display_ttf_string(0, py, "Shadow Copy",   (set_menu2 == 3 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
+            if(!strncmp(path1, "/dev_hdd0", 9) && !strncmp(path1, path2, 9))
+                {display_ttf_string(0, py, "Shadow Copy",   (set_menu2 == 3 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;}
+            else
+                copy_mode = 2;
         }
-        else if(allow_shadow_copy == 2 && ((!fm_pane && isDir(path1)) || (fm_pane && isDir(path2))))
+        else if(copy_mode == 2)
         {
-            display_ttf_string(0, py, "Zip Folder",    (set_menu2 == 3 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
+            if((!fm_pane && isDir(path1)) || (fm_pane && isDir(path2)))
+                {display_ttf_string(0, py, "Update Copy",    (set_menu2 == 3 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;}
+            else
+                copy_mode = 3;
         }
-        else
+        else if(copy_mode == 3)
         {
-            if(allow_shadow_copy == 1) allow_shadow_copy = 0;
+            if((!fm_pane && isDir(path1)) || (fm_pane && isDir(path2)))
+                {display_ttf_string(0, py, "Zip Folder",    (set_menu2 == 3 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;}
+            else
+                copy_mode = 0;
+        }
+        else if(copy_mode == 0)
+        {
             display_ttf_string(0, py, "Copy",          (set_menu2 == 3  && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
         }
 

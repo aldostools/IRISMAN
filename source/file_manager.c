@@ -257,12 +257,12 @@ extern char self_path[MAXPATHLEN];
 #define MEM_HEX_EDIT    temp_buffer + HEX_EDIT   //0X180
 #define MEM_HEX_READ    temp_buffer + HEX_READ   //0X180
 
-int mnt_mode = 1; // 0 = Mount NTFS file as fake ISO, 1 = Mount and exit to XMB
+int8_t mnt_mode = 1; // 0 = Mount NTFS file as fake ISO, 1 = Mount and exit to XMB
 
-int mount_option = 0;
-int allow_shadow_copy = 1;
+int8_t mount_option = 0;
+int8_t copy_mode = 0; // 0=Normal copy, 1=allow shadow copy, 2=update/copy new, 3=zip folder
 
-int exit_option = 0; // 0 = Exit File Manager, 1 = Exit to XMB, 2 = Restart the PS3
+int8_t exit_option = 0; // 0 = Exit File Manager, 1 = Exit to XMB, 2 = Restart the PS3
 
 int sys_map_path(char *oldpath, char *newpath);
 int mount_psp_iso(char *path);
@@ -2161,7 +2161,7 @@ int file_manager(char *pathw1, char *pathw2)
             #include "fm_popup_menu_show.h"
 		}
         else
-            allow_shadow_copy = 1;
+            copy_mode = 0;
 
 
         // help
@@ -2204,6 +2204,7 @@ int file_manager(char *pathw1, char *pathw2)
             if(FullScreen == 1) {png_signal = 120; FullScreen = 0; continue;}
             if(!fm_pane && nentries1) set_menu2 = !set_menu2;
             if(fm_pane && nentries2) set_menu2 = !set_menu2;
+			if(!strncmp(path1, "/dev_hdd0", 9) && !strncmp(path2, "/dev_hdd0", 9)) copy_mode = 1; // use shadow copy
         }
 
         //if((new_pad & (BUTTON_TRIANGLE)) && set_menu2) {set_menu2 = 0; new_pad ^= BUTTON_TRIANGLE;}

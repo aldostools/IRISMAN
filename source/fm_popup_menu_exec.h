@@ -61,7 +61,7 @@
     else
     if((set_menu2 == 3) && (!ROOT_MENU) && ((new_pad & BUTTON_LEFT) || (new_pad & BUTTON_RIGHT)))
     {
-        ROT_INC(allow_shadow_copy, 2, 0);
+        ROT_INC(copy_mode, 3, 0);
     }
 
     if(new_pad & BUTTON_CROSS_)
@@ -338,44 +338,44 @@
        } // rename
        else if(set_menu2 == 3)
        {
-           if(allow_shadow_copy == 2)
-   		{
-   			char *base_path, *dir_name, *dest_path;
-   			if(!fm_pane)
-   			{
-   				base_path = path1;
-   				dir_name =  entries1[sel1].d_name;
-   				dest_path = (old_pad & BUTTON_SELECT) ? path1 : path2;
-   			}
-   			else
-   			{
-   				base_path = path2;
-   				dir_name =  entries2[sel2].d_name;
-   				dest_path = (old_pad & BUTTON_SELECT) ? path2 : path1;
-   			}
+			if(copy_mode == 3) // zip
+			{
+				char *base_path, *dir_name, *dest_path;
+				if(!fm_pane)
+				{
+					base_path = path1;
+					dir_name =  entries1[sel1].d_name;
+					dest_path = (old_pad & BUTTON_SELECT) ? path1 : path2;
+				}
+				else
+				{
+					base_path = path2;
+					dir_name =  entries2[sel2].d_name;
+					dest_path = (old_pad & BUTTON_SELECT) ? path2 : path1;
+				}
 
-   			if(strlen(base_path) > 10)
-   			{
-   				sprintf(TEMP_PATH1, "%s/%s/", base_path, dir_name);
-   				if(isDir(TEMP_PATH1) == false) continue;
+				if(strlen(base_path) > 10)
+				{
+					sprintf(TEMP_PATH1, "%s/%s/", base_path, dir_name);
+					if(isDir(TEMP_PATH1) == false) continue;
 
-   				sprintf(MEM_MESSAGE, "Do you want to zip %s folder into %s?", dir_name, dest_path);
-   				if(DrawDialogYesNo(MEM_MESSAGE) == YES)
-   				{
-   					sprintf(TEMP_PATH2, "%s/%s.zip", dest_path, dir_name);
+					sprintf(MEM_MESSAGE, "Do you want to zip %s folder into %s?", dir_name, dest_path);
+					if(DrawDialogYesNo(MEM_MESSAGE) == YES)
+					{
+						sprintf(TEMP_PATH2, "%s/%s.zip", dest_path, dir_name);
 
-   					msgDialogAbort();
-   					sprintf(MEM_MESSAGE, "Zipping %s/%s\nTo: %s", base_path, dir_name, TEMP_PATH2);
-   					DrawDialogTimer(MEM_MESSAGE, 500.0f);
+						msgDialogAbort();
+						sprintf(MEM_MESSAGE, "Zipping %s/%s\nTo: %s", base_path, dir_name, TEMP_PATH2);
+						DrawDialogTimer(MEM_MESSAGE, 500.0f);
 
-   					zip_directory(base_path, TEMP_PATH1, TEMP_PATH2);
+						zip_directory(base_path, TEMP_PATH1, TEMP_PATH2);
 
-   					{update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
-   					frame = 300; //force immediate refresh
-   				}
-   			}
-   			continue;
-   		}
+						{update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
+						frame = 300; //force immediate refresh
+					}
+				}
+				continue;
+			}
 
            // copy
            int files;

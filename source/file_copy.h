@@ -144,7 +144,16 @@ static int use_iso_splits = 0;
 
 int CopyFile(char* path, char* path2)
 {
-    int ret = 0;
+    if(copy_mode == 2) // update/copy new
+    {
+        u64 filesize = get_filesize(path1);
+        if(filesize)
+        {
+            if(get_filesize(path2) == filesize) return SUCCESS;
+        }
+    }
+
+    int ret = SUCCESS;
     s32 fd = FAILED;
     s32 fd2 = FAILED;
     u64 length = 0LL;
@@ -161,7 +170,7 @@ int CopyFile(char* path, char* path2)
     if(is_ntfs_path(path )) flags|= CPY_FILE1_IS_NTFS;
     if(is_ntfs_path(path2)) flags|= CPY_FILE2_IS_NTFS;
 
-    if(allow_shadow_copy && !strncmp(path, "/dev_hdd0", 9) && !strncmp(path2, "/dev_hdd0", 9))
+    if(copy_mode && !strncmp(path, "/dev_hdd0", 9) && !strncmp(path2, "/dev_hdd0", 9))
     {
         sysLv2FsUnlink(path2);
         return sysLv2FsLink(path, path2);
@@ -572,8 +581,6 @@ static int copy_file_manager(char *path1, char *path2, sysFSDirent *ent, int nen
 
     u64 size = 0;
 
-    //allow_shadow_copy = false;
-
     use_async_fd = ASYNC_ENABLE;
     pause_music(1);
 
@@ -588,9 +595,8 @@ static int copy_file_manager(char *path1, char *path2, sysFSDirent *ent, int nen
     if(!strncmp(path2, "/dev_hdd0", 9))
     {
         use_iso_splits = 1;
-        if(allow_shadow_copy && !strncmp(path1, "/dev_hdd0", 9)) cpy_str = "Shadow Copy";
+        if(copy_mode && !strncmp(path1, "/dev_hdd0", 9)) cpy_str = "Shadow Copy";
     }
-
 
     if(sel >= 0)
     {
@@ -610,7 +616,7 @@ static int copy_file_manager(char *path1, char *path2, sysFSDirent *ent, int nen
                 ret = CountFiles(TEMP_PATH1, &Files_To_Copy, &Folders_To_Copy, &size);
 
                 if(ret < 0) goto end;
-                if(allow_shadow_copy == false && size > free) goto end;
+                if((copy_mode == 0) && (size > free)) goto end;
 
                 sprintf(TEMP_PATH1, "%s/%s", path1, ent[sel].d_name);
                 ret = CopyDirectory(TEMP_PATH1, TEMP_PATH2, TEMP_PATH);
@@ -631,7 +637,7 @@ static int copy_file_manager(char *path1, char *path2, sysFSDirent *ent, int nen
                 }
 
                 if(ret != SUCCESS) goto end;
-                if(allow_shadow_copy == false && size > free) goto end;
+                if((copy_mode == 0) && (size > free)) goto end;
 
                 Files_To_Copy = 1;
 
@@ -679,7 +685,7 @@ static int copy_file_manager(char *path1, char *path2, sysFSDirent *ent, int nen
                 }
 
                 if(ret < 0) goto end;
-                if(allow_shadow_copy == false && size > free) goto end;
+                if((copy_mode == 0) && (size > free)) goto end;
             }
 
             if(ret == 0)
@@ -732,12 +738,12 @@ static int copy_file_manager(char *path1, char *path2, sysFSDirent *ent, int nen
     pause_music(0);
 
     if(ret < 0) ;
-    else if(allow_shadow_copy == false && size > free)
+    else if((copy_mode == 0) && (size > free))
     {
         DrawDialogOK("There is not enough free space to Copy Files/Folders");
     }
 
-    allow_shadow_copy = true;
+    copy_mode = 0;
     return ret;
 }
 
