@@ -2499,6 +2499,35 @@ void test_game(int game_sel)
     }
 }
 
+void TruncateDirectory(const char* path)
+{
+    char newpath[0x440];
+    sysFSDirent dir;
+
+    struct stat st;
+    DIR_ITER *pdir = NULL;
+
+    if ((pdir = ps3ntfs_diropen(path)) == NULL) return;
+
+    while (ps3ntfs_dirnext(pdir, dir.d_name, &st) == 0)
+    {
+        if(dir.d_name[0]=='.' && (dir.d_name[1]==0 || dir.d_name[1]=='.')) continue;
+
+        sprintf(newpath, "%s/%s", path, dir.d_name);
+
+        if (S_ISDIR(st.st_mode))
+        {
+            TruncateDirectory(newpath);
+        }
+        else
+        {
+            int fd = ps3ntfs_open(path, O_WRONLY | O_CREAT | O_TRUNC, 0777); ps3ntfs_close(fd);
+        }
+    }
+
+    ps3ntfs_dirclose(pdir);
+}
+
 void DeleteDirectory(const char* path)
 {
     char newpath[0x440];

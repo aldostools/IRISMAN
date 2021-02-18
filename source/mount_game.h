@@ -466,7 +466,7 @@ int launch_iso_game(char *path, int mtype)
     if(strstr(path, "/BDISO/"))  return launch_iso_game_mamba(path, EMU_BD);
     if(strstr(path, "/DVDISO/")) return launch_iso_game_mamba(path, EMU_DVD);
 
-    if(use_mamba || mtype == EMU_BD || mtype == EMU_PSX)
+    if(use_mamba || (mtype == EMU_BD) || (mtype == EMU_PSX))
     {
         return launch_iso_game_mamba(path, mtype);
     }
@@ -531,7 +531,7 @@ mount_iso: ;
             uint32_t *sections = malloc(MAX_SECTIONS * sizeof(uint32_t));
             uint32_t *sections_size = malloc(MAX_SECTIONS * sizeof(uint32_t));
 
-            if(plugin_args && sections && sections_size && (type == EMU_PS3 || type == EMU_DVD || type == EMU_BD || type == EMU_PSX))
+            if(plugin_args && sections && sections_size && ((type == EMU_PS3) || (type == EMU_DVD) || (type == EMU_BD) || (type == EMU_PSX)))
             {
                 rawseciso_args *p_args;
 
@@ -592,8 +592,8 @@ mount_iso: ;
             }
 
         }
-        else if((type == EMU_PS3 || type == EMU_DVD || type == EMU_BD || type == EMU_PSX) ||
-                (type == EMU_PS2_DVD && strncmp(path, "/dev_usb", 8)))
+        else if((type == EMU_PS3)  || (type == EMU_PSX) || (type == EMU_DVD) || (type == EMU_BD) ||
+               ((type == EMU_PS2_DVD) && (strncmp(path, "/dev_hdd0/", 10) == 0)))
         {
             if(plugin_args) free(plugin_args); plugin_args = NULL;
 
@@ -608,7 +608,7 @@ mount_iso: ;
 
             int ret = FAILED;
 
-            char *files[32];
+            char *files[64];
             int nfiles = 1;
 
             files[0] = path;
@@ -793,7 +793,7 @@ int launch_iso_game_mamba(char *path, int mtype)
             uint32_t *sections = malloc(MAX_SECTIONS * sizeof(uint32_t));
             uint32_t *sections_size = malloc(MAX_SECTIONS * sizeof(uint32_t));
 
-            if(plugin_args && sections && sections_size && (type == EMU_PS3 || type == EMU_DVD || type == EMU_BD || type == EMU_PSX))
+            if(plugin_args && sections && sections_size && ((type == EMU_PS3) || (type == EMU_DVD) || (type == EMU_BD) || (type == EMU_PSX)))
             {
                 rawseciso_args *p_args;
 
@@ -844,8 +844,8 @@ int launch_iso_game_mamba(char *path, int mtype)
                 if(sections_size) free(sections_size);
             }
         }
-        else if(type == EMU_PS3 || (type == EMU_PS2_DVD && strncmp(path, "/dev_usb", 8))
-             || type == EMU_DVD || type == EMU_BD)
+        else if((type == EMU_PS3) || (type == EMU_PSX) || (type == EMU_PSP) || (type == EMU_DVD) || (type == EMU_BD) ||
+               ((type == EMU_PS2_DVD) && (strncmp(path, "/dev_hdd0/", 10) == 0)))
         {
             if(is_ps2_game)
             {
@@ -857,7 +857,7 @@ int launch_iso_game_mamba(char *path, int mtype)
 
                 int ret;
 
-                char *files[32];
+                char *files[64];
                 int nfiles = 1;
 
                 files[0] = path;
@@ -966,14 +966,12 @@ int launch_iso_game_mamba(char *path, int mtype)
                     DrawDialogOK(MEM_MESSAGE);
                 }
 
-
             skip_load:
 
                 if(plugin_args) free(plugin_args); plugin_args = NULL;
                 if(sections) free(sections);
                 if(sections_size) free(sections_size);
             }
-
         }
     }
 

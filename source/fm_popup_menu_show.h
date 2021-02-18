@@ -96,7 +96,10 @@
 
         display_ttf_string(0, py, "Move",              (set_menu2 == 4 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
 
-        display_ttf_string(0, py, "Delete",            (set_menu2 == 5 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
+        if(truncate_mode)
+            display_ttf_string(0, py, "Truncate",      (set_menu2 == 5 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24);
+        else
+            display_ttf_string(0, py, "Delete",        (set_menu2 == 5 && (frame & BLINK)) ? INVISIBLE : WHITE, 0, 16, 24); py += 24;
 
         display_ttf_string(0, py, "Paste to New File", (set_menu2 == 6 && (frame & BLINK)) ? INVISIBLE : copy_len ? WHITE : GRAY, 0, 16, 24); py += 24;
 

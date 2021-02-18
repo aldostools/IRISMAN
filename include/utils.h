@@ -149,6 +149,7 @@ void test_game(int game_sel);
 void copy_to_cache(int game_sel, char * hmanager_path);
 void copy_usb_to_iris(char * path);
 
+void TruncateDirectory(const char* path);
 void DeleteDirectory(const char* path);
 
 int FixDirectory(const char* path, int fcount);

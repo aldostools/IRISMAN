@@ -261,6 +261,7 @@ int8_t mnt_mode = 1; // 0 = Mount NTFS file as fake ISO, 1 = Mount and exit to X
 
 int8_t mount_option = 0;
 int8_t copy_mode = 0; // 0=Normal copy, 1=allow shadow copy, 2=update/copy new, 3=zip folder
+int8_t truncate_mode = 0; // 0=Delete, 1=Truncate
 
 int8_t exit_option = 0; // 0 = Exit File Manager, 1 = Exit to XMB, 2 = Restart the PS3
 

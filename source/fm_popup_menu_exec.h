@@ -59,9 +59,12 @@
             mnt_mode = 0;
     }
     else
-    if((set_menu2 == 3) && (!ROOT_MENU) && ((new_pad & BUTTON_LEFT) || (new_pad & BUTTON_RIGHT)))
+    if((!ROOT_MENU) && ((new_pad & BUTTON_LEFT) || (new_pad & BUTTON_RIGHT)))
     {
-        ROT_INC(copy_mode, 3, 0);
+        if(set_menu2 == 3)
+            ROT_INC(copy_mode, 3, 0);
+        if(set_menu2 == 5)
+            truncate_mode ^= 1;
     }
 
     if(new_pad & BUTTON_CROSS_)
@@ -520,13 +523,19 @@
            if(test_mark_flags(entries, nentries, &files))
            {
                // multiple
-               sprintf(MEM_MESSAGE, "Do you want to delete the selected Files and Folders?\n\n(%i) Items", files);
+               if(truncate_mode)
+                   sprintf(MEM_MESSAGE, "Do you want to truncate the selected Files and Folders?\n\n(%i) Items", files);
+               else
+                   sprintf(MEM_MESSAGE, "Do you want to delete the selected Files and Folders?\n\n(%i) Items", files);
 
                if(DrawDialogYesNo(MEM_MESSAGE) == YES)
                {
                    exitcode = REFRESH_GAME_LIST;
 
-                   single_bar("Deleting...");
+                   if(truncate_mode)
+                       single_bar("Truncating...");
+                   else
+                       single_bar("Deleting...");
 
                    float parts = 100.0f / (float) files;
                    float cpart = 0;
@@ -546,7 +555,16 @@
 
                        sprintf(temp_buffer, "%s/%s", path, entries[n].d_name);
 
-                       if(entries[n].d_type & IS_DIRECTORY)
+                       if(truncate_mode)
+                       {
+                            if(entries[n].d_type & IS_DIRECTORY)
+                                TruncateDirectory(temp_buffer);
+                            else
+                            {
+                                int fd = ps3ntfs_open(temp_buffer, O_WRONLY | O_CREAT | O_TRUNC, 0); ps3ntfs_close(fd);
+                            }
+                       }
+                       else if(entries[n].d_type & IS_DIRECTORY)
                        {
                            DeleteDirectory(temp_buffer);
                            if(is_ntfs_path(temp_buffer))
@@ -589,13 +607,25 @@
            {
                if(!strcmp(entries[sel].d_name, "..")) {set_menu2 = 0; continue;}
 
-               sprintf(MEM_MESSAGE, "Do you want to delete %s?", entries[sel].d_name);
+               if(truncate_mode)
+                   sprintf(MEM_MESSAGE, "Do you want to truncate %s?", entries[sel].d_name);
+               else
+                   sprintf(MEM_MESSAGE, "Do you want to delete %s?", entries[sel].d_name);
 
                if(DrawDialogYesNo(MEM_MESSAGE) == YES)
                {
                    sprintf(temp_buffer, "%s/%s", path, entries[sel].d_name);
 
-                   if(entries[sel].d_type & IS_DIRECTORY)
+                   if(truncate_mode)
+                   {
+                      if(entries[sel].d_type & IS_DIRECTORY)
+                          TruncateDirectory(temp_buffer);
+                      else
+                      {
+                          int fd = ps3ntfs_open(temp_buffer, O_WRONLY | O_CREAT | O_TRUNC, 0); ps3ntfs_close(fd);
+                      }
+                   }
+                   else if(entries[sel].d_type & IS_DIRECTORY)
                    {
                        DeleteDirectory(temp_buffer);
                        if(is_ntfs_path(temp_buffer))
