@@ -77,7 +77,8 @@ INCLUDES	+=  include/payload480  include/payload480dex  include/payload480deh  i
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
 LIBS		:=	../lib/libaudioplayer.a ../lib/libcobra.a ../lib/libsfm_ps3.a \
-			../lib/libfatfs.a ../lib/libntfs_ext.a ../lib/libzip.a \
+			../lib/libfatfs.a ../lib/libntfs_ext.a ../lib/libzip.a ../lib/libun7zip.a \
+			../lib/libunrar.a -lstdc++ \
 			-lfreetype -lz -ltiny3d -lnetctl -lnet -lsysfs -lpngdec -ljpgdec \
 			-lsimdmath -lgcm_sys -lio -lsysutil -lrt -llv2 -lsysmodule \
 			-lhttputil -lhttp -lssl \

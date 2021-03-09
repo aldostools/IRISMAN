@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <math.h>
+#include <unrar.h>
 
 #include <sysutil/osk.h>
 #include "sysutil/sysutil.h"
@@ -60,9 +61,10 @@
 
 #define ROOT_MENU          (max_menu2 == 7)
 
-int isDir(char* path );
-int zip_directory(const char* basedir, const char* inputdir, const char* output_filename);
-int extract_zip(const char* zip_file, const char* dest_path);
+int isDir(char *path );
+int zip_directory(const char *basedir, const char *inputdir, const char *output_filename);
+int extract_zip(const char *zip_file, const char *dest_path);
+int Extract7zFile(const char *zip_file, const char *dest_path);
 
 void launch_luaplayer(char *lua_path);
 
@@ -875,9 +877,113 @@ static char cur_path2[MAX_PATH_LEN];
 #include "fm_draw_gui.h"
 #include "fm_hex_editor.h"
 
-static void extract_file(char *path1, char *path2, char *filename)
+static void unrar_extract(const char* rarFilePath, const char* dstPath)
+{
+	HANDLE hArcData; //Archive Handle
+	struct RAROpenArchiveDataEx rarOpenArchiveData;
+	struct RARHeaderDataEx rarHeaderData;
+	memset(&rarOpenArchiveData, 0, sizeof(rarOpenArchiveData));
+	memset(&rarHeaderData, 0, sizeof(rarHeaderData));
+
+	rarOpenArchiveData.ArcName = (char*) rarFilePath;
+	rarOpenArchiveData.CmtBuf = NULL;
+	rarOpenArchiveData.CmtBufSize = 0;
+	rarOpenArchiveData.OpenMode = RAR_OM_EXTRACT;
+	hArcData = RAROpenArchiveEx(&rarOpenArchiveData);
+
+	printf("UnRAR Extract [%s]\n", rarFilePath);
+
+	if (rarOpenArchiveData.OpenResult != ERAR_SUCCESS)
+	{
+		printf("OpenArchive '%s' Failed!\n", rarOpenArchiveData.ArcName);
+		return;
+	}
+
+	while (RARReadHeaderEx(hArcData, &rarHeaderData) == ERAR_SUCCESS)
+	{
+		printf("Extracting '%s' (%ld) ...\n", rarHeaderData.FileName, rarHeaderData.UnpSize + (((uint64_t)rarHeaderData.UnpSizeHigh) << 32));
+
+		if (RARProcessFile(hArcData, RAR_EXTRACT, (char*) dstPath, NULL) != ERAR_SUCCESS)
+		{
+			printf("ERROR: UnRAR Extract Failed!\n");
+			break;
+		}
+	}
+
+	RARCloseArchive(hArcData);
+}
+
+void extract_file(char *path1, char *path2, char *filename)
 {
     char *dest_path = (old_pad & BUTTON_SELECT) ? path1 : path2;
+
+    if(strstr(path1, "/PSPISO") || strstr(path1, "/PSXISO") || strstr(path1, "/PSXGAMES") || strstr(path1, "/PS2ISO") || strstr(path1, "/PS3ISO") || strstr(path1, "/DVDISO") || strstr(path1, "/BDISO"))
+    {
+        int EMU_TYPE = DETECT_EMU_TYPE;
+        if(strstr(path1, "/PSXISO") || strstr(path1, "/PSXGAMES")) EMU_TYPE = EMU_PSX;
+        else if(strstr(path1, "/PSPISO")) EMU_TYPE = EMU_PSP;
+        else if(strstr(path1, "/PS2ISO")) EMU_TYPE = EMU_PS2_DVD;
+        else if(strstr(path1, "/PS3ISO")) EMU_TYPE = EMU_PS3;
+        else if(strstr(path1, "/DVDISO")) EMU_TYPE = EMU_DVD;
+        else if(strstr(path1, "/BDISO"))  EMU_TYPE = EMU_BD;
+
+        mkdir_secure("/dev_hdd0/tmp");
+        mkdir_secure("/dev_hdd0/tmp/extract");
+
+		int fd;
+		sysFSDirent dir; size_t read;
+
+		sysLv2FsOpenDir("/dev_hdd0/tmp/extract", &fd);
+		if(fd >= 0)
+		{
+			while(!sysLv2FsReadDir(fd, &dir, &read) && read)
+				if(dir.d_name[0] != '.') {sprintf(TEMP_PATH1, "%s/%s", "/dev_hdd0/tmp/extract", dir.d_name); sysLv2FsUnlink(TEMP_PATH1);}
+			sysLv2FsCloseDir(fd);
+		}
+
+        sprintf(TEMP_PATH1, "%s/%s", path1, filename);
+        sprintf(TEMP_PATH2, "/dev_hdd0/tmp/extract/");
+
+        msgDialogAbort();
+        sprintf(MEM_MESSAGE, "Extracting %s...\nTo: %s", filename, TEMP_PATH2);
+        DrawDialogTimer(MEM_MESSAGE, 1000.0f);
+
+        if(!strcmpext(filename, ".7z"))
+            Extract7zFile(TEMP_PATH1, TEMP_PATH2);
+        else if(!strcmpext(filename, ".rar"))
+            unrar_extract(TEMP_PATH1, TEMP_PATH2);
+        else
+            extract_zip(TEMP_PATH1, TEMP_PATH2);
+
+        {update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
+        frame = 300; //force immediate refresh
+
+		memset(TEMP_PATH1, 0, 0x400);
+
+		int found = false;
+
+		sysLv2FsOpenDir("/dev_hdd0/tmp/extract", &fd);
+		if(fd >= 0)
+		{
+			while(!sysLv2FsReadDir(fd, &dir, &read) && read)
+				if(!strcmpext(dir.d_name, ".iso") || !strcmpext(dir.d_name, ".bin") || !strcmpext(dir.d_name, ".img") || !strcmpext(dir.d_name, ".mdf")) {found = true; sprintf(TEMP_PATH1, "%s/%s", "/dev_hdd0/tmp/extract", dir.d_name); break;}
+			sysLv2FsCloseDir(fd);
+		}
+
+		//if(!found) return;
+
+        cobra_send_fake_disc_eject_event();
+        usleep(4000);
+        cobra_umount_disc_image();
+
+        cobra_unset_psp_umd();
+        sys_map_path((char*)"/dev_bdvd", NULL);
+        sys_map_path((char*)"/app_home", NULL);
+
+        launch_iso_game(TEMP_PATH1, EMU_TYPE);
+
+        return;
+    }
 
     if(!(old_pad & BUTTON_SELECT) && !strncmp(filename, "PS3~", 4))
     {
@@ -900,7 +1006,13 @@ static void extract_file(char *path1, char *path2, char *filename)
         sprintf(MEM_MESSAGE, "Extracting %s...\nTo: %s", filename, dest_path);
         DrawDialogTimer(MEM_MESSAGE, 500.0f);
 
-        extract_zip(TEMP_PATH1, TEMP_PATH2);
+        if(!strcmpext(filename, ".7z"))
+            Extract7zFile(TEMP_PATH1, TEMP_PATH2);
+        else if(!strcmpext(filename, ".rar"))
+            unrar_extract(TEMP_PATH1, TEMP_PATH2);
+        else
+            extract_zip(TEMP_PATH1, TEMP_PATH2);
+
         {update_device_sizes |= 1|2; pos1 = sel1 = nentries1 = pos2 = sel2 = nentries2 = 0;}
         frame = 300; //force immediate refresh
     }
@@ -961,8 +1073,6 @@ static void browse_file(char *ext, char *path, char *filename)
     }
 }
 
-int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_size);
-
 int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_size)
 {
     char *ext = get_extension(filename);
@@ -1010,6 +1120,14 @@ int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_siz
         launch_ps2classic(TEMP_PATH1, TEMP_PATH2);
     }
     else if(!(d_type & IS_MARKED) && strcasecmp(ext, ".zip") == SUCCESS)
+    {
+        extract_file(path, path2, filename);
+    }
+    else if(!(d_type & IS_MARKED) && strcasecmp(ext, ".7z") == SUCCESS)
+    {
+        extract_file(path, path2, filename);
+    }
+    else if(!(d_type & IS_MARKED) && strcasecmp(ext, ".rar") == SUCCESS)
     {
         extract_file(path, path2, filename);
     }

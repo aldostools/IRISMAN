@@ -373,7 +373,7 @@ int mount_psp_iso(char *path)
 
     if(ret)
     {
-        DrawDialogOKTimer("PSP image could not be mounted", 2000.0f);
+        DrawDialogOKTimer("PSP image could not be mounted", 2500.0f);
         return FAILED;
     }
     else
@@ -393,6 +393,12 @@ int launch_iso_game(char *path, int mtype)
 {
     int type = EMU_BD;
 
+    if((mtype == EMU_PS2_DVD) || (mtype == EMU_PS2_CD))
+    {
+       return launch_iso_game_mamba(path, EMU_PS2_DVD);
+    }
+
+    if((mtype == EMU_PSX) || (mtype == EMU_PSP) || (mtype == EMU_PS2_DVD) || (mtype == EMU_PS3)) ; else
     if(is_audiovideo(get_extension(path)))
     {
         launch_video(path);
@@ -412,16 +418,18 @@ int launch_iso_game(char *path, int mtype)
     }
 
     if((use_cobra && !is_mamba_v2) &&
-       (mtype == EMU_PSP || strstr(path, "/PSPISO/") != NULL || strstr(path, "/ISO/") != NULL) &&
-       !strcasecmp(path + strlen(path) - 4, ".iso"))
+       (((mtype == EMU_PSP) || (strstr(path, "/PSPISO/") != NULL || strstr(path, "/ISO/") != NULL)) &&
+       !strcmpext(path, ".iso")))
     {
         mount_psp_iso(path);
+        return FAILED;
     }
 
     int flen = strlen(path) - 4;
 
-    if((strstr(path, "/PSXISO/") != NULL || strstr(path, "/PSXGAMES/") != NULL) &&
-       flen >= 0 && (strcasestr(".iso|.bin|.mdf|.img", path + flen) != NULL))
+    if((mtype = EMU_PSX) ||
+       ((strstr(path, "/PSXISO/") != NULL || strstr(path, "/PSXGAMES/") != NULL) &&
+        (flen >= 0) && (strcasestr(".iso|.bin|.mdf|.img", path + flen) != NULL)))
     {
         ps3pad_read();
         if(is_ps3hen || ((use_cobra || use_mamba) && (old_pad & BUTTON_SELECT)))

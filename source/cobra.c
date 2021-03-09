@@ -499,7 +499,7 @@ int cobra_set_psp_umd2(char *path, char *umd_root, char *icon_save_path, uint64_
         DrawDialogOKTimer("PSPISO: icon not found", 2000.0f);
         return -1;//EABORT;
     }
-
+/*
     char PSPL_LAMBDA[MAXPATHLEN];
     sprintf(PSPL_LAMBDA, "%s/USRDIR/CONTENT/lambda.db", psp_launcher_path);
 
@@ -508,7 +508,7 @@ int cobra_set_psp_umd2(char *path, char *umd_root, char *icon_save_path, uint64_
         DrawDialogOKTimer("PSPISO: PSP Launcher database not found", 2000.0f);
         return -2;//ESYSVER;
     }
-
+*/
     FILE *fp = fopen(path, "rb");
     if (!fp) return EIO;
 
@@ -691,14 +691,14 @@ int cobra_set_psp_umd2(char *path, char *umd_root, char *icon_save_path, uint64_
 
     if (ret == 0)
     {
-        if (emu == EMU_400)
+        /*if (emu == EMU_400)
         {
     //          if (check_lambda() < 0)
     //              return ECANCELED;
 
             sys_storage_ext_mount_encrypted_image(PSPL_LAMBDA, "/dev_moo", "CELL_FS_FAT", PSPL_LAMBDA_NONCE);
             sys_psp_change_emu_path("/dev_moo/pspemu");
-        }
+        }*/
 
         sys_psp_set_umdfile(path, title_id, prometheus);
         sys_psp_set_decrypt_options(decrypt_patch, tag, keys, code, 0, NULL, 0);

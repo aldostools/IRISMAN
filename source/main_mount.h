@@ -344,6 +344,23 @@ autolaunch_proc:
                 if((directories[currentgamedir].flags & (PSP_FLAG | RETRO_FLAG | PS2_CLASSIC_FLAG)) == (PSP_FLAG | RETRO_FLAG | PS2_CLASSIC_FLAG) || (directories[currentgamedir].flags & D_FLAG_HOMEB)) ;
                 else if((game_cfg.direct_boot == 3) || manager_cfg.global_wm_autoplay || strstr(directories[currentgamedir].path_name, "[auto]")!=NULL) {game_cfg.direct_boot = 0; SaveFile((char*)"/dev_hdd0/tmp/wm_request", (char*)"GET /play.ps3\n", 14);}
 
+                if(directories[currentgamedir].flags & (BDVD_FLAG | PS3_FLAG | PS1_FLAG))
+                {
+                    if(!strcmpext(directories[currentgamedir].path_name, ".zip") ||
+                       !strcmpext(directories[currentgamedir].path_name, ".rar") ||
+                       !strcmpext(directories[currentgamedir].path_name, ".7z"))
+                    {
+                        char *pos = strrchr(directories[currentgamedir].path_name, '/');
+                        if(pos)
+                        {
+                            *pos = 0;
+                            sprintf(tmp_path, "%s", directories[currentgamedir].path_name);
+                            extract_file(tmp_path, tmp_path, pos + 1); // extract & mount iso
+                        }
+                        return r;
+                    }
+                }
+
                 if((directories[currentgamedir].flags & (BDVD_FLAG | HOMEBREW_FLAG | PS1_FLAG)) == PS1_FLAG)
                 {
                     if(!(directories[currentgamedir].flags & PS3_FLAG))

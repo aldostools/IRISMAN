@@ -3157,6 +3157,19 @@ s32 main(s32 argc, const char* argv[])
     rmdir_secure(tmp_path);
     //
 
+	{
+		int fd;
+		sysFSDirent dir; size_t read;
+
+		sysLv2FsOpenDir("/dev_hdd0/tmp/extract", &fd);
+		if(fd >= 0)
+		{
+			while(!sysLv2FsReadDir(fd, &dir, &read) && read)
+				if(dir.d_name[0] != '.') {sprintf(tmp_path, "%s/%s", "/dev_hdd0/tmp/extract", dir.d_name); sysLv2FsUnlink(tmp_path);}
+			sysLv2FsCloseDir(fd);
+		}
+	}
+
     // get estimated texture used
     //sprintf(temp_buffer, "Textures used: %u bytes", text_size);
     //DrawDialogOK(temp_buffer);

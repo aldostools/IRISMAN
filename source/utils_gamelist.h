@@ -414,15 +414,27 @@ int fill_iso_entries_from_device(char *path, u32 flag, t_directories *list, int 
         }
         else if(((flag & (PS2_FLAG)) == (PS2_FLAG)) || ((flag & (PSP_FLAG)) == (PSP_FLAG)))
         {
-            if(strcmpext(dir.d_name, ".iso") && strcmpext(dir.d_name, ".ISO")) continue;
+            int flen = strlen(dir.d_name) - 4;
+
+            if(flen < 0) continue;
+
+            if(strcasestr(".iso|.bin|.mdf|.img|.zip|.rar", dir.d_name + flen) == NULL)
+            {
+                if(strcmpext(dir.d_name, ".7z")) continue;
+            }
         }
         else if(flag & (PS1_FLAG))
         {
             int flen = strlen(dir.d_name) - 4;
 
-            if(flen < 0 || strcasestr(".iso|.bin|.mdf|.img", dir.d_name + flen) == NULL) continue;
+            if(flen < 0) continue;
+
+            if(strcasestr(".iso|.bin|.mdf|.img|.zip|.rar", dir.d_name + flen) == NULL)
+            {
+                if(strcmpext(dir.d_name, ".7z")) continue;
+            }
         }
-        else if(strcmpext(dir.d_name, ".iso") && strcmpext(dir.d_name, ".iso.0")) continue;
+        else if(strcmpext(dir.d_name, ".iso") && strcmpext(dir.d_name, ".iso.0") && strcmpext(dir.d_name, ".zip")  && strcmpext(dir.d_name, ".rar") && strcmpext(dir.d_name, ".7z")) continue;
 
         sprintf(list[*max].path_name, "%s/%s", path, dir.d_name);
 

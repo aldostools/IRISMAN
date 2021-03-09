@@ -67,6 +67,7 @@ void launch_ps2classic(char *ps2iso_path, char *ps2iso_title);
 int launch_iso_game(char *path, int mtype);
 int launch_iso_game_mamba(char *path, int mtype);
 int launch_iso_build(char *iso_path, char *src_path, bool run_showtime);
+void extract_file(char *path1, char *path2, char *filename);
 
 int copy_archive_file(char *path1, char *path2, char *file, u64 free);
 int CopyFile(char* path, char* path2);
@@ -74,5 +75,7 @@ int CopyDirectory(char* path, char* path2, char* path3); // path3 = path2 (used 
 
 void draw_file_manager();
 void draw_hex_editor();
+
+int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_size);
 
 #endif
