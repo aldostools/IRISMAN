@@ -2633,6 +2633,14 @@ s32 main(s32 argc, const char* argv[])
     sprintf(tmp_path, "%s/cache", self_path);
     mkdir_secure(tmp_path);
 
+    sprintf(tmp_path, "%s/PARAM.SFO", self_path);
+    sprintf(tmp_path + 0x100, "%s/USRDIR/PARAM.SFO", self_path);
+    CopyFile(tmp_path + 0x100, tmp_path);
+
+    sprintf(tmp_path, "%s/ICON0.PNG", self_path);
+    sprintf(tmp_path + 0x100, "%s/USRDIR/icons/ICON0.PNG", self_path);
+    CopyFile(tmp_path + 0x100, tmp_path);
+
     //sprintf(temp_buffer, "%s/PKG", self_path);
     if(strlen(updates_path)) mkdir_secure(updates_path);
 

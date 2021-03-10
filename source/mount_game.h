@@ -393,10 +393,13 @@ int launch_iso_game(char *path, int mtype)
 {
     int type = EMU_BD;
 
-    if((mtype == EMU_PS2_DVD) || (mtype == EMU_PS2_CD))
+    if((mtype == EMU_PS2_DVD) || (mtype == EMU_PS2_CD) || (mtype == EMU_BD) || (mtype == EMU_DVD))
     {
-       return launch_iso_game_mamba(path, EMU_PS2_DVD);
+       return launch_iso_game_mamba(path, mtype);
     }
+
+    if(strstr(path, "/BDISO/"))  return launch_iso_game_mamba(path, EMU_BD);
+    if(strstr(path, "/DVDISO/")) return launch_iso_game_mamba(path, EMU_DVD);
 
     if((mtype == EMU_PSX) || (mtype == EMU_PSP) || (mtype == EMU_PS2_DVD) || (mtype == EMU_PS3)) ; else
     if(is_audiovideo(get_extension(path)))
@@ -470,9 +473,6 @@ int launch_iso_game(char *path, int mtype)
     {
         return launch_iso_game_mamba(path, EMU_PSX);
     }
-
-    if(strstr(path, "/BDISO/"))  return launch_iso_game_mamba(path, EMU_BD);
-    if(strstr(path, "/DVDISO/")) return launch_iso_game_mamba(path, EMU_DVD);
 
     if(use_mamba || (mtype == EMU_BD) || (mtype == EMU_PSX))
     {

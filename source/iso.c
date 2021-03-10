@@ -125,8 +125,8 @@ static void press_button_to_continue()
     cls(); tiny3d_Flip();
 }
 
-void UTF8_to_UTF16(u8 *stb, u16 *stw);
-void UTF16_to_UTF8(u16 *stw, u8 *stb);
+int UTF8_to_UTF16(u8 *stb, u16 *stw);
+int UTF16_to_UTF8(u16 *stw, u8 *stb);
 
 static void utf8_to_ansiname(char *utf8, char *ansi, int len)
 {
@@ -425,13 +425,14 @@ int get_iso_file_pos(FILE *fp, unsigned char *path, u32 *flba, u64 *size)
     folder_split[nfolder_split][1] = 0;
     folder_split[nfolder_split][2] = 0;
     int i = 0;
+    int len = strlen(path);
 
-    while(path[i] != 0 && i < strlen(path))
+    while(path[i] != 0 && i < len)
     {
         if(path[i] == '/')
         {
             folder_split[nfolder_split][2] = i - folder_split[nfolder_split][1];
-            while(path[i] =='/' && i < strlen(path)) i++;
+            while(path[i] =='/' && i < len) i++;
             if(folder_split[nfolder_split][2] == 0) {folder_split[nfolder_split][1] = i; continue;}
             folder_split[nfolder_split][0] = 1;
             nfolder_split++;
@@ -549,11 +550,11 @@ int get_iso_file_pos(FILE *fp, unsigned char *path, u32 *flba, u64 *size)
         memset(wstring, 0, 512 * 2);
         memcpy(wstring, &sectors[p], snamelen);
 
-        UTF16_to_UTF8(wstring, (u8 *) temp_string);
+        len = UTF16_to_UTF8(wstring, (u8 *) temp_string);
 
         if(cur_parent == 1 && folder_split[nsplit][0] == 0 && nsplit == 0) {lba_folder = lba; break;}
 
-        if(last_parent == parent_name && strlen(temp_string) == folder_split[nsplit][2] &&
+        if(last_parent == parent_name && len == folder_split[nsplit][2] &&
            !strncmp((void *) temp_string, &path[folder_split[nsplit][1]], folder_split[nsplit][2]))
         {
 
@@ -625,9 +626,9 @@ int get_iso_file_pos(FILE *fp, unsigned char *path, u32 *flba, u64 *size)
         memset(wstring, 0, 512 * 2);
         memcpy(wstring, (char *) idr->name, idr->name_len[0]);
 
-        UTF16_to_UTF8(wstring, (u8 *) temp_string);
+        len = UTF16_to_UTF8(wstring, (u8 *) temp_string);
 
-        if(strlen(temp_string) == folder_split[nsplit][2] &&
+        if(len == folder_split[nsplit][2] &&
           !strncmp((char *) temp_string, &path[folder_split[nsplit][1]], (int) folder_split[nsplit][2]))
         {
             if(file_lba == 0xffffffff) file_lba = isonum_733(&idr->extent[0]);
@@ -704,22 +705,20 @@ u8 *create_fake_file_iso_mem(char *filename, u64 size)
         strcpy(&name[pos], get_extension(filename));
     }
 
-    UTF8_to_UTF16((u8 *) name, string);
-
-    for(len_string = 0; len_string < 512; len_string++) if(string[len_string] == 0) break;
+    len_string = UTF8_to_UTF16((u8 *) name, string);
 
     memcpy(mem, build_iso_data, sizeof(build_iso_data));
 
-    struct iso_primary_descriptor *ipd = (struct iso_primary_descriptor *) &mem[0x8000];
+    struct iso_primary_descriptor *ipd  = (struct iso_primary_descriptor *) &mem[0x8000];
     struct iso_primary_descriptor *ipd2 = (struct iso_primary_descriptor *) &mem[0x8800];
-    struct iso_directory_record * idr = (struct iso_directory_record *) &mem[0xB840];
-    struct iso_directory_record * idr2 = (struct iso_directory_record *) &mem[0xC044];
+    struct iso_directory_record   *idr  = (struct iso_directory_record *)   &mem[0xB840];
+    struct iso_directory_record   *idr2 = (struct iso_directory_record *)   &mem[0xC044];
 
     u32 last_lba = isonum_733 (ipd->volume_space_size);
 
     u64 size0 = size;
 
-    while(size > 0)
+    while(size)
     {
         u8 flags = 0;
 
@@ -1012,8 +1011,7 @@ static int calc_entries(char *path, int parent)
             nentries++;
             if(nentries >= progress) {DPrintf(pcount ? "." : ">> Still reading... Please wait ."); pcount++; progress = nentries + 100;}
 
-            path[l] = 0;
-            strcat(path + l, entry->d_name);
+            sprintf(path + l, entry->d_name);
 
             if(stat(path, &s) != SUCCESS) continue; //{closedir(dir); DPrintf("Not found: %s\n", path); path[len] = 0; return ERROR_INPUT_FILE_NOT_EXISTS;}
 
@@ -1021,7 +1019,7 @@ static int calc_entries(char *path, int parent)
 
             if(is_dir_entry) {nfolders++; continue;}
 
-            int lname = strlen(entry->d_name);
+            int lname = entry->d_namlen; //strlen(entry->d_name);
 
             if(lname >= 6 && !strncmp(&entry->d_name[lname - 6], ".66600", 6))
             {
@@ -1032,8 +1030,7 @@ static int calc_entries(char *path, int parent)
                 temp_string[lname] = 0;
 
                 // check multi-part file name length
-                UTF8_to_UTF16((u8 *) temp_string, wstring);
-                for(len_string = lname; len_string < 225; len_string++) if(wstring[len_string] == 0) break;
+                len_string = UTF8_to_UTF16((u8 *) temp_string, wstring);
                 if(len_string > 222) {closedir(dir); return ERROR_FILE_NAME_TOO_LONG;}
 
                 // build size of .666xx files
@@ -1062,8 +1059,7 @@ static int calc_entries(char *path, int parent)
                 if(lname > 222) {path[len] = 0; closedir(dir); return ERROR_FILE_NAME_TOO_LONG;}
 
                 // check file name length
-                UTF8_to_UTF16((u8 *) entry->d_name, wstring);
-                for(len_string = lname; len_string < 225; len_string++) if(wstring[len_string] == 0) break;
+                len_string = UTF8_to_UTF16((u8 *) entry->d_name, wstring);
                 if(len_string > 222) {closedir(dir); return ERROR_FILE_NAME_TOO_LONG;}
 
                 nfiles++;
@@ -1148,12 +1144,11 @@ static int calc_entries(char *path, int parent)
 
                     if(is_dir_entry)
                     {
-                        int lname = strlen(entry->d_name);
+                        int lname = entry->d_namlen; //strlen(entry->d_name);
                         if(lname > 222) {closedir(dir); return ERROR_FILE_NAME_TOO_LONG;}
 
                         // check directory name length
-                        UTF8_to_UTF16((u8 *) entry->d_name, wstring);
-                        for(len_string = lname; len_string < 225; len_string++) if(wstring[len_string] == 0) break;
+                        len_string = UTF8_to_UTF16((u8 *) entry->d_name, wstring);
                         if(len_string > 222) {closedir(dir); return ERROR_FILE_NAME_TOO_LONG;}
 
                         lpath += sizeof(struct iso_path_table) + lname - 1;
@@ -1246,7 +1241,7 @@ static int calc_entries(char *path, int parent)
 
                     DPrintf("%s\n", path);
 
-                    directory_iso[cur_isop].name = malloc(strlen(entry->d_name) + 1);
+                    directory_iso[cur_isop].name = malloc(entry->d_namlen + 1);
                     if(!directory_iso[cur_isop].name) {closedir(dir); return FAILED;}
                     strcpy(directory_iso[cur_isop].name, entry->d_name);
 
@@ -1384,41 +1379,39 @@ static int fill_dirpath(void)
         }
 
         //////
-        UTF8_to_UTF16((u8 *) directory_iso[n].name, wstring);
-
         int len_string;
+        len_string = UTF8_to_UTF16((u8 *) directory_iso[n].name, wstring);
 
-        for(len_string = 0; len_string < 512; len_string++) if(wstring[len_string] == 0) break;
-
-        set721((void *) iptl0->name_len, strlen(directory_iso[n].name));
+        set721((void *) iptl0->name_len, len_string);
         set731((void *) iptl0->extent, directory_iso[n].llba);
         set721((void *) iptl0->parent, directory_iso[n].parent);
-        memcapscpy(&iptl0->name[0], directory_iso[n].name, strlen(directory_iso[n].name));
-        pos_lpath0 += sizeof(struct iso_path_table) - 1 + strlen(directory_iso[n].name);
+        memcapscpy(&iptl0->name[0], directory_iso[n].name, len_string);
+        pos_lpath0 += sizeof(struct iso_path_table) - 1 + len_string;
         pos_lpath0 += pos_lpath0 & 1;
         iptl0 = (void *) &sectors[pos_lpath0];
 
-        set721((void *) iptl1->name_len, strlen(directory_iso[n].name));
+        set721((void *) iptl1->name_len, len_string);
         set732((void *) iptl1->extent, directory_iso[n].llba);
         set722((void *) iptl1->parent, directory_iso[n].parent);
-        memcapscpy(&iptl1->name[0], directory_iso[n].name, strlen(directory_iso[n].name));
-        pos_lpath1 += sizeof(struct iso_path_table) - 1 + strlen(directory_iso[n].name);
+        memcapscpy(&iptl1->name[0], directory_iso[n].name, len_string);
+        pos_lpath1 += sizeof(struct iso_path_table) - 1 + len_string;
         pos_lpath1 += pos_lpath1 & 1;
         iptl1 = (void *) &sectors[pos_lpath1];
 
-        set721((void *) iptw0->name_len, len_string * 2);
+        len_string *= 2;
+        set721((void *) iptw0->name_len, len_string);
         set731((void *) iptw0->extent, directory_iso[n].wlba);
         set721((void *) iptw0->parent, directory_iso[n].parent);
-        memcpy(&iptw0->name[0], wstring, len_string * 2);
-        pos_wpath0 += sizeof(struct iso_path_table) - 1 + len_string * 2;
+        memcpy(&iptw0->name[0], wstring, len_string);
+        pos_wpath0 += sizeof(struct iso_path_table) - 1 + len_string;
         pos_wpath0 += pos_wpath0 & 1;
         iptw0 = (void *) &sectors[pos_wpath0];
 
-        set721((void *) iptw1->name_len, len_string * 2);
+        set721((void *) iptw1->name_len, len_string);
         set732((void *) iptw1->extent, directory_iso[n].wlba);
         set722((void *) iptw1->parent, directory_iso[n].parent);
-        memcpy(&iptw1->name[0], wstring, len_string * 2);
-        pos_wpath1 += sizeof(struct iso_path_table) - 1 + len_string * 2;
+        memcpy(&iptw1->name[0], wstring, len_string);
+        pos_wpath1 += sizeof(struct iso_path_table) - 1 + len_string;
         pos_wpath1 += pos_wpath1 & 1;
         iptw1 = (void *) &sectors[pos_wpath1];
 
@@ -1588,7 +1581,7 @@ static int fill_entries(char *path1, char *path2, int level)
 
             if(S_ISDIR(s.st_mode)) continue;
 
-            int lname = strlen(entry->d_name);
+            int lname = entry->d_namlen; //strlen(entry->d_name);
 
             if(lname >= 6 && !strcmp(&entry->d_name[lname -6], ".66600"))
             {
@@ -1599,8 +1592,7 @@ static int fill_entries(char *path1, char *path2, int level)
                 temp_string[lname] = 0;
 
                 // check multi-part file name length
-                UTF8_to_UTF16((u8 *) temp_string, wstring);
-                for(len_string = lname; len_string < 225; len_string++) if(wstring[len_string] == 0) break;
+                len_string = UTF8_to_UTF16((u8 *) temp_string, wstring);
                 if(len_string > 222) {closedir(dir); return ERROR_FILE_NAME_TOO_LONG;}
 
                 // build size of .666xx files
@@ -1628,8 +1620,7 @@ static int fill_entries(char *path1, char *path2, int level)
                 if(lname > 222) {path1[len] = 0; closedir(dir); return ERROR_FILE_NAME_TOO_LONG;}
 
                 // check file name length
-                UTF8_to_UTF16((u8 *) entry->d_name, wstring);
-                for(len_string = lname; len_string < 225; len_string++) if(wstring[len_string] == 0) break;
+                len_string = UTF8_to_UTF16((u8 *) entry->d_name, wstring);
                 if(len_string > 222) {closedir(dir); return ERROR_FILE_NAME_TOO_LONG;}
             }
 
@@ -1772,8 +1763,7 @@ static int fill_entries(char *path1, char *path2, int level)
     for(n = 1; n < cur_isop; n++)
         if(directory_iso[n].parent == level + 1)
         {
-            path1[l] = 0;
-            strcat(path1 + l, directory_iso[n].name);
+            len_string = sprintf(path1 + l, "%s", directory_iso[n].name);
 
             if(stat(path1, &s) != SUCCESS) {DPrintf("Not found: %s\n", path1); path1[len] = 0; return ERROR_INPUT_FILE_NOT_EXISTS;}
 
@@ -1789,7 +1779,7 @@ static int fill_entries(char *path1, char *path2, int level)
 
             int add;
 
-            add = sizeof(struct iso_directory_record) + strlen(directory_iso[n].name) + 5; //- 1 + 6;
+            add = sizeof(struct iso_directory_record) + len_string + 5; //- 1 + 6;
             add+= (add & 1);
 
             // align entry data with sector
@@ -1826,14 +1816,12 @@ static int fill_entries(char *path1, char *path2, int level)
             idrl->file_unit_size[0] = 0x0;
             idrl->interleave[0] = 0x0;
             set723(idrl->volume_sequence_number, 1);
-            idrl->name_len[0] = strlen(directory_iso[n].name);
-            memcapscpy(idrl->name, directory_iso[n].name, strlen(directory_iso[n].name));
+            idrl->name_len[0] = len_string;
+            memcapscpy(idrl->name, directory_iso[n].name, len_string);
             idrl = (void *) ((char *) idrl) + idrl->length[0];
 
             //
-            UTF8_to_UTF16((u8 *) directory_iso[n].name, wstring);
-
-            for(len_string = 0; len_string < 512; len_string++) if(wstring[len_string] == 0) break;
+            len_string = UTF8_to_UTF16((u8 *) directory_iso[n].name, wstring);
 
             add = sizeof(struct iso_directory_record) + len_string * 2 + 5; //- 1 + 6;
             add+= (add & 1);
@@ -2108,7 +2096,7 @@ static int build_file_iso(int *fd, char *path1, char *path2, int level)
 
             int is_file_split = 0;
 
-            int lname = strlen(entry->d_name);
+            int lname = entry->d_namlen; //strlen(entry->d_name);
 
             if(lname >= 6 && !strcmp(&entry->d_name[lname -6], ".66600"))
             {
@@ -2797,9 +2785,7 @@ int makeps3iso(char *g_path, char *f_iso, int split)
     isd->type[0] = 2;
     memcpy(&isd->id[0],"CD001",5);
     isd->version[0]=1;
-    UTF8_to_UTF16((u8 *) "PS3VOLUME", wstring);
-
-    for(len_string = 0; len_string < 512; len_string++) if(wstring[len_string] == 0) break;
+    len_string = UTF8_to_UTF16((u8 *) "PS3VOLUME", wstring);
 
     memset(&isd->system_id[0],0, 32);
     memset(&isd->volume_id[0],0, 32);
@@ -3377,7 +3363,7 @@ int extractps3iso(char *f_iso, char *g_path, int split)
         memset(wstring, 0, 512 * 2);
         memcpy(wstring, &sectors[p], snamelen);
 
-        UTF16_to_UTF8(wstring, (u8 *) string);
+        len = UTF16_to_UTF8(wstring, (u8 *) string);
 
         if(idx >= MAX_ISO_PATHS)
         {
@@ -3385,7 +3371,7 @@ int extractps3iso(char *f_iso, char *g_path, int split)
             goto err;
         }
 
-        directory_iso2[idx].name = malloc(strlen(string) + 2);
+        directory_iso2[idx].name = malloc(len + 2);
         if(!directory_iso2[idx].name)
         {
             DPrintf("ERROR: in directory_iso2.name malloc()\n\n");
@@ -3530,7 +3516,7 @@ int extractps3iso(char *f_iso, char *g_path, int split)
                     memset(wstring, 0, 512 * 2);
                     memcpy(wstring, idr->name, idr->name_len[0]);
 
-                    UTF16_to_UTF8(wstring, (u8 *) string);
+                    len = UTF16_to_UTF8(wstring, (u8 *) string);
 
                     if(file_aux[0])
                     {
@@ -3562,7 +3548,6 @@ int extractps3iso(char *f_iso, char *g_path, int split)
                         }
                     }
 
-                    len = strlen(string);
                     string[len - 2] = 0; // break ";1" string
 
                     strcat(string2 + len2, "/");
@@ -4209,7 +4194,7 @@ int patchps3iso(char *f_iso, int nopause)
         memset(wstring, 0, 512 * 2);
         memcpy(wstring, &sectors[p], snamelen);
 
-        UTF16_to_UTF8(wstring, (u8 *) string);
+        len = UTF16_to_UTF8(wstring, (u8 *) string);
 
         if(idx >= MAX_ISO_PATHS)
         {
@@ -4217,7 +4202,7 @@ int patchps3iso(char *f_iso, int nopause)
             goto err;
         }
 
-        directory_iso2[idx].name = malloc(strlen(string) + 2);
+        directory_iso2[idx].name = malloc(len + 2);
         if(!directory_iso2[idx].name)
         {
             DPrintf("ERROR: in directory_iso2.name malloc()\n\n");
@@ -4356,7 +4341,7 @@ int patchps3iso(char *f_iso, int nopause)
                     memset(wstring, 0, 512 * 2);
                     memcpy(wstring, idr->name, idr->name_len[0]);
 
-                    UTF16_to_UTF8(wstring, (u8 *) string);
+                    len = UTF16_to_UTF8(wstring, (u8 *) string);
 
                     if(file_aux[0])
                     {
@@ -4388,7 +4373,6 @@ int patchps3iso(char *f_iso, int nopause)
                         }
                     }
 
-                    len = strlen(string);
                     string[len - 2] = 0; // break ";1" string
 
                     strcat(string2 + len2, "/");

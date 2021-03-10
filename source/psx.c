@@ -1989,13 +1989,13 @@ skip_scan_folder_isos:
                 {
                     lv2_table[n][2] = (u32) lv2_addr;
                     lv2_table[n][3] = file_ndatas[n];
-                    // copy full TOC datas
+                    // copy full TOC data
                     sys8_memcpyinstr(lv2_addr, (u64) file_datas[n], (u64) file_ndatas[n]);
                     lv2_addr+= (u64) ((file_ndatas[n] + 15) & ~15);
                     lv2_table[n][0] = (u32) lv2_addr;
 
                     custom_disc_info[6] =*(((u8 *) file_datas[n])+ 3); // copy last track
-                    // copy disck info datas
+                    // copy disc info data
                     sys8_memcpyinstr(lv2_addr, (u64) custom_disc_info, 16ULL);
                     lv2_addr+= 16;
                     free(file_datas[n]);
@@ -2082,7 +2082,6 @@ skip_scan_folder_isos:
                 {
                     p_args->discs_desc[n][0] = p_args->discs_desc[n % nfiles][0];
                     p_args->discs_desc[n][1] = p_args->discs_desc[n % nfiles][1];
-
                 }
 
                 if(sections) free(sections);

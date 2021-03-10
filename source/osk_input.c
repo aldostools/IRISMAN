@@ -97,8 +97,10 @@ void UTF32_to_UTF8(u32 *stw, u8 *stb)
     *stb = 0;
 }
 
-void UTF16_to_UTF8(u16 *stw, u8 *stb)
+int UTF16_to_UTF8(u16 *stw, u8 *stb)
 {
+	u8 *out = stb;
+
     while(stw[0])
     {
         if((stw[0] & 0xFF80) == 0)
@@ -128,10 +130,13 @@ void UTF16_to_UTF8(u16 *stw, u8 *stb)
     }
 
     *stb = 0;
+    return (stb - out);
 }
 
-void UTF8_to_UTF16(u8 *stb, u16 *stw)
+int UTF8_to_UTF16(u8 *stb, u16 *stw)
 {
+   u8 *out = stb;
+
    int n, m;
    u32 UTF32;
    while(*stb)
@@ -183,6 +188,7 @@ void UTF8_to_UTF16(u8 *stb, u16 *stw)
    }
 
    *stw++ = 0;
+   return (stb - out);
 }
 
 /*
