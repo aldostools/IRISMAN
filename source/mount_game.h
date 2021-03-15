@@ -393,11 +393,12 @@ int launch_iso_game(char *path, int mtype)
 {
     int type = EMU_BD;
 
-    if((mtype == EMU_PS2_DVD) || (mtype == EMU_PS2_CD) || (mtype == EMU_BD) || (mtype == EMU_DVD))
+    if((mtype == EMU_PS3) || (mtype == EMU_PS2_DVD) || (mtype == EMU_PS2_CD) || (mtype == EMU_BD) || (mtype == EMU_DVD))
     {
        return launch_iso_game_mamba(path, mtype);
     }
 
+    if(strstr(path, "/PS3ISO/")) return launch_iso_game_mamba(path, EMU_PS3);
     if(strstr(path, "/BDISO/"))  return launch_iso_game_mamba(path, EMU_BD);
     if(strstr(path, "/DVDISO/")) return launch_iso_game_mamba(path, EMU_DVD);
 
@@ -431,8 +432,9 @@ int launch_iso_game(char *path, int mtype)
     int flen = strlen(path) - 4;
 
     if((mtype = EMU_PSX) ||
-       ((strstr(path, "/PSXISO/") != NULL || strstr(path, "/PSXGAMES/") != NULL) &&
-        (flen >= 0) && (strcasestr(".iso|.bin|.mdf|.img", path + flen) != NULL)))
+       ((flen >= 0) &&
+        ((strstr(path, "/PSXISO/") != NULL) || (strstr(path, "/PSXGAMES/") != NULL)) &&
+        (strcasestr(".iso|.bin|.mdf|.img", path + flen) != NULL)))
     {
         ps3pad_read();
         if(is_ps3hen || ((use_cobra || use_mamba) && (old_pad & BUTTON_SELECT)))
@@ -474,7 +476,7 @@ int launch_iso_game(char *path, int mtype)
         return launch_iso_game_mamba(path, EMU_PSX);
     }
 
-    if(use_mamba || (mtype == EMU_BD) || (mtype == EMU_PSX))
+    if(use_mamba || (mtype == EMU_BD) || (mtype == EMU_PSX) || (mtype == EMU_PS3))
     {
         return launch_iso_game_mamba(path, mtype);
     }

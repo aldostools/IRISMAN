@@ -2,7 +2,7 @@
 #define _MODULES_H
 
 #define PLUGIN_ISO "%s/sprx_iso"
-#define SIZE_SPRX_ISO 7988
+#define SIZE_SPRX_ISO 7930
 
 extern const unsigned char sprx_iso[SIZE_SPRX_ISO];
 
