@@ -399,6 +399,7 @@ int launch_iso_game(char *path, int mtype)
     }
 
     if(strstr(path, "/PS3ISO/")) return launch_iso_game_mamba(path, EMU_PS3);
+    if(strstr(path, "/PS2ISO/")) return launch_iso_game_mamba(path, EMU_PS2_DVD);
     if(strstr(path, "/BDISO/"))  return launch_iso_game_mamba(path, EMU_BD);
     if(strstr(path, "/DVDISO/")) return launch_iso_game_mamba(path, EMU_DVD);
 
