@@ -6150,7 +6150,7 @@ int gui_control()
             DrawDialogOKTimer(language[DRAWSCREEN_PARCONTROL], 2000.0f);
         else
         {
-           // if(old_pad & BUTTON_SELECT) {bShowVersion = 1; bShowPIC1 = 1;} // SELECT + /\ = force show version / pic1 on ISO
+            if(old_pad & BUTTON_SELECT) {bShowVersion = 1; bShowPIC1 = 1;} // SELECT + /\ = force show version / pic1 on ISO
 
             i = selected;
             app_ver[0] = 0;

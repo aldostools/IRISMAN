@@ -226,6 +226,8 @@ void call_webman(const char *cmd);
 
 void urldec(char *url);
 u64 string_to_ull( char *string );
+void fixpath(char *p);
+void fixtitle(char *p);
 
 unsigned int get_vsh_plugin_slot_by_name(const char *name);
 unsigned int get_vsh_plugin_free_slot(void);

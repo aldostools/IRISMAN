@@ -2366,7 +2366,7 @@ static int build_file_iso(int *fd, char *path1, char *path2, int level)
 
 }
 
-static void fixpath(char *p)
+void fixpath(char *p)
 {
     u8 * pp = (u8 *) p;
 
@@ -2397,7 +2397,7 @@ static void fixpath(char *p)
 
 }
 
-static void fixtitle(char *p)
+void fixtitle(char *p)
 {
     while(*p)
     {
@@ -2457,26 +2457,29 @@ int makeps3iso(char *g_path, char *f_iso, int split)
     strcpy(path2, path1);
     strcat(path2, "/PS3_GAME/PARAM.SFO");
 
-    if(strstr(path1, "/GAME") == NULL)
-    {
-        path2[64] = 0;
-        strcpy(path2, strrchr(path1, '/') + 1);
-        path2[40] = 0;
-    }
-    else
     if(iso_parse_param_sfo(path2, title_id, output_name) < 0)
     {
-        DPrintf("ERROR: PARAM.SFO not found!\n");
-        press_button_to_continue();
-        return FAILED;
+        if(strstr(path1, "/GAME") == NULL)
+        {
+            path2[64] = 0;
+            strcpy(path2, strrchr(path1, '/') + 1);
+            path2[40] = 0;
+        }
+        else
+        {
+            DPrintf("ERROR: PARAM.SFO not found!\n");
+            press_button_to_continue();
+            return FAILED;
+        }
     }
     else
     {
         utf8_to_ansiname(output_name, path2, 32);
         path2[32]= 0;
         fixtitle(path2);
-        strcat(path2, "-");
+        strcat(path2, " [");
         strcat(path2, title_id);
+        strcat(path2, "]");
     }
 
     if(f_iso) strcpy(output_name, f_iso); else output_name[0] = 0;
@@ -2496,12 +2499,10 @@ int makeps3iso(char *g_path, char *f_iso, int split)
     if(nlen < 1) {strcpy(output_name, path2);/*DPrintf("ISO name too short!\n"); press_button_to_continue(); return FAILED;*/}
     else
     {
-
          if(stat(output_name, &s) == 0 && (S_ISDIR(s.st_mode)))
          {
             strcat(output_name, "/"); strcat(output_name, path2);
          }
-
     }
 
     nlen = strlen(output_name);

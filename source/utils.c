@@ -1924,14 +1924,24 @@ void copy_from_bluray()
                 {
                     sprintf(name, "/%s/" __MKDEF_GAMES_DIR, hdd_folder);
                     mkdir_secure(name);
-                    sprintf(name, "/%s/" __MKDEF_GAMES_DIR "/%s", hdd_folder, id);
+                    char game_title[64];
+                    strcpy(game_title, bluray_game); fixtitle(game_title);
+                    if(*game_title)
+                        sprintf(name, "/%s/" __MKDEF_GAMES_DIR "/%s [%s]", hdd_folder, game_title, id);
+                    else
+                        sprintf(name, "/%s/" __MKDEF_GAMES_DIR "/%s", hdd_folder, id);
                     mkdir_secure(name);
                 }
                 else if (!memcmp(hdd_folder, "GAMES", 6) || !memcmp(hdd_folder, "dev_hdd0_2", 11))
                 {
                     sprintf(name, "/%s/GAMES", "dev_hdd0");
                     mkdir_secure(name);
-                    sprintf(name, "/%s/GAMES/%s", "dev_hdd0", id);
+                    char game_title[64];
+                    strcpy(game_title, bluray_game); fixtitle(game_title);
+                    if(*game_title)
+                        sprintf(name, "/%s/GAMES/%s [%s]", "dev_hdd0", game_title, id);
+                    else
+                        sprintf(name, "/%s/GAMES/%s", "dev_hdd0", id);
                     mkdir_secure(name);
                 }
                 else
@@ -1948,10 +1958,22 @@ void copy_from_bluray()
             {
                 sprintf(name, "/dev_usb00%c/" __MKDEF_GAMES_DIR, 47 + curr_device);
                 mkdir_secure(name);
-                sprintf(name, "/dev_usb00%c/" __MKDEF_GAMES_DIR, 47 + curr_device);
+                char game_title[64];
+                strcpy(game_title, bluray_game); fixtitle(game_title);
+                if(*game_title)
+                    sprintf(name, "/dev_usb00%c/" __MKDEF_GAMES_DIR "/%s [%s]", 47 + curr_device, game_title, id);
+                else
+                    sprintf(name, "/dev_usb00%c/" __MKDEF_GAMES_DIR "/%s", 47 + curr_device, id);
                 mkdir_secure(name);
-                sprintf(name, "/dev_usb00%c/" __MKDEF_GAMES_DIR "/%s", 47 + curr_device, id);
-                mkdir_secure(name);
+            }
+
+            if(*bluray_game)
+            {
+                 strcat(progress_bar_title, "\n");
+                 strcat(progress_bar_title, bluray_game);
+                 strcat(progress_bar_title, "[");
+                 strcat(progress_bar_title, id);
+                 strcat(progress_bar_title, "]");
             }
 
             time_start = time(NULL);
@@ -2029,15 +2051,14 @@ void copy_from_bluray()
                    new_pad = 0;
                    break;
                 }
-
             }
 
             if(abort_copy)
             {
                 if(curr_device == 0)
-                    sprintf(filename, "%s\n\n%s HDD0?", id, language[GAMECPYSL_FAILDELDUMP]);
+                    sprintf(filename, "%s [%s]\n\n%s HDD0?", bluray_game, id, language[GAMECPYSL_FAILDELDUMP]);
                 else
-                    sprintf(filename, "%s\n\n%s USB00%c?", id, language[GAMECPYSL_FAILDELDUMP], 47 + curr_device);
+                    sprintf(filename, "%s [%s]\n\n%s USB00%c?", bluray_game, id, language[GAMECPYSL_FAILDELDUMP], 47 + curr_device);
 
                 dialog_action = 0;
                 msgDialogOpen2(mdialogyesno, filename, my_dialog, (void*) 0x0000aaaa, NULL );
@@ -2052,7 +2073,6 @@ void copy_from_bluray()
                     my_game_delete((char *) name);
 
                     rmdir_secure((char *) name); // delete this folder
-
                 }
                 else
                 {
@@ -2072,7 +2092,6 @@ void copy_from_bluray()
                     ret =
                     #endif
                     sysLv2FsRename(name, filename);
-
                 }
             }
         }
