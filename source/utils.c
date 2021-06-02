@@ -530,10 +530,10 @@ int patch_exe_error_09(char *path_exe)
 
     sysLv2FsChmod(path_exe, FS_S_IFMT | 0777);
 
-    if(firmware >= 0x486C) return SUCCESS;
+    if(firmware >= 0x488C) return SUCCESS;
 
     u16 fw_421 = 42100;
-    u16 fw_486 = 48600;
+    u16 fw_488 = 48800;
     int offset_fw;
     s32 ret;
     u64 bytesread = 0;
@@ -571,7 +571,7 @@ int patch_exe_error_09(char *path_exe)
 
                     if(retried == 0 && (ver % 100) > 0) {offset_fw = (offset_fw==0x258) ? 0x278 : 0; retried = 1; goto retry_offset_exe;}
 
-                    if(ret == SUCCESS && bytesread == 0x2ULL && (ver >= 34000 && ver <= fw_486))
+                    if(ret == SUCCESS && bytesread == 0x2ULL && (ver >= 34000 && ver <= fw_488))
                     {
                         ret = sysLv2FsLSeek64( file, (u64) offset_fw, 0, &pos );
                         u16 cur_firm = ((firmware>>12) & 0xF) * 10000 + ((firmware>>8) & 0xF) * 1000 + ((firmware>>4) & 0xF) * 100;

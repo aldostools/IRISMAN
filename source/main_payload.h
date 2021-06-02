@@ -259,10 +259,19 @@
         off_psid  = off_idps2 + 0x18ULL;
         payload_mode = is_payload_loaded_475();
     }
-    else if(is_firm_48X())
+    else if(is_firm_488())
     {
         firmware  = 0x488C;
-        //fw_ver    = 0xBE3C;
+        //fw_ver    = 0xBEA0;
+        off_idps  = 0x80000000003E2E30ULL;
+        off_idps2 = 0x8000000000474AF4ULL;
+        off_psid  = off_idps2 + 0x18ULL;
+        payload_mode = is_payload_loaded_475();
+    }
+    else if(is_firm_48X())
+    {
+        firmware  = 0x489C;
+        //fw_ver    = 0xBF04;
         off_idps  = 0x80000000003E2E30ULL;
         off_idps2 = 0x8000000000474AF4ULL;
         off_psid  = off_idps2 + 0x18ULL;
@@ -451,10 +460,19 @@
         off_psid  = off_idps2 + 0x18ULL;
         payload_mode = is_payload_loaded_481dex();
     }
-    else if(is_firm_48Xdex())
+    else if(is_firm_488dex())
     {
         firmware  = 0x488D;
-        //fw_ver    = 0xBE3C;
+        //fw_ver    = 0xBEA0;
+        off_idps  = 0x8000000000409A30ULL;
+        off_idps2 = 0x800000000049CAF4ULL;
+        off_psid  = off_idps2 + 0x18ULL;
+        payload_mode = is_payload_loaded_481dex();
+    }
+    else if(is_firm_48Xdex())
+    {
+        firmware  = 0x489D;
+        //fw_ver    = 0xBF04;
         off_idps  = 0x8000000000409A30ULL;
         off_idps2 = 0x800000000049CAF4ULL;
         off_psid  = off_idps2 + 0x18ULL;
@@ -577,10 +595,19 @@
         off_psid  = off_idps2 + 0x18ULL;
         payload_mode = is_payload_loaded_475deh();
     }
-    else if(is_firm_48Xdeh())
+    else if(is_firm_488deh())
     {
         firmware  = 0x488E;
-        //fw_ver    = 0xBE3C;
+        //fw_ver    = 0xBEA0;
+        off_idps  = 0x80000000004326B0ULL;
+        off_idps2 = 0x80000000004C4AF4ULL;
+        off_psid  = off_idps2 + 0x18ULL;
+        payload_mode = is_payload_loaded_475deh();
+    }
+    else if(is_firm_48Xdeh())
+    {
+        firmware  = 0x489E;
+        //fw_ver    = 0xBF04;
         off_idps  = 0x80000000004326B0ULL;
         off_idps2 = 0x80000000004C4AF4ULL;
         off_psid  = off_idps2 + 0x18ULL;
@@ -1180,6 +1207,8 @@
         case 0x485C:
         case 0x486C:
         case 0x487C:
+        case 0x488C:
+        case 0x489C:
             set_bdvdemu_475(payload_mode);
             switch(payload_mode)
             {
@@ -1227,6 +1256,8 @@
         case 0x485E:
         case 0x486E:
         case 0x487E:
+        case 0x488E:
+        case 0x489E:
             set_bdvdemu_475deh(payload_mode);
             switch(payload_mode)
             {
@@ -1305,6 +1336,8 @@
         case 0x485D:
         case 0x486D:
         case 0x487D:
+        case 0x488D:
+        case 0x489D:
             set_bdvdemu_481dex(payload_mode);
             switch(payload_mode)
             {

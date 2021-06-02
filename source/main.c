@@ -2133,8 +2133,8 @@ void read_settings()
     char InstallMamba[2] = "1";
     char LoadMambaAndQuit[2] = "0";
 
-    spoof_version  = 0x0487;
-    spoof_revision = 0x000109a5; //4.86 = 0x00010938 // 4.85 = 0x0001091d
+    spoof_version  = 0x0488;
+    spoof_revision = 0x000109f5; // 4.87 = 0x000109a5; //4.86 = 0x00010938 // 4.85 = 0x0001091d
 
     // set default values
     sprintf(covers_path, "%s/USRDIR/covers/", MM_PATH);

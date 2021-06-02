@@ -17,6 +17,7 @@ extern int is_firm_484dex(void);
 extern int is_firm_485dex(void);
 extern int is_firm_486dex(void);
 extern int is_firm_487dex(void);
+extern int is_firm_488dex(void);
 extern int is_firm_48Xdex(void);
 extern void set_bdvdemu_481dex(int current_payload);
 extern void load_payload_481dex(int mode);
