@@ -391,17 +391,17 @@ int mount_psp_iso(char *path)
 
 int launch_iso_game(char *path, int mtype)
 {
-    int type = EMU_BD;
+    int type = EMU_PS3;
 
     if((mtype == EMU_PS3) || (mtype == EMU_PS2_DVD) || (mtype == EMU_PS2_CD) || (mtype == EMU_BD) || (mtype == EMU_DVD))
     {
        return launch_iso_game_mamba(path, mtype);
     }
 
-    if(strstr(path, "/PS3ISO/")) return launch_iso_game_mamba(path, EMU_PS3);
-    if(strstr(path, "/PS2ISO/")) return launch_iso_game_mamba(path, EMU_PS2_DVD);
-    if(strstr(path, "/BDISO/"))  return launch_iso_game_mamba(path, EMU_BD);
-    if(strstr(path, "/DVDISO/")) return launch_iso_game_mamba(path, EMU_DVD);
+    if(strstr(path, "/PS3ISO/") || (mtype == EMU_PS3)) return launch_iso_game_mamba(path, EMU_PS3);
+    if(strstr(path, "/PS2ISO/") || (mtype == EMU_PS2_DVD)) return launch_iso_game_mamba(path, EMU_PS2_DVD);
+    if(strstr(path, "/BDISO/")  || (mtype == EMU_BD))  return launch_iso_game_mamba(path, EMU_BD);
+    if(strstr(path, "/DVDISO/") || (mtype == EMU_DVD)) return launch_iso_game_mamba(path, EMU_DVD);
 
     if((mtype == EMU_PSX) || (mtype == EMU_PSP) || (mtype == EMU_PS2_DVD) || (mtype == EMU_PS3)) ; else
     if(is_audiovideo(get_extension(path)))
@@ -432,7 +432,7 @@ int launch_iso_game(char *path, int mtype)
 
     int flen = strlen(path) - 4;
 
-    if((mtype = EMU_PSX) ||
+    if((mtype == EMU_PSX) ||
        ((flen >= 0) &&
         ((strstr(path, "/PSXISO/") != NULL) || (strstr(path, "/PSXGAMES/") != NULL)) &&
         (strcasestr(".iso|.bin|.mdf|.img", path + flen) != NULL)))
@@ -495,7 +495,7 @@ mount_iso: ;
 
         if(stat((char *) plugin_args, &s) != SUCCESS) {free(plugin_args); return FAILED;}
 
-        if(mtype >= 0)
+        if(mtype > 0)
         {
             type = mtype;
             is_ps2_game = (type == EMU_PS2_DVD);
@@ -508,32 +508,49 @@ mount_iso: ;
         else if(strstr(path, "/BDISO"))   type = EMU_BD;
         else
         {
-            FILE *fp = NULL;
+            FILE *fp = NULL; int fd = 0;
 
-            if(stat(path, &s) == SUCCESS) fp = fopen(path, "rb");
+            if(is_ntfs_path(path))
+               fd = ps3ntfs_open(path, O_RDONLY, 0);
+            else if(stat(path, &s) == SUCCESS)
+               fp = fopen(path, "rb");
 
-            if(fp)
+            if(fp || fd)
             {
-                fseek(fp, 0x8000, SEEK_SET);
-                fread((void *) plugin_args, 1, 256, fp);
+                if(is_ntfs_path(path))
+                {
+                    ps3ntfs_seek(fd, 0x8000, SEEK_SET);
+                    ps3ntfs_read(fd, (void *) plugin_args, 256);
 
-                fseek(fp, 0x9320, SEEK_SET);
-                fread((void *) plugin_args + 256, 1, 256, fp);
+                    ps3ntfs_seek(fd, 0x9320, SEEK_SET);
+                    ps3ntfs_read(fd, (void *) (plugin_args + 256), 256);
 
-                fclose(fp);
+                    ps3ntfs_close(fd);
+                }
+                else
+                {
+                    fseek(fp, 0x8000, SEEK_SET);
+                    fread((void *) plugin_args, 1, 256, fp);
+
+                    fseek(fp, 0x9320, SEEK_SET);
+                    fread((void *) plugin_args + 256, 1, 256, fp);
+
+                    fclose(fp);
+                }
 
                 if(!memcmp((void *) &plugin_args[8], "PSP GAME", 8)) type = EMU_PSP;
                 else if(!memcmp((void *) &plugin_args[1], "BEA01", 5)) type = EMU_BD;
                 else if(!memcmp((void *) &plugin_args[0x28], "PS3VOLUME", 9)) type = EMU_PS3;
                 else if(!memcmp((void *) &plugin_args[8], "PLAYSTATION", 11) || !memcmp((void *) &plugin_args[256], "PLAYSTATION", 11) )
                 {
-                    if(is_ntfs_path(path))
+                    if(is_ntfs_path(path) || s.st_size < (870 * 0x100000ULL))
                         type = EMU_PSX;
                     else
                     {
                         type = EMU_PS2_DVD; is_ps2_game = 1;
                     }
                 }
+                else type = EMU_DVD;
             }
         }
 
@@ -743,7 +760,7 @@ mount_with_mamba:
 
 int launch_iso_game_mamba(char *path, int mtype)
 {
-    int type = EMU_DVD;
+    int type = EMU_PS3;
 
     int is_ps2_game = 0;
 
@@ -757,7 +774,7 @@ int launch_iso_game_mamba(char *path, int mtype)
 
         if(stat((char *) plugin_args, &s) != SUCCESS) {free(plugin_args); return FAILED;}
 
-        if(mtype >= 0)
+        if(mtype > 0)
         {
             type = mtype;
             is_ps2_game = (type == EMU_PS2_DVD);
@@ -770,32 +787,49 @@ int launch_iso_game_mamba(char *path, int mtype)
         else if(strstr(path, "/BDISO"))   type = EMU_BD;
         else
         {
-            FILE *fp = NULL;
+            FILE *fp = NULL; int fd = 0;
 
-            if(stat(path, &s) == SUCCESS) fp = fopen(path, "rb");
+            if(is_ntfs_path(path))
+               fd = ps3ntfs_open(path, O_RDONLY, 0);
+            else if(stat(path, &s) == SUCCESS)
+               fp = fopen(path, "rb");
 
-            if(fp)
+            if(fp || fd)
             {
-                fseek(fp, 0x8000, SEEK_SET);
-                fread((void *) plugin_args, 1, 256, fp);
+                if(is_ntfs_path(path))
+                {
+                    ps3ntfs_seek(fd, 0x8000, SEEK_SET);
+                    ps3ntfs_read(fd, (void *) plugin_args, 256);
 
-                fseek(fp, 0x9320, SEEK_SET);
-                fread((void *) plugin_args + 256, 1, 256, fp);
+                    ps3ntfs_seek(fd, 0x9320, SEEK_SET);
+                    ps3ntfs_read(fd, (void *) (plugin_args + 256), 256);
 
-                fclose(fp);
+                    ps3ntfs_close(fd);
+                }
+                else
+                {
+                    fseek(fp, 0x8000, SEEK_SET);
+                    fread((void *) plugin_args, 1, 256, fp);
+
+                    fseek(fp, 0x9320, SEEK_SET);
+                    fread((void *) plugin_args + 256, 1, 256, fp);
+
+                    fclose(fp);
+                }
 
                 if(!memcmp((void *) &plugin_args[8], "PSP GAME", 8)) type = EMU_PSP;
                 else if(!memcmp((void *) &plugin_args[1], "BEA01", 5)) type = EMU_BD;
                 else if(!memcmp((void *) &plugin_args[0x28], "PS3VOLUME", 9)) type = EMU_PS3;
                 else if(!memcmp((void *) &plugin_args[8], "PLAYSTATION", 11) || !memcmp((void *) &plugin_args[256], "PLAYSTATION", 11) )
                 {
-                    if(is_ntfs_path(path))
+                    if(is_ntfs_path(path) || s.st_size < (870 * 0x100000ULL))
                         type = EMU_PSX;
                     else
                     {
                         type = EMU_PS2_DVD; is_ps2_game = 1;
                     }
                 }
+                else type = EMU_DVD;
             }
         }
 

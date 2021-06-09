@@ -82,6 +82,10 @@ typedef struct {
 #define SYS_REBOOT						0x8201
 #define SYS_SHUTDOWN					0x1100
 
+#define BEEP1 { lv2syscall3(392, 0x1004, 0x4,   0x6); }
+#define BEEP2 { lv2syscall3(392, 0x1004, 0x7,  0x36); }
+#define BEEP3 { lv2syscall3(392, 0x1004, 0xa, 0x1b6); }
+
 extern int ndirectories;
 extern t_directories directories[MAX_DIRECTORIES];
 
