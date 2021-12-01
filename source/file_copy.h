@@ -207,6 +207,7 @@ int CopyFile(char* path, char* path2)
         char *e = strstr(ext0, ".iso.");
         if(!e) e = strstr(ext0, ".ISO.");
         if(!e) break;
+        if(e[5] < '0' || e[5] > '9') break;
         ext0 = e + 4;
     }
 

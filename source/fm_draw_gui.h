@@ -147,6 +147,13 @@ void draw_file_manager()
 
                 u32 color = WHITE;
 
+                if(entries1_size[pos1 + n] < 0)
+                {
+                    struct stat s;
+                    sprintf(temp_buffer, "%s/%s", path1, entries1[pos1 + n].d_name);
+                    if(ps3ntfs_stat(temp_buffer, &s) == SUCCESS) entries1_size[pos1 + n] = s.st_size; else entries1_size[pos1 + n] = 0;
+                }
+
                 stat1.st_size = entries1_size[pos1 + n];
                 stat1.st_mode = entries1[pos1 + n].d_type;
 
@@ -283,6 +290,13 @@ void draw_file_manager()
                 if(pos2 + n >= nentries2) break;
 
                 u32 color = WHITE;
+
+                if(entries2_size[pos2 + n] < 0)
+                {
+                    struct stat s;
+                    sprintf(temp_buffer, "%s/%s", path2, entries2[pos2 + n].d_name);
+                    if(ps3ntfs_stat(temp_buffer, &s) == SUCCESS) entries2_size[pos2 + n] = s.st_size; else entries2_size[pos2 + n] = 0;
+                }
 
                 stat2.st_size = entries2_size[pos2 + n];
                 stat2.st_mode = entries2[pos2 + n].d_type;
@@ -423,7 +437,7 @@ void draw_file_manager()
                 sprintf(temp_disp, "Temp CPU: %iºC RSX: %iºC", temp, temp2);
             }
 
-            set_ttf_window(848 - 220, 512 - 30, 300, 32, WIN_AUTO_LF);
+            set_ttf_window(848 - 260, 512 - 30, 300, 32, WIN_AUTO_LF);
             display_ttf_string(0, 0, temp_disp, 0xFFFFFF55, 0, 16, 32);
         }
 

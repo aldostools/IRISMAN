@@ -1933,7 +1933,7 @@ int file_manager(char *pathw1, char *pathw2)
                             entries1[nentries1].d_type = (S_ISDIR(st.st_mode)) ? IS_DIRECTORY : IS_FILE;
                         }
 
-                        entries1_type[nentries1] = entries1_size[nentries1] = 0;
+                        entries1_type[nentries1] = 0; entries1_size[nentries1] = -1;
 
                         if(entries1[nentries1].d_type & IS_DIRECTORY)
                         {
@@ -1972,7 +1972,7 @@ int file_manager(char *pathw1, char *pathw2)
                                     entries1[nentries1].d_type = IS_DIRECTORY;
                                     sprintf(entries1[nentries1].d_name, "%s:", (mounts[k]+i)->name);
                                     entries1_type[nentries1] = 0;
-                                    entries1_size[nentries1] = 0;
+                                    entries1_size[nentries1] = -1;
                                     nentries1++;
                                 }
                             }
@@ -1989,17 +1989,18 @@ int file_manager(char *pathw1, char *pathw2)
                     if(old_entries > nentries1) pos1 = sel1 = 0;
 
                     qsort(entries1, nentries1, sizeof(sysFSDirent), entry_compare);
+                    /*struct stat s;
+                    int plen = sprintf(temp_buffer, "%s/", path1);
                     for (i = 0; i < nentries1; i++)
                     {
-                        struct stat s;
                         if(path1[0] != 0)
                         {
-                            sprintf(temp_buffer, "%s/%s", path1, entries1[i].d_name);
-                            if(stat(temp_buffer, &s) == SUCCESS) entries1_size[i] = s.st_size;
+                            sprintf(temp_buffer + plen, "%s", entries1[i].d_name);
+                            if(ps3ntfs_stat(temp_buffer, &s) == SUCCESS) entries1_size[i] = s.st_size;
                         }
                         else
                             entries1_size[i] = 0;
-                    }
+                    }*/
                     update_devices1 = false;
                 }
             }
@@ -2053,7 +2054,7 @@ int file_manager(char *pathw1, char *pathw2)
                             entries2[nentries2].d_type = (S_ISDIR(st.st_mode)) ? IS_DIRECTORY : IS_FILE;
                         }
 
-                        entries2_type[nentries2] = entries2_size[nentries2] = 0;
+                        entries2_type[nentries2] = 0; entries2_size[nentries2] = -1;
 
                         if(entries2[nentries2].d_type & IS_DIRECTORY)
                         {
@@ -2092,7 +2093,7 @@ int file_manager(char *pathw1, char *pathw2)
                                     entries2[nentries2].d_type = IS_DIRECTORY;
                                     sprintf(entries2[nentries2].d_name, "%s:", (mounts[k]+i)->name);
                                     entries2_type[nentries2] = 0;
-                                    entries2_size[nentries2] = 0;
+                                    entries2_size[nentries2] = -1;
                                     nentries2++;
                                 }
                             }
@@ -2109,17 +2110,18 @@ int file_manager(char *pathw1, char *pathw2)
                     if(old_entries > nentries2) pos2 = sel2 = 0;
 
                     qsort(entries2, nentries2, sizeof(sysFSDirent), entry_compare);
+                    /*struct stat s;
+                    int plen = sprintf(temp_buffer, "%s/", path2);
                     for (i = 0; i < nentries2; i++)
                     {
-                        struct stat s;
                         if(path2[0] != 0)
                         {
-                            sprintf(temp_buffer, "%s/%s", path2, entries2[i].d_name);
-                            if(stat(temp_buffer, &s) == SUCCESS) entries2_size[i] = s.st_size;
+                            sprintf(temp_buffer + plen, "%s", entries2[i].d_name);
+                            if(ps3ntfs_stat(temp_buffer, &s) == SUCCESS) entries2_size[i] = s.st_size;
                         }
                         else
                             entries2_size[i] = 0;
-                    }
+                    }*/
                     update_devices2 = false;
                 }
             }
@@ -2579,12 +2581,21 @@ int file_manager(char *pathw1, char *pathw2)
                 {   // select all files/folders
                     selcount1 = 0; selsize1 = 0;
 
+                    struct stat s;
+                    int flen = sprintf(temp_buffer, "%s/", path1);
+
                     for(n = 0; n < nentries1; n++)
                         if(strncmp(entries1[n].d_name, "..", 3))
                         {
                             entries1[n].d_type = (entries1[n].d_type & ~IS_MARKED) | flag;
                             if(entries1[n].d_type & IS_MARKED)
                             {
+                                if(entries1_size[n] < 0)
+                                {
+                                    sprintf(temp_buffer + flen, "%s", entries1[n].d_name);
+                                    if(ps3ntfs_stat(temp_buffer, &s) == SUCCESS) entries1_size[n] = s.st_size; else entries1_size[n] = 0;
+                                }
+
                                 selcount1++; selsize1 += entries1_size[n];
                             }
                         }
@@ -2723,12 +2734,21 @@ int file_manager(char *pathw1, char *pathw2)
                 {   // select all files/folders
                     selcount2 = 0; selsize2 = 0;
 
+                    struct stat s;
+                    int flen = sprintf(temp_buffer, "%s/", path2);
+
                     for(n = 0; n < nentries2; n++)
                         if(strncmp(entries2[n].d_name, "..", 3))
                         {
                             entries2[n].d_type = (entries2[n].d_type & ~IS_MARKED) | flag;
                             if(entries2[n].d_type & IS_MARKED)
                             {
+                                if(entries2_size[n] < 0)
+                                {
+                                    sprintf(temp_buffer + flen, "%s", entries2[n].d_name);
+                                    if(ps3ntfs_stat(temp_buffer, &s) == SUCCESS) entries2_size[n] = s.st_size; else entries2_size[n] = 0;
+                                }
+
                                 selcount2++; selsize2 += entries2_size[n];
                             }
                         }

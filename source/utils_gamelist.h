@@ -2,6 +2,7 @@ void sort_entries(t_directories *list, int *max)
 {
     int n,m;
     int fi = (*max);
+    t_directories swap;
 
     for(n = 0; n < (fi - 1); n++)
         for(m = n + 1; m < fi; m++)
@@ -9,8 +10,7 @@ void sort_entries(t_directories *list, int *max)
             if((strcasecmp(list[n].title, list[m].title) > 0  && ((list[n].flags | list[m].flags) & D_FLAG_BDVD) == 0) ||
               ((list[m].flags & D_FLAG_BDVD) && n == 0))
             {
-                    t_directories swap;
-                    swap = list[n]; list[n] = list[m]; list[m] = swap;
+                    swap = list[n], list[n] = list[m], list[m] = swap;
             }
         }
 }
@@ -19,6 +19,7 @@ void sort_entries2(t_directories *list, int *max, u32 mode)
 {
     int n, m;
     int fi = (*max);
+    t_directories swap;
 
     if(mode > 2) mode = 0;
 
@@ -30,8 +31,7 @@ void sort_entries2(t_directories *list, int *max, u32 mode)
                 if( (((list[n].flags & D_FLAG_HOMEB_MKV) != 0) &&  (list[m].flags & D_FLAG_HOMEB_MKV) == 0) ||
                     (((list[n].flags & D_FLAG_HOMEB_MKV) != 0) == ((list[m].flags & D_FLAG_HOMEB_MKV) != 0) && strcasecmp(list[n].title, list[m].title) > 0) )
                 {
-                        t_directories swap;
-                        swap = list[n]; list[n] = list[m]; list[m] = swap;
+                        swap = list[n], list[n] = list[m], list[m] = swap;
                 }
             }
 
@@ -49,8 +49,7 @@ void sort_entries2(t_directories *list, int *max, u32 mode)
                                                                                          ((list[n].flags | list[m].flags) & D_FLAG_BDVD) == 0) ||
                ((list[m].flags & D_FLAG_BDVD) && n == 0))
             {
-                    t_directories swap;
-                    swap = list[n]; list[n] = list[m]; list[m] = swap;
+                    swap = list[n], list[n] = list[m], list[m] = swap;
             }
         }
 }
