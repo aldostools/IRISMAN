@@ -1,0 +1,256 @@
+[Language]
+VERSION = 2
+DESCRIPTION = DEFAULT INDONESIAN
+
+# VIDEO - ADJUST
+VIDEOADJUST_POSITION    = Gunakan tombol KIRI (-X) / KANAN (+X) / ATAS (-Y) / BAWAH (+Y) untuk menyesuaikan layar
+VIDEOADJUST_SCALEINFO   = Skala Video X: %i Y: %i
+VIDEOADJUST_EXITINFO    = Tekan SILANG untuk menyimpan setelan dan keluar
+VIDEOADJUST_DEFAULTS    = Tekan BULAT untuk kembalikan ke nilai bawaan
+
+# SELECT - GAME FOLDER
+GAMEFOLDER_WANTUSE      = Apakah Anda ingin menggunakan
+GAMEFOLDER_TOINSTALLNTR = untuk menginstal gim?
+GAMEFOLDER_USING        = Menggunakan
+GAMEFOLDER_TOINSTALL    = untuk menginstal gim
+    
+# DRAW SCREEN1
+DRAWSCREEN_FAVSWAP      = Tukar Favorit
+DRAWSCREEN_FAVINSERT    = Sisipkan Favorit
+DRAWSCREEN_FAVORITES    = Favorit
+DRAWSCREEN_PAGE         = Halaman
+DRAWSCREEN_GAMES        = Gim
+DRAWSCREEN_PLAY         = Mainkan
+DRAWSCREEN_SOPTIONS     = SEGITIGA: Opsi Gim
+DRAWSCREEN_SDELETE      = SEGITIGA: Hapus Favorit
+DRAWSCREEN_STGLOPT      = START: Opsi Global
+DRAWSCREEN_EXITXMB      = Keluar ke XMB?
+DRAWSCREEN_RESTART      = Apakah Anda ingin memulai ulang PS3?
+DRAWSCREEN_SHUTDOWN     = Apakah anda ingin mematikan PS3?
+DRAWSCREEN_CANRUNFAV    = Tidak bisa menjalankan favorit ini
+DRAWSCREEN_MARKNOTEXEC  = Tertanda tak bisa dieksekusi. Berusaha menginstal di tembolok HDD0
+DRAWSCREEN_MARKNOTEX4G  = Tertanda tak bisa dieksekusi - Memiliki berkas terpecah >= 4GB
+DRAWSCREEN_GAMEINOFMNT  = Folder ke /dev_hdd0/game dari USB tidak bisa ditemukan
+DRAWSCREEN_GAMEIASKDIR  = Apakah Anda ingin menciptakan /dev_usb00
+DRAWSCREEN_GAMEICANTFD  = Perangkat USB untuk melakukan mount /dev_hdd0/game dari USB tidak bisa ditemukan
+DRAWSCREEN_GAMEIWLAUNCH = Apakah Anda ingin meluncurkan Gimnya?
+DRAWSCREEN_EXTEXENOTFND = eksekutabel eksternal tidak ditemukan
+DRAWSCREEN_EXTEXENOTCPY = Gunakan 'Salin EBOOT.BIN dari USB' untuk mengimpornya.
+DRAWSCREEN_REQBR        = Diperlukan BR-Disc@ Coba lagi?
+DRAWSCREEN_PARCONTROL   = Dikunci oleh Kendali Orang Tua
+
+# DRAW OPTIONS
+DRAWGMOPT_OPTS          = Opsi
+DRAWGMOPT_CFGGAME       = Konfig. Gim
+DRAWGMOPT_CPYGAME       = Salin Gim
+DRAWGMOPT_DELGAME       = Hapus Gim
+DRAWGMOPT_FIXGAME       = Perbaiki Izin Berkas
+DRAWGMOPT_TSTGAME       = Uji & Perbaiki Berkas
+DRAWGMOPT_CPYEBOOTGAME  = Salin EBOOT.BIN dari USB
+DRAWGMOPT_CPYTOFAV      = Salin ke Favorit
+DRAWGMOPT_DELFMFAV      = Hapus dari Favorit
+DRAWGMOPT_UNMTDEV       = Unmount Perangkat USB00%i
+
+DRAWGMOPT_EXTRACTISO    = Ekstrak ISO
+DRAWGMOPT_BUILDISO      = Susun ISO
+DRAWGMOPT_MKISO         = Pilih perangkat untuk Menyusun ISO
+DRAWGMOPT_XTISO         = Pilih perangkat untuk Mengekstrak ISO
+DRAWGMOPT_CPYISO        = Pilih perangkat untuk Menyalin ISO
+
+DRAWGMOPT_FIXCOMPLETE   = Selesai memperbaiki perizinan!
+DRAWGMOPT_CPYOK         = tersalin dengan sukses
+DRAWGMOPT_CPYERR        = Galat ketika menyalin
+DRAWGMOPT_CPYNOTFND     = tidak ditemukan
+
+DRAWGMOPT_GAMEUPDATE    = Pembaruan Gim
+
+# DRAW CONFIGS
+DRAWGMCFG_CFGS          = Konfig. Gim
+DRAWGMCFG_DSK           = Memerlukan Cakram
+DRAWGMCFG_NO            = Tidak
+DRAWGMCFG_YES           = Ya
+DRAWGMCFG_UPD           = Pembaruan Daring
+DRAWGMCFG_ON            = Nyala
+DRAWGMCFG_OFF           = Mati
+DRAWGMCFG_EXTBOOT       = EBOOT.BIN Eksternal
+DRAWGMCFG_BDEMU         = BD Emu
+DRAWGMCFG_EXTHDD0GAME   = /dev_hdd0/game Eksternal
+DRAWGMCFG_SAVECFG       = Simpan Konfigurasi
+DRAWGMCFG_DIRECTBOOT    = But Langsung
+
+# DRAW GLOBAL OPTIONS
+DRAWGLOPT_OPTS          = Opsi Global
+DRAWGLOPT_SCRADJUST     = Sesuaikan Video
+DRAWGLOPT_CHANGEGUI     = Ubah GUI Saat Ini
+DRAWGLOPT_CHANGEBCK     = Ubah Warna Latar
+DRAWGLOPT_BCKPICNONE    = Gambar Latar: Tidak Ada
+DRAWGLOPT_BCKPICRAND    = Gambar Latar: Acak
+DRAWGLOPT_BCKPIC1       = Gambar Latar: PIC1.PNG
+DRAWGLOPT_BCKPICT       = Gambar Latar:
+DRAWGLOPT_CHANGEDIR     = Ubah Direktori Gim
+DRAWGLOPT_SWMUSICOFF    = Matikan Musik
+DRAWGLOPT_SWMUSICON     = Nyalakan Musik
+DRAWGLOPT_INITFTP       = Mulai Penyedia FTP
+DRAWGLOPT_TOOLS         = Peralatan
+DRAWGLOPT_REFRESH       = Daftar Gim
+DRAWGLOPT_CREDITS       = Kredit
+DRAWGLOPT_FTPINITED     = Penyedia FTP dimulai@Aktifkan layanan FTP otomatis saat memulai?
+DRAWGLOPT_FTPARINITED   = Penyedia FTP sudah dimulai
+DRAWGLOPT_FTPSTOPED     = Penyedia FTP dihentikan@Layanan FTP saat dimulai terhapus.
+
+# DRAW TOOLS
+DRAWTOOLS_TOOLS         = Peralatan
+DRAWTOOLS_DELCACHE      = Peranti Penghapus Tembolok
+# DRAWTOOLS_SECDISABLE    = Tekan Untuk Menonaktifkan Keamanan Syscall
+# DRAWTOOLS_SECENABLE     = Tekan Untuk Mengaktifkan Keamanan Syscall
+DRAWTOOLS_PKGTOOLS      = Instal .PKG
+DRAWTOOLS_COPYFROM      = Salin dari /dev_usb/iris ke folder IRISMAN
+DRAWTOOLS_WITHBDVD      = Dengan Kontroler BDVD
+DRAWTOOLS_NOBDVD        = Tanpa Kontroler BDVD
+DRAWTOOLS_NOBDVD2       = Payload Cobra / Nircakram
+DRAWTOOLS_ARCHIVEMAN    = Manajer Berkas
+DRAWTOOLS_COVERSDOWN    = Unduh Sampul
+
+# MAIN - OTHERS
+DRAWCACHE_CACHE         = Peranti Penghapus Tembolok
+DRAWCACHE_ERRNEEDIT     = Butuh ruang bebas sebesar %1.2f GB untuk menginstal
+DRAWCACHE_ASKTODEL      = Hapus Tembolok %s?
+PATCHBEMU_ERRNOUSB      = BDEMU hanya untuk perangkat USB
+MOVEOBEMU_ERRSAVE       = Galat Menyimpan:@%s
+MOVEOBEMU_ERRMOVE       = Galat Memindahkan ke @%s sudah ada
+MOVEOBEMU_MOUNTOK       = BDEMU di-mount di:@%s
+MOVETBEMU_ERRMOVE       = Galat Memindahkan ke:@%s sudah ada
+
+# UTILS
+# FAST COPY ADD
+FASTCPADD_FAILED        = Gagal fast_copy_process() ret
+FASTCPADD_ERRTMFILES    = Terlalu banyak berkas
+FASTCPADD_FAILEDSTAT    = Gagal stat()
+FASTCPADD_ERROPEN       = Galat Opening0 (tulis)
+FASTCPADD_COPYING       = Menyalin
+FASTCPADD_FAILFASTFILE  = Gagal fast_files(fast_num_files).mem
+
+# FAST COPY PROCESS
+FASTCPPRC_JOINFILE      = Menggabungkan berkas
+FASTCPPRC_COPYFILE      = Menyalin. Berkas
+FASTCPPTC_OPENERROR     = Galat!!!!!!!!!!!!!!!!!!!!!!!!!@Berkas Terbuka %i@ Menunggu 20 detik untuk menampilkan galat fatal
+
+# GAME TEST FILES
+GAMETESTS_FOUNDINSTALL  = Ditemukan %s@@Ingin menginstalnya?
+GAMETESTS_BIGFILE       = Berkas besar
+GAMETESTS_TESTFILE      = Berkas Uji
+GAMETESTS_CHECKSIZE     = Memeriksa Ukuran Berkas
+
+# GAME DELETE FILES
+GAMEDELFL_DELETED       = Menghapus
+GAMEDELFL_DELETING      = Menghapus... Berkas
+
+# GAME COPY
+GAMECPYSL_GSIZEABCNTASK = Dapatkan Ukuran: Dibatalkan - Lanjutkan penyalinan?
+GAMECPYSL_STARTED       = Memulai... @ salin
+GAMECPYSL_SPLITEDHDDNFO = %s@@Gim terpecah disalin ke HDD0 (tidak bisa dibut)
+GAMECPYSL_SPLITEDUSBNFO = %s@@Split game copied in USB00%c (tidak bisa dibut)
+GAMECPYSL_DONE          = Selesai! Berkas Tersalin
+GAMECPYSL_FAILDELDUMP   = Hapus dump gagal di
+
+# GAME CACHE COPY
+GAMECHCPY_ISNEEDONEFILE = Maaf, tapi Anda harus menginstal setidaknya satu bigfile
+GAMECHCPY_NEEDMORESPACE = Tersisa ruang %.2fGB tapi diperlukan %.2fGB@@Silakan hapus Entri Tembolok
+GAMECHCPY_NOSPACE       = Maaf, tersisa ruang %.2fGB@@tapi diperlukan %.2fGB
+GAMECHCPY_CACHENFOSTART = Berkas Tembolok: %.2fGB - Total Berkas: %.2fGB@ Anda menghemat %.2fGB di HDD0 (%.2fGB Total)@@Tekan apa saja untuk Mulai
+GAMECHCPY_FAILDELFROM   = Penghapusan Tembolok gagal dump dari
+
+# GAME DELETE
+GAMEDELSL_WANTDELETE    = Apakah Anda ingin menghapus dari
+GAMEDELSL_STARTED       = Memulai... @ hapus
+GAMEDELSL_DONE          = Selesai!  Berkas Terhapus
+
+# GAME TEST
+GAMETSTSL_FINALNFO      = Direktori: %i Berkas: %i@Berkas besar: %i Berkas terpecah: %i
+GAMETSTSL_TESTED        = Berkas Teruji
+
+#GLOBAL UTILS
+GLUTIL_SPLITFILE        = Pecah berkas
+GLUTIL_WROTE            = Menulis
+GLUTIL_TIME             = Waktu
+GLUTIL_TIMELEFT         = Sisa Waktu
+GLUTIL_HOLDTRIANGLEAB   = Tahan BULAT untuk Membatalkan
+GLUTIL_HOLDTRIANGLESK   = Tahan BULAT untuk Melewati
+GLUTIL_ABORTEDUSER      = Dibatalkan pengguna
+GLUTIL_ABORTED          = Dibatalkan!!!
+GLUTIL_XEXIT            = Tekan SEGITIGA untuk Keluar
+GLUTIL_WANTCPYFROM      = Apakah Anda ingin menyalin dari
+GLUTIL_WTO              = ke
+
+# GLOBAL
+GLOBAL_RETURN           = Kembali
+GLOBAL_SAVED            = Berkas Tersimpan
+
+# INSTALL .PKG
+PKG_HEADER              = Utilitas Penginstal .PKG -_____Pilih dengan SILANG dan BULAT untuk keluar
+PKG_INSERTUSB           = Sambungkan perangkat penyimpanan massal USB
+PKG_ERRTOBIG            = Ukuran .PKG terlalu besar atau sisa ruang sedikit
+PKG_WANTINSTALL         = Instal berkas .PKG ini?
+PKG_ERRALREADY          = Galat: .PKG sudah di dalam tumpukan
+PKG_ERRFULLSTACK        = Galat: tumpukan penuh (maksimal 16 entri)
+PKG_ERRBUILD            = Galat Menyusun Proses .PKG
+PKG_COPYING             = Menyalin Berkas .PKG ke Folder Iris Manager...
+PKG_ERROPENING          = Galat Membuka Berkas .PKG
+PKG_ERRCREATING         = Galat Menciptakan Berkas .PKG
+PKG_ERRREADING          = Galat Membaca Berkas .PKG
+PKG_ERRLICON            = Galat Memuat Berkas IKON
+PKG_ERRMOVING           = Galat Memindahkan Berkas .PKG
+
+# DRAW_PSX
+DRAWPSX_EMULATOR        = Emulator
+DRAWPSX_VIDEOPS         = Pilihan Video PSX Video
+DRAWPSX_SAVEASK         = Simpan opsi PSX?
+DRAWPSX_SAVED           = Opsi PSX Tersimpan
+DRAWPSX_VIDEOTHER       = Video / Lainnya
+DRAWPSX_VIDEOMODE       = Mode Video
+DRAWPSX_VIDEOASP        = Aspek Video Video (480/576)
+DRAWPSX_FULLSC          = Layar Penuh
+DRAWPSX_SMOOTH          = Penghalus
+DRAWPSX_EXTROM          = ROM Eksternal
+DRAWPSX_FORMAT          = Format Internal_MC
+DRAWPSX_ASKFORMAT       = Apakah Anda ingin memformat Internal_MC?@@Simpanan akan HILANG dalam operasi ini
+DRAWPSX_ERRWRITING      = Galat menulis berkas (Perangkat penuh?)
+DRAWPSX_BUILDISO        = Menyusun ISO kustom...
+DRAWPSX_ASKCHEATS       = Cakram PSX Cheat ditemukan@@Apakah Anda ingin menggunakannya?
+DRAWPSX_ERRCHEATS       = Cakram PSX Cheat tidak bisa diluncurkan@@tanpa gim PSX
+DRAWPSX_ERRSECSIZE      = Galat: Ukuran sektor berkas ISO berbeda
+DRAWPSX_ERRUNKSIZE      = Galat: Ukuran Sektor Tidak Diketahui
+DRAWPSX_DISCEJECT       = PSX CD Dikeluarkan
+DRAWPSX_DISCORDER       = Pilih Urutan Cakram
+DRAWPSX_PRESSOB         = Tekan SEGITIGA untuk mengubah urutan
+DRAWPSX_PRESSXB         = Tekan SILANG untuk meluncurkan gim
+DRAWPSX_CHEATMAKE       = Cakram PSX Cheat ditemukan, tapi ukuran sektor berbeda@@Susun yang kompatibel?
+DRAWPSX_COPYMC          = Menyalin Memory Card ke perangkat HDD0...
+DRAWPSX_ERRCOPYMC       = Galat menyalin Memory Card ke perangkat HDD0
+DRAWPSX_PUTFNAME        = Masukkan Nama Folder:
+DRAWPSX_FMUSTB          = Nama folder harus >=3 karakter
+DRAWPSX_PUTADISC        = Masukkan cakram PSX lalu tekan YA untuk lanjut atau TIDAK untuk batal@@Cakram yang disalin: 
+DRAWPSX_UNREC           = Cakram tidak dikenal
+DRAWPSX_ERROPENING      = Galat membuka drive BDVD
+DRAWPSX_ASKEFOLDER      = Folder Sudah Ada@@Lanjutkan?
+DRAWPSX_ISOEXITS        = sudah ada@@Lewati?
+       
+# generic
+OUT_OFMEMORY            = Kehabisan Memori
+OPERATION_DONE          = Selesai!
+PLUG_STORAGE1           = Ingat untuk mencolokkan perangkat penyimpanan massal USB untuk menciptakan acara cakram palsu
+PLUG_STORAGE2           = Cakram Palsu Dimasukkan
+
+# GAME LIST
+GAMELIST_ALLGAMES       = Semua Gim
+GAMELIST_PS3GAMES       = Gim PS3
+GAMELIST_VIDEOS         = Video
+GAMELIST_NETGAMES       = Gim Jaringan (via webMAN)
+GAMELIST_STATUS1        = []  Semua Permainan Retro       <  >  Pilih Mode Retro       X  Pilih Daftar
+GAMELIST_STATUS2        = X  Pilih Mode Daftar Gim             O  Kembali
+GAMELIST_SCANNING0      = Memindai seluruh gim...
+GAMELIST_SCANNING1      = Memindai gim PS3...
+GAMELIST_SCANNING2      = Memindai gim PlayStation...
+GAMELIST_SCANNING3      = Memindai Video...
+GAMELIST_SCANNING4      = Memindai gim Retro...
+GAMELIST_SCANNING5      = Memindai gim jaringan (webMAN)...

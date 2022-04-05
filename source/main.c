@@ -9828,7 +9828,7 @@ void draw_toolsoptions(float x, float y)
 
     y2+= 52;
 
-    DrawButton1_UTF8(box_left, y2, 520, language[DRAWTOOLS_LANGUAGE_1 + (manager_cfg.language & 0xF)], (flash && (select_option == 5)));
+    DrawButton1_UTF8(box_left, y2, 520, language[DRAWTOOLS_LANGUAGE_1 + manager_cfg.language], (flash && (select_option == 5)));
 
     y2+= 52;
 

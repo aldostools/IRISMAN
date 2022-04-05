@@ -7,6 +7,7 @@ copy LANGUAGES\FRENCH\language.ini  datas\language_ini_fr.bin
 copy LANGUAGES\GERMAN\language.ini datas\language_ini_gm.bin
 copy LANGUAGES\GREEK\language.ini  datas\language_ini_gr.bin
 copy LANGUAGES\ITALIAN\language.ini datas\language_ini_it.bin
+copy LANGUAGES\INDONESIAN\language.ini datas\language_ini_in.bin
 copy LANGUAGES\NORWEGIAN\language.ini datas\language_ini_nw.bin
 copy LANGUAGES\PERSIAN\language.ini datas\language_ini_ps.bin
 copy LANGUAGES\PORTUGUESE\language.ini datas\language_ini_por.bin

@@ -48,6 +48,7 @@
 #include "language_ini_kr_bin.h"
 #include "language_ini_da_bin.h"
 #include "language_ini_pl_bin.h"
+#include "language_ini_in_bin.h"
 
 #endif
 
@@ -213,9 +214,10 @@ t_lngstr lang_strings[] =
     { DRAWTOOLS_LANGUAGE_13, "DRAWTOOLS_LANGUAGE_13"   , "한국어"},
     { DRAWTOOLS_LANGUAGE_14, "DRAWTOOLS_LANGUAGE_14"   , "Dansk"},
     { DRAWTOOLS_LANGUAGE_15, "DRAWTOOLS_LANGUAGE_15"   , "Polski"},
-    { DRAWTOOLS_LANGUAGE_16, "DRAWTOOLS_LANGUAGE_16"   , "Custom (from file)"},
+    { DRAWTOOLS_LANGUAGE_16, "DRAWTOOLS_LANGUAGE_16"   , "Indonesian"},
+    { DRAWTOOLS_LANGUAGE_17, "DRAWTOOLS_LANGUAGE_17"   , "Custom (from file)"},
 
-    { DRAWTOOLS_COPYFROM, "DRAWTOOLS_COPYFROM"     , "Copy from /dev_usb/iris to Iris folder"},
+    { DRAWTOOLS_COPYFROM, "DRAWTOOLS_COPYFROM"     , "Copy from /dev_usb/iris to IRISMAN folder"},
     { DRAWTOOLS_WITHBDVD, "DRAWTOOLS_WITHBDVD"     , "With BDVD Controller"},
     { DRAWTOOLS_NOBDVD,   "DRAWTOOLS_NOBDVD"       , "Without BDVD Device"},
     { DRAWTOOLS_NOBDVD2,  "DRAWTOOLS_NOBDVD2"      , "Cobra / Disc-less payload"},
@@ -458,9 +460,13 @@ void open_language(int lang, char * filename)
                 file_bin = (char *) language_ini_da_bin;
                 file_size = language_ini_da_bin_size;
                 break;
-            case 14: // da - DRAWTOOLS_LANGUAGE_15: Polski
+            case 14: // pl - DRAWTOOLS_LANGUAGE_15: Polski
                 file_bin = (char *) language_ini_pl_bin;
-                file_size = language_ini_da_bin_size;
+                file_size = language_ini_pl_bin_size;
+                break;
+            case 15: // in - DRAWTOOLS_LANGUAGE_16: Indonesian
+                file_bin = (char *) language_ini_in_bin;
+                file_size = language_ini_in_bin_size;
                 break;
             default: // en - DRAWTOOLS_LANGUAGE_1
                 file_bin = (char *) language_ini_en_bin;
