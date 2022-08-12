@@ -86,6 +86,14 @@ s32 main(s32 argc, const char* argv[])
 
             if(self_path[n] == '/') self_path[n] = 0;
         }
+        else if(!strncmp(argv[0], "/app_home/PS3_GAME/", 19))
+        {
+            strcpy(self_path, "/app_home/PS3_GAME");
+        }
+        else if(!strncmp(argv[0], "/dev_bdvd/PS3_GAME/", 19))
+        {
+            strcpy(self_path, "/dev_bdvd/PS3_GAME");
+        }
     }
 
     strcat(self_path, "/USRDIR/RELOAD.SELF");

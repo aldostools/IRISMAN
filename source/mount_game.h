@@ -572,8 +572,8 @@ mount_iso: ;
 
                 if(!strcmpext(path, ".iso.0"))
                 {
-                    sprintf(TEMP_PATH2, "%s", path);
-                    temp_buffer[TEMP_PATH2_OFFSET + strlen(TEMP_PATH2) - 1] = 0;
+                    int plen = sprintf(TEMP_PATH2, "%s", path);
+                    temp_buffer[TEMP_PATH2_OFFSET + plen - 1] = 0;
 
                     for (int o = 1; o < 64; o++)
                     {
@@ -613,12 +613,10 @@ mount_iso: ;
                 {
                     if(parts >= MAX_SECTIONS) DrawDialogOKTimer(".ISO is very fragmented", 2000.0f);
                 }
-
-                if(plugin_args) free(plugin_args); plugin_args = NULL;
-                if(sections) free(sections);
-                if(sections_size) free(sections_size);
             }
-
+            if(plugin_args) free(plugin_args); plugin_args = NULL;
+            if(sections) free(sections);
+            if(sections_size) free(sections_size);
         }
         else if((type == EMU_PS3)  || (type == EMU_PSX) || (type == EMU_DVD) || (type == EMU_BD) ||
                ((type == EMU_PS2_DVD) && (strncmp(path, "/dev_hdd0/", 10) == 0)))
@@ -644,12 +642,12 @@ mount_iso: ;
 
             if(!strcmpext(path, ".iso.0"))
             {
-                sprintf(TEMP_PATH2, "%s", path);
-                temp_buffer[TEMP_PATH2_OFFSET + strlen(TEMP_PATH2) - 1] = 0;
+                int plen = sprintf(TEMP_PATH2, "%s", path);
+                temp_buffer[TEMP_PATH2_OFFSET + plen - 1] = 0;
 
                 for (int o = 1; o < 64; o++)
                 {
-                    files[o] = malloc(1024);
+                    files[o] = malloc(plen + 4);
                     if(!files[o]) break;
 
                     sprintf(files[o], "%s%i", TEMP_PATH2, o);
@@ -851,8 +849,8 @@ int launch_iso_game_mamba(char *path, int mtype)
 
                 if(!strcmpext(path, ".iso.0"))
                 {
-                    sprintf(TEMP_PATH2, "%s", path);
-                    temp_buffer[TEMP_PATH2_OFFSET + strlen(TEMP_PATH2) - 1] = 0;
+                    int plen = sprintf(TEMP_PATH2, "%s", path);
+                    temp_buffer[TEMP_PATH2_OFFSET + plen - 1] = 0;
 
                     for (int o = 1; o < 64; o++)
                     {
@@ -883,11 +881,10 @@ int launch_iso_game_mamba(char *path, int mtype)
                     if (cobra_load_vsh_plugin(0, TEMP_PATH1, plugin_args, 0x10000) == 0) {SaveGameList(); fun_exit(); exit(0);}
                 }
                 else if(parts >= MAX_SECTIONS) DrawDialogOKTimer(".ISO is very fragmented", 2000.0f);
-
-                if(plugin_args) free(plugin_args); plugin_args = NULL;
-                if(sections) free(sections);
-                if(sections_size) free(sections_size);
             }
+            if(plugin_args) free(plugin_args); plugin_args = NULL;
+            if(sections) free(sections);
+            if(sections_size) free(sections_size);
         }
         else if((type == EMU_PS3) || (type == EMU_PSX) || (type == EMU_PSP) || (type == EMU_DVD) || (type == EMU_BD) ||
                ((type == EMU_PS2_DVD) && (strncmp(path, "/dev_hdd0/", 10) == 0)))
@@ -910,12 +907,12 @@ int launch_iso_game_mamba(char *path, int mtype)
 
                 if(!strcmpext(path, ".iso.0"))
                 {
-                    sprintf(TEMP_PATH2, "%s", path);
-                    temp_buffer[TEMP_PATH2_OFFSET + strlen(TEMP_PATH2) - 1] = 0;
+                    int plen = sprintf(TEMP_PATH2, "%s", path);
+                    temp_buffer[TEMP_PATH2_OFFSET + plen - 1] = 0;
 
                     for (int o = 1; o < 64; o++)
                     {
-                        files[o] = malloc(1024);
+                        files[o] = malloc(plen + 4);
                         if(!files[o]) break;
 
                         sprintf(files[o], "%s%i", TEMP_PATH2, o);

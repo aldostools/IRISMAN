@@ -971,15 +971,21 @@ int fm_job_delete (struct fm_panel *p, char *src, int (*ui_render)(int dt))
     //reverse removal
     for (ptr = ptail; ptr != NULL; ptr = ptr->prev)
     {
+        if(!ptr->name) continue;
+
         lbp = strrchr (ptr->name, '/'); //file/dir name
         if (lbp)
             lbp++;
         else
             lbp = na_string;
+
+        if(!lbp) continue;
+
         if (ptr->dir)
             snprintf (lp, CBSIZE, "task %d/%d delete dir %s", ktr, job->files + job->dirs, lbp);
         else
             snprintf (lp, CBSIZE, "task %d/%d delete file %s", ktr, job->files + job->dirs, lbp);
+
         fm_status_set (lp, 1, 0xffeeeeFF);
         ProgressBarUpdate ((u32)(ktr * 100/(job->files + job->dirs)), lp);
         NPrintf ("%s\n", lp);

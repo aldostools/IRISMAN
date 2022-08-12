@@ -2133,8 +2133,8 @@ void read_settings()
     char InstallMamba[2] = "1";
     char LoadMambaAndQuit[2] = "0";
 
-    spoof_version  = 0x0488;
-    spoof_revision = 0x000109f5; // 4.87 = 0x000109a5; //4.86 = 0x00010938 // 4.85 = 0x0001091d
+    spoof_version  = 0x0489;
+    spoof_revision = 0x00010aad; //4.88 = 0x000109f5; // 4.87 = 0x000109a5; //4.86 = 0x00010938 // 4.85 = 0x0001091d
 
     // set default values
     sprintf(covers_path, "%s/USRDIR/covers/", MM_PATH);
@@ -2478,6 +2478,14 @@ s32 main(s32 argc, const char* argv[])
 
             if(self_path[n] == '/') self_path[n] = 0;
         }
+        else if(!strncmp(argv[0], "/app_home/PS3_GAME/", 19))
+        {
+            char title_id[0x10];
+            if(parse_param_sfo_id("/app_home/PS3_GAME/PARAM.SFO", title_id) == FAILED)
+                strcpy(self_path, "/app_home/PS3_GAME");
+            else
+                sprintf(self_path, "/dev_hdd0/game/%.4s%.5s", title_id, title_id + 5);
+        }
         else if(!strncmp(argv[0], "/dev_bdvd/PS3_GAME/", 19))
         {
             strcpy(self_path, "/dev_bdvd/PS3_GAME");
@@ -2581,8 +2589,8 @@ s32 main(s32 argc, const char* argv[])
         wm_sys_storage_ext_umount_discfile();
         cobra_unset_psp_umd();
 
-        sys_map_path((char*)"/dev_bdvd", NULL);
         sys_map_path((char*)"/app_home", NULL);
+        sys_map_path((char*)"/dev_bdvd", NULL);
         sys_map_path((char*)"//dev_bdvd", NULL);
 
         // Unmount game through webMAN
@@ -2774,6 +2782,7 @@ s32 main(s32 argc, const char* argv[])
         (float) ((sx / 1920.0) * psx),  // 3D scale
         (float) ((sy / 1080.0) * psy));
 
+    #ifndef LOADER_MODE
     if(use_mamba && !use_cobra)
     {
         syscall_40(1, 0); // disables PS3 Disc-less / load mamba
@@ -2787,6 +2796,7 @@ s32 main(s32 argc, const char* argv[])
         sysProcessExitSpawn2(tmp_path, NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
         exit(0);
     }
+    #endif
 
     // disable cobra and mamba flags if "no BDVD device" mode is set
     if(noBDVD == MODE_NOBDVD)
@@ -2940,8 +2950,10 @@ s32 main(s32 argc, const char* argv[])
 
         last_game_flag = directories[currentgamedir].flags;
 
+        #ifdef LOADER_MODE
         if(!(strcasestr(directories[currentgamedir].path_name, ".iso") && file_exists("/dev_hdd0/game/IRISMAN00/sprx_iso") == false))
             strcpy(self_path, "/dev_hdd0/game/IRISMAN00");
+        #endif
 
         if(strstr(directories[currentgamedir].path_name, "/ntfs"))
         {
