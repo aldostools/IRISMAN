@@ -22,6 +22,9 @@
 #include "ff.h"
 #include "ntfs.h"
 
+#define FONT_W	10
+#define FONT_H	16
+
 static int frame = 0;
 
 //status message
@@ -1212,7 +1215,7 @@ int fm_panel_draw (struct fm_panel *p)
     if(!p) return -1;
 
     static char fname[53];
-    int wh = p->h/8 - 2;    //scroll rows: panel height - 2 rows
+    int wh = p->h/FONT_H - 2;    //scroll rows: panel height - 2 rows
     int se = 0;             //skipped entries
     //
     if (p->active == TRUE)
@@ -1222,7 +1225,7 @@ int fm_panel_draw (struct fm_panel *p)
     //draw panel content: 56 lines - 1 for dir path, 1 for status - 54
     int k;
     SetCurrentFont (2);
-    SetFontSize (8, 8);
+    SetFontSize (FONT_W, FONT_H);
     //title - current path
     SetFontColor (0x0000ffff, 0x00000000);
     SetFontAutoCenter (0);
@@ -1244,7 +1247,7 @@ int fm_panel_draw (struct fm_panel *p)
         //draw current item
         if (p->current == ptr)
         {
-            DrawRect2d (p->x, p->y + 8 + k * 8, 0, p->w, 8, 0x787878ff);
+            DrawRect2d (p->x, p->y + FONT_H + k * FONT_H, 0, p->w, FONT_H, 0x787878ff);
             //
             if(++frame > 30)
             {
@@ -1256,7 +1259,7 @@ int fm_panel_draw (struct fm_panel *p)
             else
                fname[0] = '>';
             fm_fname_get (ptr, 51, fname + 1);
-            DrawString (p->x, p->y + 8 + k * 8, fname);
+            DrawString (p->x, p->y + FONT_H + k * FONT_H, fname);
         }
         else
         {
@@ -1264,12 +1267,12 @@ int fm_panel_draw (struct fm_panel *p)
             {
                 fname[0] = '*';
                 fm_fname_get (ptr, 51, fname + 1);
-                DrawString (p->x, p->y + 8 + k * 8, fname);
+                DrawString (p->x, p->y + FONT_H + k * FONT_H, fname);
             }
             else
             {
                 fm_fname_get (ptr, 51, fname);
-                DrawString (p->x + 8, p->y + 8 + k * 8, fname);
+                DrawString (p->x + FONT_W, p->y + FONT_H + k * FONT_H, fname);
             }
         }
         //file size - to the right side of the name
@@ -1281,7 +1284,7 @@ int fm_panel_draw (struct fm_panel *p)
                 snprintf (fname, 52, "%4luMB", ptr->size / MBSZ);
             else
                 snprintf (fname, 52, "%4luKB", ptr->size / KBSZ);
-            DrawString (p->x + 8 + (46 * 8), p->y + 8 + k * 8, fname);
+            DrawString (p->x + FONT_W + (46 * FONT_W), p->y + FONT_H + k * FONT_H, fname);
         }
     }
     //status - size, files, dirs
@@ -1296,7 +1299,7 @@ int fm_panel_draw (struct fm_panel *p)
             snprintf (fname + bw, 51 - bw, "%llu MB", p->fsize / MBSZ);
         else
             snprintf (fname + bw, 51 - bw, "%llu KB", p->fsize / KBSZ);
-        DrawString (p->x, p->y + wh * 8 + 8, fname);
+        DrawString (p->x, p->y + wh * FONT_H + FONT_H, fname);
     }
     //
     return 0;
