@@ -119,7 +119,7 @@ int fs_get_fstype (char *path, int *np)
 
     // fix paths with /..
     char *up = strstr(path, "/..");
-    if(up) {*up = 0; up = strrchr(path, '/'); if(up) *up = 0;}
+    if(up) {*up = 0; up = strrchr(path, '/'); if(up) *up = 0; return FS_TRETURN;}
 
     //FAT/ExFAT path
     if (strncmp (path, "fat", 3) == 0)
@@ -387,9 +387,15 @@ int fs_path_scan (struct fm_panel *p)
         p->fs_type = FS_TNONE;
         return root_scan_path (p);
     }
+
     p->fs_type = fs_get_fstype (p->path, NULL);
     switch (p->fs_type)
     {
+        case FS_TRETURN:
+        {
+           fm_panel_exit ( p );
+           return -1;
+        }
         //scan FAT/ExFAT path
         //if (strncmp (p->path, "fat", 3) == 0)
         case FS_TFAT:

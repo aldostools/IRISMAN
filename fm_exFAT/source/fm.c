@@ -1183,6 +1183,7 @@ int fm_panel_scan (struct fm_panel *p, char *path)
     //cleanup
     fm_panel_clear (p);
     //
+
     return fs_path_scan (p);
 }
 
@@ -1423,11 +1424,8 @@ int fm_panel_add (struct fm_panel *p, char *fn, char dir, unsigned long fsz)
     #if 1
         if (dir)
         {
-            if(current)
-            {
-                while (current && current->next && current->dir && current->name && strcmp (current->name, fn) < 0)
-                     current = current->next;
-            }
+            while (current && current->next && current->dir && current->name && strcmp (current->name, fn) < 0)
+                 current = current->next;
             //don't add after file
             if(current)
             {
@@ -1456,16 +1454,12 @@ int fm_panel_add (struct fm_panel *p, char *fn, char dir, unsigned long fsz)
             while (current && current->next && current->dir)
                 current = current->next;
             //compare only with files
-            if(current)
-            {
-                if (!current->dir && current->name && strcmp (current->name, fn) < 0)
-                    while (current && current->next && current->name && strcmp (current->name, fn) < 0)
-                        current = current->next;
-            }
+            while (current && current->next && !current->dir && current->name && strcmp (current->name, fn) < 0)
+                current = current->next;
             //
             if(current)
             {
-                if (current->name && strcmp (current->name, fn) > 0)
+                if (!current->dir && current->name && strcmp (current->name, fn) > 0)
                 {
                     //NPrintf ("fm_panel_add before %s\n", current->name);
                     add_before (p, link, current);

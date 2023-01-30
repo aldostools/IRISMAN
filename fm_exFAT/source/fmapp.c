@@ -277,7 +277,7 @@ int fmapp_update(int dat)
         for(i = 0; i < n; i++)
         {
             fm_panel_scroll (app_active_panel (), FALSE);
-            if(PPad (BUTTON_L2)) fm_toggle_selection (app_active_panel ());
+            if(PPad (BUTTON_L2) || PPad (BUTTON_SQUARE)) fm_toggle_selection (app_active_panel ());
         }
         update_info();
     }
@@ -289,7 +289,7 @@ int fmapp_update(int dat)
         for(i = 0; i < n; i++)
         {
             fm_panel_scroll (app_active_panel (), TRUE);
-            if(PPad (BUTTON_L2)) fm_toggle_selection (app_active_panel ());
+            if(PPad (BUTTON_L2) || PPad (BUTTON_SQUARE)) fm_toggle_selection (app_active_panel ());
         }
         update_info();
     }
@@ -415,7 +415,7 @@ int fmapp_update(int dat)
     {
         return -1;
     }
-    else if (NPad (BUTTON_SQUARE))
+    else if (NPad (BUTTON_L2) || NPad (BUTTON_SQUARE))
     {
         fm_toggle_selection (app_active_panel ());
     }
