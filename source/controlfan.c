@@ -1020,8 +1020,8 @@ void draw_controlfan_options()
 
         SetFontColor(WHITE, 0x00000000);
         SetFontSize(16, 20);
-        DrawFormatString(x2, y2 + 8, "Use L1/R1 or X/O");
-        DrawFormatString(x2, y2 + 32, "to change values");
+        DrawFormatString(x2, y2 + 8, "Use L1/R1 or X to");
+        DrawFormatString(x2, y2 + 32, "change/increase values");
         DrawFormatString(x2, y2 + 56, "LEFT/RIGHT to change");
         DrawFormatString(x2, y2 + 80, "of column");
 
