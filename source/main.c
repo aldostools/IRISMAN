@@ -5171,9 +5171,9 @@ void draw_coverflow(float x, float y)
 
         if(iTimeFormat == 2)
         {
-            if(hh > 12)
+            if(hh >= 12)
             {
-                hh = hh - 12;
+                if(hh != 12) hh = hh - 12;
                 DrawFormatString(x2, y2, " %02u:%02u PM ", hh, mm);
             }
             else
@@ -5193,9 +5193,9 @@ void draw_coverflow(float x, float y)
         }
         else if(iTimeFormat == 4)
         {
-            if(hh > 12)
+            if(hh >= 12)
             {
-                hh = hh - 12;
+                if(hh != 12) hh = hh - 12;
                 if(sys_dateformat == 0 || sys_dateformat == 2)
                     DrawFormatString(x2, y2, " %02u/%02u %02u:%02u PM ", month, day, hh, mm);
                 else
