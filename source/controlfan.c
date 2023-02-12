@@ -1433,7 +1433,7 @@ void draw_controlfan_options()
                     memcpy((void *) temp_control, (void *) temp_control_default, sizeof(temp_control));
                     memcpy((void *) speed_table, (void *) speed_table_default, sizeof(speed_table));
                     wakeup_time = 60;
-                    fan_mode = FANCTRL_PAYLOAD;
+                    fan_mode = FANCTRL_DISABLED;
                     set_adjust = true;
                     break;
 
