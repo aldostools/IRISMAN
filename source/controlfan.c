@@ -841,13 +841,13 @@ void load_controlfan_config()
 
     if(mem) free(mem);
 
-    if(fan_mode == FANCTRL_DISABLED)
+    /*if(fan_mode == FANCTRL_DISABLED)
     {
         if(get_controlfan_offsets())
         {
             if(lv2peek(PAYLOAD_BASE) || (lv2peek32(sys409_offset) != 0x38600001) || (lv2peek32(sys389_offset) != 0x38600001)) fan_mode = FANCTRL_PAYLOAD;
         }
-    }
+    }*/
 
     if(get_vsh_plugin_slot_by_name("WWWD") > 0) fan_mode = FANCTRL_DISABLED;
 
