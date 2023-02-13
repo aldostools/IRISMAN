@@ -10,8 +10,9 @@ static char help1[] = {
     "\n"
     "UP/DOWN - Move the cursor\n"
     "L1/R1 - Move the cursor by page\n"
-    "LEFT/RIGHT - Switch window.\n"
+    "LEFT/RIGHT - Switch window\n"
     "SELECT+LEFT/RIGHT - Open current directory in the other window\n"
+    "SELECT + TRIANGLE - Go to parent directory (root if pressed on ..)\n"
     "\n"
     "L2+R2 - Switch the window split mode (Vertical/Horizontal)\n"
     "L3/R3 - Changes to different frequently used paths\n"
@@ -434,7 +435,7 @@ void draw_file_manager()
             {
                 sys_game_get_temperature(0, &temp);
                 sys_game_get_temperature(1, &temp2);
-                sprintf(temp_disp, "Temp CPU: %iºC RSX: %iºC", temp, temp2);
+                sprintf(temp_disp, "Temp CPU: %iÂºC RSX: %iÂºC", temp, temp2);
             }
 
             set_ttf_window(848 - 260, 512 - 30, 300, 32, WIN_AUTO_LF);
