@@ -841,13 +841,13 @@ void load_controlfan_config()
 
     if(mem) free(mem);
 
-    if(fan_mode == FANCTRL_DISABLED)
+    /*if(fan_mode == FANCTRL_DISABLED)
     {
         if(get_controlfan_offsets())
         {
             if(lv2peek(PAYLOAD_BASE) || (lv2peek32(sys409_offset) != 0x38600001) || (lv2peek32(sys389_offset) != 0x38600001)) fan_mode = FANCTRL_PAYLOAD;
         }
-    }
+    }*/
 
     if(get_vsh_plugin_slot_by_name("WWWD") > 0) fan_mode = FANCTRL_DISABLED;
 
@@ -1020,8 +1020,8 @@ void draw_controlfan_options()
 
         SetFontColor(WHITE, 0x00000000);
         SetFontSize(16, 20);
-        DrawFormatString(x2, y2 + 8, "Use L1/R1 or X/O");
-        DrawFormatString(x2, y2 + 32, "to change values");
+        DrawFormatString(x2, y2 + 8, "Use L1/R1 or X to");
+        DrawFormatString(x2, y2 + 32, "change/increase values");
         DrawFormatString(x2, y2 + 56, "LEFT/RIGHT to change");
         DrawFormatString(x2, y2 + 80, "of column");
 
@@ -1433,7 +1433,7 @@ void draw_controlfan_options()
                     memcpy((void *) temp_control, (void *) temp_control_default, sizeof(temp_control));
                     memcpy((void *) speed_table, (void *) speed_table_default, sizeof(speed_table));
                     wakeup_time = 60;
-                    fan_mode = FANCTRL_PAYLOAD;
+                    fan_mode = FANCTRL_DISABLED;
                     set_adjust = true;
                     break;
 
