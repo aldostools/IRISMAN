@@ -9315,7 +9315,7 @@ exit_gbloptions:
                 }
                 else if (new_pad & BUTTON_RIGHT)
                 {
-                    if(song_selected < MAX_SONGS) song_selected++; else song_selected = 0;
+                    if(song_selected < MAX_SONGS - 1) song_selected++; else song_selected = 0;
                     init_music(song_selected);
                 }
                 else
@@ -9765,7 +9765,7 @@ exit_gbloptions:
     // Network Tools
     else if(select_option == 6)
     {
-        if((new_pad & BUTTON_SQUARE) && ((manager_cfg.opt_flags & OPTFLAGS_FTP) == 0))
+        if((new_pad & BUTTON_SQUARE) && (ftp_inited == false/*(manager_cfg.opt_flags & OPTFLAGS_FTP) == 0)*/)
         {
              ftp_port = (ftp_port == 21) ? 22 : (ftp_port == 22) ? 2121 : 21;
              sprintf(ftp_ip_str, "%s : %i", language[DRAWGLOPT_INITFTP], ftp_port);
