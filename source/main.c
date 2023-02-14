@@ -9423,10 +9423,7 @@ exit_gbloptions:
                   case 7: // Download Latest webMAN
                     if(!use_cobra)
                     {
-                        DrawDialogOK(credits_str1);
-                        DrawDialogOK(credits_str2);
-                        DrawDialogOK(credits_str3);
-                        DrawDialogOK(credits_str4);
+                        DrawDialogOK("Cobra and Mamba were not detected. webMAN won't be downloaded.");
                         break;
                     }
 
