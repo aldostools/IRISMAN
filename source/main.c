@@ -9429,23 +9429,25 @@ exit_gbloptions:
 					
 					if(file_exists(tmp_path) == false)
 					{
-						DrawDialogOK("webMAN is not currently installed. The latest version won't be downloaded.");
+						DrawDialogOKTimer("webMAN is not currently installed. The latest version won't be downloaded.", 3000.0f);
 						break;
 					}
-
+/*
                     if(!use_cobra)
                     {
                         DrawDialogOK("Cobra and Mamba were not detected. webMAN won't be updated.");
                         break;
                     }
-
+*/
                     if(download_file("http://www.aldostools.org/ps3/webftp_server.sprx", tmp_path, 0, NULL) == 0)
                     {
                         DrawDialogOKTimer("webMAN has been updated successfully!", 2000.0f);
                     }
                     else
                         DrawDialogOKTimer("webMAN could not be downloaded!", 2000.0f);
-
+					
+					break;
+/*
                     // Create boot_plugins.txt if it doesn't exist
                     if(file_exists("/dev_hdd0/boot_plugins.txt") == false && file_exists(tmp_path))
                     {
@@ -9456,20 +9458,20 @@ exit_gbloptions:
                         // write plugin path
                         fp = fopen("/dev_hdd0/boot_plugins.txt", "w");
                         fputs (tmp_path, fp);
-/*
-                        sprintf(tmp_path, "/dev_hdd0/plugins/wm_vsh_menu.sprx");
-                        if(file_exists(tmp_path))
-                        {
-                            strcat(tmp_path, "\n");
-                            fputs (tmp_path, fp);
-                        }
-*/
+
+                        //sprintf(tmp_path, "/dev_hdd0/plugins/wm_vsh_menu.sprx");
+                        //if(file_exists(tmp_path))
+                        //{
+                        //    strcat(tmp_path, "\n");
+                        //    fputs (tmp_path, fp);
+                        //}
+
                         fclose(fp);
                     }
 
                     return_to_game_list(false);
                     return;
-
+*/
                   case 8: // Toggle Cobra
                     if(file_exists("/dev_blind/sys") == false)
                         sys_fs_mount("CELL_FS_IOS:BUILTIN_FLSH1", "CELL_FS_FAT", "/dev_blind", 0);
@@ -9883,7 +9885,7 @@ void draw_toolsoptions(float x, float y)
                 return;
 
             case 1: //PKG Install
-                DrawDialogOKTimer("For NTFS and EXT2/3/4 devices use the File Manager\n\nPara dispositivos NTFS y EXT2/3/4 usa el Manejador Archivos\n\nPour les lecteurs NTFS et EXT2/3/4 utiliser le gestionnaire de fichiers", 3000.0f);
+                DrawDialogOKTimer("For NTFS and EXT2/3/4 devices use the File Manager\n\nPara dispositivos NTFS y EXT2/3/4 usa el Manejador Archivos\n\nPour les lecteurs NTFS et EXT2/3/4 utiliser le gestionnaire de fichiers", 5000.0f);
                 draw_pkginstall(x, y);
                 break;
 
