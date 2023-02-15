@@ -2142,7 +2142,7 @@ void read_settings()
     sprintf(backgrounds_path, "%s/USRDIR/background/", self_path);
     strcpy(updates_path, "/dev_hdd0/packages");
     strcpy(video_path, "/MKV");
-    strcpy(webman_path, "/dev_hdd0/plugin/webftp_server.sprx");
+    strcpy(webman_path, "/dev_hdd0/plugins/webftp_server.sprx");
     strcpy(psp_launcher_path, "/dev_hdd0/game/PSPC66820");
     if(file_exists("/dev_hdd0/game/RETROARCH/USRDIR/EBOOT.BIN"))
         strcpy(retroarch_path, "/dev_hdd0/game/RETROARCH");
@@ -2379,7 +2379,7 @@ void read_settings()
 
     // reset default covers path (if don't exist)
     if(file_exists(covers_path) == false)
-        strcpy(covers_path, "/dev_hdd0/GAMES/covers/");
+        strcpy(covers_path, "/dev_hdd0/game/IRISMAN00/covers/");
 
     // reset default RetroArch path (if don't exist)
     if(file_exists(retroarch_path) == false)
@@ -9120,7 +9120,7 @@ void draw_gbloptions(float x, float y)
 
     bool bSelected = (flash && (select_option == 6));
 
-    if(!bAllowNetGames &&  !(net_option == 0 || (net_option >= 7 && net_option <= 13))) net_option = 0;
+    //if(!bAllowNetGames &&  !(net_option == 0 || (net_option >= 7 && net_option <= 13))) net_option = 0;
 
     if (net_option == 0)
         DrawButton1_UTF8(box_left, y2, 520, (*ftp_ip_str) ? ftp_ip_str : language[DRAWGLOPT_INITFTP], bSelected);
@@ -9421,17 +9421,23 @@ exit_gbloptions:
                     break;
 
                   case 7: // Download Latest webMAN
-                    if(!use_cobra)
-                    {
-                        DrawDialogOK("Cobra and Mamba were not detected. webMAN won't be downloaded.");
-                        break;
-                    }
-
                     sprintf(tmp_path, "/dev_hdd0/plugins/webftp_server.sprx");
                     if(file_exists(tmp_path) == false) sprintf(tmp_path, "/dev_hdd0/plugins/webftp_server_ps3mapi.sprx");
                     if(file_exists(tmp_path) == false) sprintf(tmp_path, webman_path);
 
                     if(get_net_status() != SUCCESS) break;
+					
+					if(file_exists(tmp_path) == false)
+					{
+						DrawDialogOK("webMAN is not currently installed. The latest version won't be downloaded.");
+						break;
+					}
+
+                    if(!use_cobra)
+                    {
+                        DrawDialogOK("Cobra and Mamba were not detected. webMAN won't be updated.");
+                        break;
+                    }
 
                     if(download_file("http://www.aldostools.org/ps3/webftp_server.sprx", tmp_path, 0, NULL) == 0)
                     {
@@ -9771,6 +9777,7 @@ exit_gbloptions:
         if(new_pad & (BUTTON_LEFT))
         {
             ROT_DEC(net_option, 0, 13)
+			if (net_option == 6 && !bAllowNetGames) net_option = 0;
             if(net_option == 8 && file_exists("/dev_flash/sys/stage2.bin") == false
                                && file_exists("/dev_flash/sys/stage2_disabled.bin") == false
                                && file_exists("/dev_flash/rebug/cobra/stage2.cex") == false
@@ -9779,6 +9786,7 @@ exit_gbloptions:
         else if(new_pad & (BUTTON_RIGHT))
         {
             ROT_INC(net_option, 13, 0)
+			if (net_option == 1 && !bAllowNetGames) net_option = 7;
             if(net_option == 8 && file_exists("/dev_flash/sys/stage2.bin") == false
                                && file_exists("/dev_flash/sys/stage2_disabled.bin") == false
                                && file_exists("/dev_flash/rebug/cobra/stage2.cex") == false
