@@ -55,8 +55,6 @@ struct fm_job {
     unsigned long long fsize;
 };
 
-struct fm_panel *app_active_panel ();
-
 int fm_entry_add (struct fm_file **entries, char *fn, char dir, unsigned long fsz);
 int fm_entry_pull (struct fm_file **entries);
 
