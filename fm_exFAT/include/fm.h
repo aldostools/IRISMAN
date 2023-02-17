@@ -12,7 +12,6 @@ typedef enum {
     FS_TNTFS,
     FS_TEXT,
     FS_TFAT,
-    FS_TRETURN,
 } FS_TYPE;
 
 struct fm_file {
