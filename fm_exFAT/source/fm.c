@@ -104,6 +104,7 @@ int fm_panel_enter (struct fm_panel *p)
     char np[CBSIZE];
     if (p->path)
     {
+		if (!strncmp(p->current->name, "..", 2)/*p->current_idx == 0*/) { fm_panel_exit (p); return 0; }
         if (p->current && p->current->name && *(p->current->name))
             snprintf (np, CBSIZE, "%s/%s", p->path, p->current->name);
         else
