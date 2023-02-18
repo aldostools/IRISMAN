@@ -12,7 +12,6 @@ typedef enum {
     FS_TNTFS,
     FS_TEXT,
     FS_TFAT,
-    FS_TRETURN,
 } FS_TYPE;
 
 struct fm_file {
@@ -55,8 +54,6 @@ struct fm_job {
     int dirs;
     unsigned long long fsize;
 };
-
-struct fm_panel *app_active_panel ();
 
 int fm_entry_add (struct fm_file **entries, char *fn, char dir, unsigned long fsz);
 int fm_entry_pull (struct fm_file **entries);

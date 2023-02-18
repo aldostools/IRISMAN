@@ -117,10 +117,6 @@ int fs_get_fstype (char *path, int *np)
     if (!path)
         return FS_TNONE;
 
-    // fix paths with /..
-    char *up = strstr(path, "/..");
-    if(up) {*up = 0; up = strrchr(path, '/'); if(up) *up = 0; return FS_TRETURN;}
-
     //FAT/ExFAT path
     if (strncmp (path, "fat", 3) == 0)
     {
@@ -388,14 +384,10 @@ int fs_path_scan (struct fm_panel *p)
         return root_scan_path (p);
     }
 
+	fm_panel_add (p, "..", 1, 0);
     p->fs_type = fs_get_fstype (p->path, NULL);
     switch (p->fs_type)
     {
-        case FS_TRETURN:
-        {
-           fm_panel_exit ( p );
-           return -1;
-        }
         //scan FAT/ExFAT path
         //if (strncmp (p->path, "fat", 3) == 0)
         case FS_TFAT:
@@ -444,7 +436,7 @@ static int sys_scan_path (struct fm_panel *p)
     {
 		if (!read)
 			break;
-		if (!strcmp (dir.d_name, ".")) // || !strcmp (dir.d_name, ".."))
+		if (!strcmp (dir.d_name, ".") || !strcmp (dir.d_name, ".."))
 			continue;
         //
         if (dir.d_type & DT_DIR)
@@ -536,7 +528,7 @@ static int ntfs_scan_path (struct fm_panel *p)
             if (ps3ntfs_dirnext (pdir, dir.d_name, &st))
                 break;  // Break on error or end of dir
             //skip parent and child listing
-            if (!strcmp(dir.d_name, ".")) // || !strcmp(dir.d_name, ".."))
+            if (!strcmp(dir.d_name, ".") || !strcmp(dir.d_name, ".."))
                 continue;
             if (S_ISDIR(st.st_mode))
             {
