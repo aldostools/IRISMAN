@@ -9136,8 +9136,9 @@ void draw_gbloptions(float x, float y)
                                                    (net_option ==  9) ? "Showtime" :
                                                    (net_option == 10) ? "Internet Browser" :
                                                    (net_option == 11) ? (file_exists("/dev_blind") ? "/dev_blind : ON" : "/dev_blind : OFF") :
-                                                   (net_option == 12) ? language[DRAWSCREEN_SHUTDOWN] :
-                                                   (net_option == 13) ? language[DRAWSCREEN_RESTART]  : "", bSelected);
+												   (net_option == 12) ? "Rebuild Database" :
+                                                   (net_option == 13) ? language[DRAWSCREEN_SHUTDOWN] :
+                                                   (net_option == 14) ? language[DRAWSCREEN_RESTART]  : "", bSelected);
 
     y2+= 48;
 
@@ -9429,7 +9430,7 @@ exit_gbloptions:
 					
 					if(file_exists(tmp_path) == false)
 					{
-						DrawDialogOKTimer("webMAN is not currently installed. The latest version won't be downloaded.", 3000.0f);
+						DrawDialogOKTimer("webMAN is not currently installed. The latest version won't be downloaded.", 3500.0f);
 						break;
 					}
 /*
@@ -9535,7 +9536,18 @@ exit_gbloptions:
 
                     break;
 
-                  case 12: // Shutdown PS3
+                  case 12: // Rebuild Database
+					if(DrawDialogYesNo("Are you sure you want to restart the PS3 and rebuild the database?") == YES)
+					{
+						SaveGameList();
+						fun_exit();
+						int database_rebuild = 0x000003E9;
+						SaveFile("/dev_hdd0/mms/db.err", (char*)&database_rebuild, 4);
+						lv2syscall4(SC_SYS_POWER,SYS_HARD_REBOOT,0,0,0);
+					}
+                    break;
+
+                  case 13: // Shutdown PS3
                     SaveGameList();
 
                     set_install_pkg = false;
@@ -9544,7 +9556,7 @@ exit_gbloptions:
                     sys_shutdown();
                     break;
 
-                  case 13: // Restart PS3
+                  case 14: // Restart PS3
                   reboot:
                     SaveGameList();
 
@@ -9778,7 +9790,7 @@ exit_gbloptions:
 
         if(new_pad & (BUTTON_LEFT))
         {
-            ROT_DEC(net_option, 0, 13)
+            ROT_DEC(net_option, 0, 14)
 			if (net_option == 6 && !bAllowNetGames) net_option = 0;
             if(net_option == 8 && file_exists("/dev_flash/sys/stage2.bin") == false
                                && file_exists("/dev_flash/sys/stage2_disabled.bin") == false
@@ -9787,7 +9799,7 @@ exit_gbloptions:
         }
         else if(new_pad & (BUTTON_RIGHT))
         {
-            ROT_INC(net_option, 13, 0)
+            ROT_INC(net_option, 14, 0)
 			if (net_option == 1 && !bAllowNetGames) net_option = 7;
             if(net_option == 8 && file_exists("/dev_flash/sys/stage2.bin") == false
                                && file_exists("/dev_flash/sys/stage2_disabled.bin") == false
