@@ -1106,7 +1106,7 @@ int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_siz
 {
     char *ext = get_extension(filename);
 
-    if((use_mamba || use_cobra) && !(d_type & IS_MARKED) &&
+    if(/*(use_mamba || use_cobra) &&*/ !(d_type & IS_MARKED) &&
            (strcasestr(".mp3|.ogg", ext) != NULL))
     {
         sprintf(TEMP_PATH, "%s/%s", path, filename);
