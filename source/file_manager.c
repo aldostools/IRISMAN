@@ -411,7 +411,7 @@ void test_audio_file(bool stop_audio)
         {
             while(sel1<nentries1)
             {
-                sel1++; if(sel1>=nentries1) {sel1=0; if(exit_loop) break; else exit_loop=true;}
+                sel1++; if(sel1>=nentries1) {sel1=0; if(exit_loop) return; else exit_loop=true;}
                 sprintf(audio_file, "%s/%s", path1, entries1[sel1].d_name);
                 if(strcasestr(entries1[sel1].d_name, ".mp3") || strcasestr(entries1[sel1].d_name, ".ogg")) break;
             }
@@ -420,7 +420,7 @@ void test_audio_file(bool stop_audio)
         {
             while(sel2<nentries2)
             {
-                sel2++; if(sel2>=nentries2) {sel2=0; if(exit_loop) break; else exit_loop=true;}
+                sel2++; if(sel2>=nentries2) {sel2=0; if(exit_loop) return; else exit_loop=true;}
                 sprintf(audio_file, "%s/%s", path2, entries2[sel2].d_name);
                 if(strcasestr(entries2[sel2].d_name, ".mp3") || strcasestr(entries2[sel2].d_name, ".ogg")) break;
             }
@@ -1117,7 +1117,7 @@ int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_siz
         }
         else
         {
-            audio_pane = 1;
+            audio_pane = fm_pane + 1;
 
             sprintf(audio_file, "%s", TEMP_PATH);
             if(PlayAudio(audio_file, 0, AUDIO_ONE_TIME) == 0) snd_inited|= INITED_AUDIOPLAYER;
