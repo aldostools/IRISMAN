@@ -303,7 +303,7 @@ void launch_showtime(bool playmode)
         fun_exit();
         SaveGameList();
 
-        sysProcessExitSpawn2((const char*)stself, NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
+        sysProcessExitSpawn2((const char*)stself, NULL, NULL, NULL, 0, 1200, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
         exit(0);
     }
 
@@ -312,7 +312,7 @@ void launch_showtime(bool playmode)
         fun_exit();
         SaveGameList();
 
-        sysProcessExitSpawn2((const char*)MOVIAN, NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
+        sysProcessExitSpawn2((const char*)MOVIAN, NULL, NULL, NULL, 0, 1200, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
         exit(0);
     }
 
@@ -321,7 +321,7 @@ void launch_showtime(bool playmode)
         fun_exit();
         SaveGameList();
 
-        sysProcessExitSpawn2((const char*)SHOWTIME, NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
+        sysProcessExitSpawn2((const char*)SHOWTIME, NULL, NULL, NULL, 0, 1200, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
         exit(0);
     }
 }

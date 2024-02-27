@@ -268,10 +268,28 @@
         off_psid  = off_idps2 + 0x18ULL;
         payload_mode = is_payload_loaded_475();
     }
-    else if(is_firm_48X())
+    else if(is_firm_489())
     {
         firmware  = 0x489C;
         //fw_ver    = 0xBF04;
+        off_idps  = 0x80000000003E2E30ULL;
+        off_idps2 = 0x8000000000474AF4ULL;
+        off_psid  = off_idps2 + 0x18ULL;
+        payload_mode = is_payload_loaded_475();
+    }
+    else if(is_firm_490())
+    {
+        firmware  = 0x490C;
+        //fw_ver    = 0x10b14;
+        off_idps  = 0x80000000003E2E30ULL;
+        off_idps2 = 0x8000000000474AF4ULL;
+        off_psid  = off_idps2 + 0x18ULL;
+        payload_mode = is_payload_loaded_480();
+    }
+    else if(is_firm_491())
+    {
+        firmware  = 0x491C;
+        //fw_ver    = 0x10b28;
         off_idps  = 0x80000000003E2E30ULL;
         off_idps2 = 0x8000000000474AF4ULL;
         off_psid  = off_idps2 + 0x18ULL;
@@ -469,9 +487,27 @@
         off_psid  = off_idps2 + 0x18ULL;
         payload_mode = is_payload_loaded_481dex();
     }
-    else if(is_firm_48Xdex())
+    else if(is_firm_489dex())
     {
         firmware  = 0x489D;
+        //fw_ver    = 0xBF04;
+        off_idps  = 0x8000000000409A30ULL;
+        off_idps2 = 0x800000000049CAF4ULL;
+        off_psid  = off_idps2 + 0x18ULL;
+        payload_mode = is_payload_loaded_481dex();
+    }
+    else if(is_firm_490dex())
+    {
+        firmware  = 0x490D;
+        //fw_ver    = 0xBF04;
+        off_idps  = 0x8000000000409A30ULL;
+        off_idps2 = 0x800000000049CAF4ULL;
+        off_psid  = off_idps2 + 0x18ULL;
+        payload_mode = is_payload_loaded_481dex();
+    }
+    else if(is_firm_49Xdex())
+    {
+        firmware  = 0x491D;
         //fw_ver    = 0xBF04;
         off_idps  = 0x8000000000409A30ULL;
         off_idps2 = 0x800000000049CAF4ULL;
@@ -604,9 +640,27 @@
         off_psid  = off_idps2 + 0x18ULL;
         payload_mode = is_payload_loaded_475deh();
     }
-    else if(is_firm_48Xdeh())
+    else if(is_firm_489deh())
     {
         firmware  = 0x489E;
+        //fw_ver    = 0xBF04;
+        off_idps  = 0x80000000004326B0ULL;
+        off_idps2 = 0x80000000004C4AF4ULL;
+        off_psid  = off_idps2 + 0x18ULL;
+        payload_mode = is_payload_loaded_475deh();
+    }
+    else if(is_firm_490deh())
+    {
+        firmware  = 0x490E;
+        //fw_ver    = 0xBF04;
+        off_idps  = 0x80000000004326B0ULL;
+        off_idps2 = 0x80000000004C4AF4ULL;
+        off_psid  = off_idps2 + 0x18ULL;
+        payload_mode = is_payload_loaded_475deh();
+    }
+    else if(is_firm_49Xdeh())
+    {
+        firmware  = 0x491E;
         //fw_ver    = 0xBF04;
         off_idps  = 0x80000000004326B0ULL;
         off_idps2 = 0x80000000004C4AF4ULL;
@@ -1209,6 +1263,7 @@
         case 0x487C:
         case 0x488C:
         case 0x489C:
+        case 0x491C:
             set_bdvdemu_475(payload_mode);
             switch(payload_mode)
             {
@@ -1258,6 +1313,8 @@
         case 0x487E:
         case 0x488E:
         case 0x489E:
+        case 0x490E:
+        case 0x491E:
             set_bdvdemu_475deh(payload_mode);
             switch(payload_mode)
             {
@@ -1276,6 +1333,7 @@
             }
             break;
         case 0x480C:
+        case 0x490C:
             set_bdvdemu_480(payload_mode);
             switch(payload_mode)
             {
@@ -1338,6 +1396,8 @@
         case 0x487D:
         case 0x488D:
         case 0x489D:
+        case 0x490D:
+        case 0x491D:
             set_bdvdemu_481dex(payload_mode);
             switch(payload_mode)
             {

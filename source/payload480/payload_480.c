@@ -106,7 +106,22 @@ int is_firm_480(void)
    toc = peekq(0x8000000000003000ULL);
    if(toc == 0x800000000034FBA0ULL)
    {
-      return 1;
+      return (peekq(0x80000000002FCB58ULL) == 0x323031362F30332FULL); //timestamp: 2016/03/
+   }
+   else
+   {
+      return 0;
+   }
+}
+
+int is_firm_490(void)
+{
+   // TOC 4.90 (same as 4.80)
+   u64 toc;
+   toc = peekq(0x8000000000003000ULL);
+   if(toc == 0x800000000034FBA0ULL)
+   {
+      return (peekq(0x80000000002FCB58ULL) == 0x323032322F31322FULL); //timestamp: 2022/12/
    }
    else
    {
