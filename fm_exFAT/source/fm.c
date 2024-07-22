@@ -22,7 +22,7 @@
 #include "ff.h"
 #include "ntfs.h"
 
-#define FONT_W	10
+#define FONT_W	4
 #define FONT_H	16
 
 static int frame = 0;
@@ -56,7 +56,7 @@ int fm_status_draw (int dat)
     for (i = 0; i < STATUS_H; i++)
     {
         if (c_msg[i] != -1)
-            SetFontColor (c_msg[i], 0x00000000);
+            SetFontColor (c_msg[i], BLACK);
         if (s_msg[i])
             DrawString (0, (PANEL_H + i) * 8, s_msg[i]);
     }
@@ -279,7 +279,7 @@ int fm_job_list (char *path)
     fs_job_scan (job);
     char lp[256];
     snprintf (lp, 256, "job scan %dfiles, %ddirs, %llubytes", job->files, job->dirs, job->fsize);
-    fm_status_set (lp, 0, 0xeeeeeeFF);
+    fm_status_set (lp, 0, WHITE);
     //
     #if 1
     struct fm_file *ptr;
@@ -509,7 +509,7 @@ int fm_file_copy (char *src, char *dst, char srct, char dstt, unsigned long long
             //report stats
             u32 cprc = ssz ? dsz * 100 / ssz : 0;
             snprintf (lp, CBSIZE, "%uMB of %uMB (%u%%) %uMBps %usec left", (uint)(dsz/MBSZ), (uint)(ssz/MBSZ), cprc, mbps, etae);
-            fm_status_set (lp, 3, 0xffff00FF);
+            fm_status_set (lp, 3, YELLOW);
             //msgDialogProgressBarSetMsg (MSG_PROGRESSBAR_INDEX1, lp);
             ProgressBar2Update (cprc, lp);  //also handles flipping
             //4: 1 = OK, YES; 2 = NO/ESC/CANCEL; -1 = NONE
@@ -654,7 +654,7 @@ int fm_job_copy (struct fm_panel *p, char *src, char *dst, int (*ui_render)(int 
     }
     //
     snprintf (lp, CBSIZE, "copy job: %dfiles, %ddirs, %lluMB to %s", job->files, job->dirs, job->fsize/MBSZ, job->dpath);
-    fm_status_set (lp, 0, 0xeeeeeeFF);
+    fm_status_set (lp, 0, WHITE);
     DoubleProgressBarDialog (lp);
     //copy file from source to dest
     struct fm_file *ptr;
@@ -693,7 +693,7 @@ int fm_job_copy (struct fm_panel *p, char *src, char *dst, int (*ui_render)(int 
         if (strcmp (dp, ptr->name) == 0)
         {
             snprintf (lp, CBSIZE, "job: same file/dir, skip %s", dp);
-            fm_status_set (lp, 2, 0xffff00FF);
+            fm_status_set (lp, 2, YELLOW);
         }
         else
         {
@@ -746,7 +746,7 @@ int fm_job_copy (struct fm_panel *p, char *src, char *dst, int (*ui_render)(int 
         {
             //canceled
             snprintf (lp, CBSIZE, "Copy job CANCELED");
-            fm_status_set (lp, 3, 0xffff00FF);
+            fm_status_set (lp, 3, YELLOW);
             break;
         }
         //
@@ -765,7 +765,7 @@ int fm_job_copy (struct fm_panel *p, char *src, char *dst, int (*ui_render)(int 
         {
             //canceled
             snprintf (lp, CBSIZE, "Copy job CANCELED");
-            fm_status_set (lp, 3, 0xffff00FF);
+            fm_status_set (lp, 3, YELLOW);
             break;
         }
         #endif
@@ -802,7 +802,7 @@ int fm_job_rename (char *path, char *old, char *new)
             if ((ret = f_rename (op, np)))
                 NPrintf ("!fm_job_rename: FAT can't rename %s to %s in %s res %d\n", op, np, npath, ret);
             snprintf (lp, CBSIZE, "job: FAT rename %s to %s in %s: %s", old, new, npath, ret?"KO":"OK");
-            fm_status_set (lp, 3, ret?0xff0000FF:0x00ff00FF);
+            fm_status_set (lp, 3, ret?RED:GREEN);
             //unmount
             f_mount (0, npath, 0);
         }
@@ -823,7 +823,7 @@ int fm_job_rename (char *path, char *old, char *new)
                 NPrintf ("!fm_job_rename: SYS can't rename %s to %s in %s res %d\n", old, new, npath, ret);
             //
             snprintf (lp, CBSIZE, "job: SYS rename %s to %s in %s: %s", old, new, npath, ret?"KO":"OK");
-            fm_status_set (lp, 3, ret?0xff0000FF:0x00ff00FF);
+            fm_status_set (lp, 3, ret?RED:GREEN);
         }
         break;
         case FS_TEXT:
@@ -841,7 +841,7 @@ int fm_job_rename (char *path, char *old, char *new)
                 NPrintf ("!fm_job_rename: NTFS can't rename %s to %s in %s res %d\n", old, new, npath, ret);
             //
             snprintf (lp, CBSIZE, "job: NTFS rename %s to %s in %s: %s", old, new, npath, ret?"KO":"OK");
-            fm_status_set (lp, 3, ret?0xff0000FF:0x00ff00FF);
+            fm_status_set (lp, 3, ret?RED:GREEN);
         }
         break;
     }        //
@@ -870,7 +870,7 @@ int fm_job_newdir (char *path, char *new)
             if ((ret = f_mkdir (np)))
                 NPrintf ("!fm_job_newdir: FAT can't mkdir %s in %s res %d\n", np, npath, ret);
             snprintf (lp, CBSIZE, "job: FAT mkdir %s in %s: %s", new, npath, ret?"KO":"OK");
-            fm_status_set (lp, 3, ret?0xff0000FF:0x00ff00FF);
+            fm_status_set (lp, 3, ret?RED:GREEN);
             //unmount
             f_mount (0, npath, 0);
         }
@@ -890,7 +890,7 @@ int fm_job_newdir (char *path, char *new)
                 NPrintf ("!fm_job_newdir: SYS can't mkdir %s in %s res %d\n", new, npath, ret);
             //
             snprintf (lp, CBSIZE, "job: SYS mkdir %s in %s: %s", new, npath, ret?"KO":"OK");
-            fm_status_set (lp, 3, ret?0xff0000FF:0x00ff00FF);
+            fm_status_set (lp, 3, ret?RED:GREEN);
         }
         break;
         case FS_TEXT:
@@ -907,7 +907,7 @@ int fm_job_newdir (char *path, char *new)
                 NPrintf ("!fm_job_delete: NTFS can't mkdir %s in %s res %d\n", new, npath, ret);
             //
             snprintf (lp, CBSIZE, "job: NTFS mkdir %s in %s: %s", new, npath, ret?"KO":"OK");
-            fm_status_set (lp, 3, ret?0xff0000FF:0x00ff00FF);
+            fm_status_set (lp, 3, ret?RED:GREEN);
         }
         break;
     }        //
@@ -922,7 +922,7 @@ int fm_job_delete (struct fm_panel *p, char *src, int (*ui_render)(int dt))
     struct fm_job *job = &fmjob;
     int ret;
     //
-    if (!src)
+    if ( (!strncmp (src, "sys://", 6) && strchr(src + 6, '/') == NULL) || strstr(src, "/..") )
         return -1;
     //
     job->spath = strdup (src);
@@ -961,7 +961,7 @@ int fm_job_delete (struct fm_panel *p, char *src, int (*ui_render)(int dt))
             return fm_job_clear (job);
     }
     snprintf (lp, CBSIZE, "delete job: %dfiles, %ddirs, %lluMB from %s", job->files, job->dirs, job->fsize/MBSZ, job->spath);
-    fm_status_set (lp, 0, 0xeeeeeeFF);
+    fm_status_set (lp, 0, WHITE);
     DoubleProgressBarDialog (lp);
     //
     struct fm_file *ptr, *ptail = NULL;
@@ -1028,7 +1028,7 @@ int fm_job_delete (struct fm_panel *p, char *src, int (*ui_render)(int dt))
                         NPrintf ("!fm_job_delete: SYS can't remove file %s, res %d\n", ptr->name, ret);
                 }
                 snprintf (lp, CBSIZE, "job: SYS delete file/dir %s - %s", ptr->name, ret?"KO":"OK");
-                fm_status_set (lp, 3, ret?0xff0000FF:0x00ff00FF);
+                fm_status_set (lp, 3, ret?RED:GREEN);
             }
             break;
             case FS_TEXT:
@@ -1041,7 +1041,7 @@ int fm_job_delete (struct fm_panel *p, char *src, int (*ui_render)(int dt))
                     NPrintf ("!fm_job_delete: NTFS can't remove file %s, res %d\n", ptr->name, ret);
                 //
                 snprintf (lp, CBSIZE, "job: NTFS delete file/dir %s - %s", ptr->name, ret?"KO":"OK");
-                fm_status_set (lp, 3, ret?0xff0000FF:0x00ff00FF);
+                fm_status_set (lp, 3, ret?RED:GREEN);
             }
             break;
         }        //
@@ -1061,7 +1061,7 @@ int fm_job_delete (struct fm_panel *p, char *src, int (*ui_render)(int dt))
         {
             //canceled
             snprintf (lp, CBSIZE, "delete job CANCELED");
-            fm_status_set (lp, 3, 0xffff00FF);
+            fm_status_set (lp, 3, YELLOW);
             break;
         }
         #endif
@@ -1212,6 +1212,8 @@ int fm_panel_init (struct fm_panel *p, int x, int y, int w, int h, char act)
     return 0;
 }
 
+struct fm_panel *app_active_panel ();
+
 int fm_panel_draw (struct fm_panel *p)
 {
     if(!p) return -1;
@@ -1219,17 +1221,20 @@ int fm_panel_draw (struct fm_panel *p)
     static char fname[53];
     int wh = p->h/FONT_H - 2;    //scroll rows: panel height - 2 rows
     int se = 0;             //skipped entries
+    bool is_active_panel = (app_active_panel() == p);
     //
+    DrawRect2d (0, p->y, 0, 2*p->w, FONT_H, TOP_PANEL);
     if (p->active == TRUE)
-        DrawRect2d (p->x, p->y, 0, p->w, p->h, 0xb4b4b4ff);
+        DrawRect2d (p->x, p->y+FONT_H, 0, p->w, p->h-FONT_H, ACTIVE_PANEL);
     else
-        DrawRect2d (p->x, p->y, 0, p->w, p->h, 0x787878ff);
+        DrawRect2d (p->x, p->y+FONT_H, 0, p->w, p->h-FONT_H, INACTIVE_PANEL);
+
     //draw panel content: 56 lines - 1 for dir path, 1 for status - 54
     int k;
-    SetCurrentFont (2);
+    SetCurrentFont (1);
     SetFontSize (FONT_W, FONT_H);
     //title - current path
-    SetFontColor (0x0000ffff, 0x00000000);
+    SetFontColor (PATH_COLOR, BLACK);
     SetFontAutoCenter (0);
     if (p->path)
         snprintf (fname, 51, "%s", (p->fs_type == FS_TSYS && p->path[5] == '/') ? (p->path + 5) : p->path); // display without "sys:/"
@@ -1237,7 +1242,7 @@ int fm_panel_draw (struct fm_panel *p)
         snprintf (fname, 51, "%s", "[root]");
     DrawString (p->x, p->y, fname);
     //
-    SetFontColor (0x000000ff, 0x00000000);
+    SetFontColor (is_active_panel ? FILES_COLOR : INACTIVE_TEXT , BLACK);
     SetFontAutoCenter (0);
     //
     struct fm_file *ptr = p->entries;
@@ -1246,10 +1251,11 @@ int fm_panel_draw (struct fm_panel *p)
         ;//skip some entries
     for (k = 0; k < wh && ptr != NULL; k++, ptr = ptr->next)
     {
+        if(is_active_panel) SetFontColor (FILES_COLOR, BLACK);
+
         //draw current item
-        if (p->current == ptr)
+        if (p->current == ptr && is_active_panel)
         {
-            DrawRect2d (p->x, p->y + FONT_H + k * FONT_H, 0, p->w, FONT_H, 0x787878ff);
             //
             if(++frame > 30)
             {
@@ -1259,21 +1265,25 @@ int fm_panel_draw (struct fm_panel *p)
             else if (ptr->selected && p->active)
                fname[0] = '*';
             else
+            {
                fname[0] = '>';
-            fm_fname_get (ptr, 51, fname + 1);
+            }
+            fm_fname_get (ptr, 48, fname + 1);
+            DrawRect2d (p->x, p->y + FONT_H + k * FONT_H, 0, p->w, FONT_H, SELECT_BAR);
             DrawString (p->x, p->y + FONT_H + k * FONT_H, fname);
         }
         else
         {
-            if (ptr->selected)
+            if (ptr->selected || p->current == ptr)
             {
-                fname[0] = '*';
-                fm_fname_get (ptr, 51, fname + 1);
+                fname[0] = (p->current == ptr) ? '>' : '*'; 
+                fm_fname_get (ptr, 48, fname + 1);
+                DrawRect2d (p->x, p->y + FONT_H + k * FONT_H, 0, p->w, FONT_H, ptr->selected ? (is_active_panel ? SELECTED_COLOR : INACTIVE_SELECT) : INACTIVE_BAR);
                 DrawString (p->x, p->y + FONT_H + k * FONT_H, fname);
             }
             else
             {
-                fm_fname_get (ptr, 51, fname);
+                fm_fname_get (ptr, 48, fname);
                 DrawString (p->x + FONT_W, p->y + FONT_H + k * FONT_H, fname);
             }
         }
@@ -1284,13 +1294,16 @@ int fm_panel_draw (struct fm_panel *p)
                 snprintf (fname, 52, "%4luGB", ptr->size / GBSZ);
             else if (ptr->size > MBSZ)
                 snprintf (fname, 52, "%4luMB", ptr->size / MBSZ);
-            else
+            else if(ptr->size > 1024)
                 snprintf (fname, 52, "%4luKB", ptr->size / KBSZ);
-            DrawString (p->x + FONT_W + (46 * FONT_W), p->y + FONT_H + k * FONT_H, fname);
+            else
+                snprintf (fname, 52, "%6lu", ptr->size);
+            if(is_active_panel) SetFontColor (WHITE, BLACK);
+            DrawString (p->x + FONT_W + (95 * FONT_W), p->y + FONT_H + k * FONT_H, fname);
         }
     }
     //status - size, files, dirs
-    SetFontColor (0x0000ffff, 0x00000000);
+    SetFontColor (PATH_COLOR, BLACK);
     SetFontAutoCenter (0);
     if (p->path)
     {

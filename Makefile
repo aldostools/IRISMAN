@@ -36,7 +36,7 @@ include $(PSL1GHT)/ppu_rules
 
 # aditional scetool flags (--self-ctrl-flags, --self-cap-flags...)
 SCETOOL_FLAGS	+=	--self-ctrl-flags 4000000000000000000000000000000000000000000000000000000000000002
-SCETOOL_FLAGS	+=	--self-cap-flags 00000000000000000000000000000000000000000000007B0000000100002000
+SCETOOL_FLAGS	+=	--self-cap-flags 00000000000000000000000000000000000000000000007B0000000100000000
 
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output

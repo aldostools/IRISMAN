@@ -4,6 +4,9 @@
 #include <assert.h>
 #include <unistd.h>
 #include <math.h>
+#include <sys/process.h>
+
+#define EXIT_PATH	"/dev_hdd0/game/IRISMAN00/USRDIR/RELOAD.SELF"
 
 //#define _FPS
 
@@ -71,6 +74,12 @@ int fmapp_cleanup (int dt);   //5
 struct fm_panel lp, rp;
 //
 
+static int sys_fs_mount(char const* deviceName, char const* deviceFileSystem, char const* devicePath, int writeProt)
+{
+	lv2syscall8(837, (u64) deviceName, (u64) deviceFileSystem, (u64) devicePath, 0, (u64) writeProt, 0, 0, 0 );
+	return_to_user_prog(int);
+}
+
 #ifdef LIBBUILD
 extern void LoadTexture();
 #else
@@ -128,7 +137,7 @@ static void update_info(void)
     else
         *sp = 0;
 
-    fm_status_set (sp, 0, 0xeeeeeeFF);
+    fm_status_set (sp, 0, WHITE);
 }
 
 static void refresh_active_panel(u8 all)
@@ -167,8 +176,8 @@ int _fmapp_restore (char init)
 
 int fmapp_init (int dt)
 {
-    fm_panel_init (&lp, 0, 0, PANEL_W*8, PANEL_H*8, 1);
-    fm_panel_init (&rp, PANEL_W*8, 0, PANEL_W*8, PANEL_H*8, 0);
+    fm_panel_init (&lp, 0, 0, PANEL_W*8, PANEL_H*8, 0);
+    fm_panel_init (&rp, PANEL_W*8, 0, PANEL_W*8, PANEL_H*8, 1);
     //debug console
     initConsole ();
     //fatfs test
@@ -187,10 +196,10 @@ int fmapp_init (int dt)
     fm_panel_scan (&lp, NULL);
     fm_panel_scan (&rp, NULL);
     //
-    fm_status_set ("L1 / R1  - Navigate folders as well as CROSS and CIRCLE", 0, 0xeeeeeeFF);
-    fm_status_set ("LEFT / RIGHT - Switch active panel", 1, 0x00ff00FF);
-    fm_status_set ("START    - Copy content", 2, 0xffff00FF);
-    fm_status_set ("TRIANGLE - Erase content", 3, 0xff0000FF);
+    fm_status_set ("L1 / R1  - Navigate folders as well as CROSS and CIRCLE", 0, WHITE);
+    fm_status_set ("LEFT / RIGHT - Switch active panel", 1, GREEN);
+    fm_status_set ("START    - Copy content", 2, YELLOW);
+    fm_status_set ("TRIANGLE - Erase content", 3, RED);
     //
     return 1;
 }
@@ -225,8 +234,11 @@ int fmapp_update(int dat)
         if (fm_panel_exit (app_active_panel ()))
         {
             //really quit?
-            //if (1 == YesNoDialog ("Quit the file manager?"))
+            if (YesNoDialog ("Do you want to exit File Manager?") == 1)
+            {
+                //sysProcessExitSpawn2((char*)EXIT_PATH, NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
                 return -1;
+            }
         }
     }
     //activate left panel
@@ -351,13 +363,13 @@ int fmapp_update(int dat)
         {
             char sel = (ps->current) ? ps->current->selected : 1;
             refresh_active_panel(0);                            // SELECT + L3 = Refresh / Select None
-            if(PPad (BUTTON_L2)) fm_panel_select_all (ps, sel); // SELECT + L2 + L3 = Toggle All
+            if(PPad (BUTTON_L2)) fm_panel_select_all (ps, sel); // SELECT + L3 + L2 = Toggle All
         }
         else if (ps->path)
         {
             fm_status_set ("", 1, 0xffeeeeFF);
             //check if we're allowed to create dir?!
-            if(strlen(ps->path) < 6 || strstr(ps->path, "/dev_flash/") || strstr(ps->path, "/dev_bdvd/"))
+            if(strlen(ps->path) < 6 || strstr(ps->path, "/dev_flash/") || strstr(ps->path, "/dev_bdvd/") || strstr(ps->path, "/app_home/"))
             {
                 snprintf (sp, CBSIZE, "New folder is not allowed in %s", ps->path);
                 fm_status_set (sp, 0, 0xffeeeeFF);
@@ -367,6 +379,9 @@ int fmapp_update(int dat)
                 snprintf (sp, CBSIZE, "New folder");
                 if(Get_OSK_String("New folder", sp, 255) == 0)
                 {
+                    if(strcmp(sp, "New folder") == 0)
+                       return 0;
+
                     //new dir
                     char lp[CBSIZE];
                     snprintf (lp, CBSIZE, "new dir %s", sp);
@@ -396,6 +411,8 @@ int fmapp_update(int dat)
                     fm_toggle_selection (ps);
                 else
                 {
+//                  goto copy_files;
+//                /*
                     if(path1 && !strncmp(path1, "sys:/", 5)) path1 += 5; else path1 = (char*)"/";
                     if(path2 && !strncmp(path2, "sys:/", 5)) path2 += 5; else path2 = path1;
 
@@ -407,13 +424,15 @@ int fmapp_update(int dat)
                         strstr(".SFO", ext) ) return -1;
 
                     if(strcasestr(".zip", ext)) refresh_active_panel(1);
+//                */
                 }
             }
         }
     }
     else if (PPad (BUTTON_SELECT) && NPad (BUTTON_START))
     {
-        return -1;
+         sysProcessExitSpawn2((char*)EXIT_PATH, NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
+         return 0;
     }
     else if (NPad (BUTTON_L2) || NPad (BUTTON_SQUARE))
     {
@@ -459,7 +478,18 @@ int fmapp_update(int dat)
             else
             {
                 snprintf (sp, CBSIZE, "%s/%s", ps->path, ps->current->name);
-                fm_job_delete (ps, sp, &fmapp_render);
+                if(!strcmp(sp, "sys://dev_flash"))
+                {
+                    sys_fs_mount("CELL_FS_IOS:BUILTIN_FLSH1", "CELL_FS_FAT", "/dev_blind", 0);
+                    refresh_active_panel(0);
+                }
+                else if(!strcmp(sp, "sys://dev_blind"))
+                {
+                    lv2syscall3(838, (uint64_t)(char*)"/dev_blind", 0, 1);
+                    refresh_active_panel(0);
+                }
+                else
+                    fm_job_delete (ps, sp, &fmapp_render);
             }
             //reload for content refresh
             refresh_active_panel(0);
@@ -470,8 +500,13 @@ int fmapp_update(int dat)
     {
         char sp[CBSIZE];
         char dp[CBSIZE];
-        struct fm_panel *ps = app_active_panel ();
-        struct fm_panel *pd = app_inactive_panel ();
+        struct fm_panel *ps;
+        struct fm_panel *pd;
+
+//copy_files:
+        ps = app_active_panel ();
+        pd = app_inactive_panel ();
+
         if (ps->path && pd->path)
         {
             if(ps->sels)
@@ -529,14 +564,14 @@ int fmapp_render(int dat)
 #ifdef _FPS
     char sfps[8];
     snprintf (sfps, 7, "%dfps", fps_update ());
-    SetFontColor (0xff0000ff, 0x00000000);
+    SetFontColor (RED, BLACK);
     SetFontAutoCenter (0);
     DrawString (800, 0, sfps);
 #endif
 #ifdef SWVER
     char swver[8];
     snprintf (swver, 7, "%s", SWVER);
-    SetFontColor (0xff0000ff, 0x00000000);
+    SetFontColor (RED, BLACK);
     SetFontAutoCenter (0);
     DrawString (800, 504, swver);
 #endif

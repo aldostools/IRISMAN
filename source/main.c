@@ -2133,8 +2133,8 @@ void read_settings()
     char InstallMamba[2] = "1";
     char LoadMambaAndQuit[2] = "0";
 
-    spoof_version  = 0x0490;
-    spoof_revision = 0x00010b14; //4.89 = 0x00010aad, 4.88 = 0x000109f5; // 4.87 = 0x000109a5; //4.86 = 0x00010938 // 4.85 = 0x0001091d
+    spoof_version  = 0x0491;
+    spoof_revision = 0x00010b28; // 4.90 = 0x00010b14; //4.89 = 0x00010aad, 4.88 = 0x000109f5; // 4.87 = 0x000109a5; //4.86 = 0x00010938 // 4.85 = 0x0001091d
 
     // set default values
     sprintf(covers_path, "%s/USRDIR/covers/", MM_PATH);
@@ -2626,7 +2626,7 @@ s32 main(s32 argc, const char* argv[])
     {
         bAllowNetGames = is_ps3hen || (sys8_mamba() == 0x666) || (get_vsh_plugin_slot_by_name("WWWD") > 0);
 
-        //if(!bAllowNetGames)
+        if(!bAllowNetGames)
         {
             int slot = get_vsh_plugin_free_slot();
 
@@ -9508,7 +9508,7 @@ exit_gbloptions:
 
                     if((old_pad & (BUTTON_SELECT | BUTTON_L2)) && file_exists("/dev_hdd0/game/HTSS00003/USRDIR/showtime.self"))
                     {
-                        sysProcessExitSpawn2("/dev_hdd0/game/HTSS00003/USRDIR/showtime.self", NULL, NULL, NULL, 0, 1200, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
+                        sysProcessExitSpawn2("/dev_hdd0/game/HTSS00003/USRDIR/showtime.self", NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
                         exit(0);
                     }
                     else

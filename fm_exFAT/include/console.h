@@ -1,6 +1,8 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
+#include "color.h"
+
 extern int con_x;
 extern int con_y;
 

@@ -280,7 +280,7 @@ autolaunch_proc:
                 {
                     if((old_pad & (BUTTON_SELECT | BUTTON_L2)) && file_exists("/dev_hdd0/game/HTSS00003/USRDIR/showtime.self"))
                     {
-                        sysProcessExitSpawn2("/dev_hdd0/game/HTSS00003/USRDIR/showtime.self", NULL, NULL, NULL, 0, 1200, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
+                        sysProcessExitSpawn2("/dev_hdd0/game/HTSS00003/USRDIR/showtime.self", NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
                         return r;
                     }
                     else

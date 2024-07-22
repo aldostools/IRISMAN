@@ -1434,3 +1434,4 @@ patch_app_ver:
 
 	// fill out to 3840 bytes
 .org 0xf00
+

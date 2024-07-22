@@ -28,35 +28,35 @@ unsigned ps3pad_read()
     ioPadGetInfo(&padinfo);
 
     for(n = 0; n < MAX_PADS; n++) {
-            
+
         if(padinfo.status[n])  {
-                    
+
             ioPadGetData(n, &paddata);
             pad_alive = 1;
             butt = (paddata.button[2] << 8) | (paddata.button[3] & 0xff);
             break;
-        
+
         }
     }
 
-		
+
     if(!pad_alive) butt = 0;
     else {
         actparam.small_motor = 0;
-		actparam.large_motor = 0;
-        
+        actparam.large_motor = 0;
+
         if(rumble1_on) {
-            
-			actparam.large_motor = 255;
-              
+
+            actparam.large_motor = 255;
+
             rumble1_on++;
-          
+
             if(rumble1_on > 15) rumble1_on = 0;
-          
+
         }
 
         if(rumble2_on) {
-           
+
             actparam.small_motor = 1;
 
             rumble2_on++;

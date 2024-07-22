@@ -20,35 +20,35 @@ char *na_string = "n/a";
 
 int NPad (int btn)
 {
-	if (new_pad & btn)
-		return 1;
-	return 0;
+    if (new_pad & btn)
+        return 1;
+    return 0;
 }
 
 int PPad (int btn)
 {
-	if (old_pad & btn)
+    if (old_pad & btn)
         return 1;
-	return 0;
+    return 0;
 }
 
 #define PPAD_SKIP   5   //skip old pad report every 5 calls to reduce speed
 int APad (int btn)
 {
     static int pps = PPAD_SKIP;
-	if (NPad(btn))
+    if (NPad(btn))
     {
         pps = PPAD_SKIP;
-		return 1;
+        return 1;
     }
-	if (PPad(btn))
+    if (PPad(btn))
     {
         if (pps--)
             return 0;
         pps = PPAD_SKIP;
         return 1;
     }
-	return 0;
+    return 0;
 }
 
 void DrawRect2d (float x, float y, float z, float w, float h, u32 rgba)
