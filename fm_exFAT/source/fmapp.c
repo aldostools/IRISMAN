@@ -359,7 +359,7 @@ int fmapp_update(int dat)
     {
         char sp[CBSIZE];
         struct fm_panel *ps = app_active_panel ();
-        if(PPad (BUTTON_SELECT) || !strcmp(ps->path, "sys://"))
+        if(PPad (BUTTON_SELECT) || (ps->path && strlen(ps->path) < 6))
         {
             char sel = (ps->current) ? ps->current->selected : 1;
             refresh_active_panel(0);                            // SELECT + L3 = Refresh / Select None
