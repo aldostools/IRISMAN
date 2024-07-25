@@ -34,7 +34,7 @@ unsigned ps3pad_read()
             ioPadGetData(n, &paddata);
             pad_alive = 1;
             butt = (paddata.button[2] << 8) | (paddata.button[3] & 0xff);
-            break;
+            if (paddata.len > 0) break;
 
         }
     }

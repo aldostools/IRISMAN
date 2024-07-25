@@ -599,7 +599,7 @@ int fm_file_copy (char *src, char *dst, char srct, char dstt, unsigned long long
 
 int fm_job_copy (struct fm_panel *p, char *src, char *dst, int (*ui_render)(int dt))
 {
-    if (!p || !src || !dst || !*src || !*dst)
+    if (!p || !src || !dst || !*src || !*dst || strstr(src, "/..") || strstr(dst, "/.."))
         return -1;
     //
     struct fm_job fmjob;
@@ -780,7 +780,7 @@ int fm_job_copy (struct fm_panel *p, char *src, char *dst, int (*ui_render)(int 
 
 int fm_job_rename (char *path, char *old, char *new)
 {
-    if(!path || !old || !new) return -1;
+    if(!path || !old || !new  || strstr(path, "/..")  || strstr(old, "/..") || strstr(new, "/..")) return -1;
 
     int nsp = 0, ret = 0;
     char lp[CBSIZE];
@@ -850,7 +850,7 @@ int fm_job_rename (char *path, char *old, char *new)
 
 int fm_job_newdir (char *path, char *new)
 {
-    if(!path || !new) return -1;
+    if(!path || !new || strstr(path, "/..") || strstr(new, "/..")) return -1;
 
     int nsp = 0, ret = 0;
     char lp[CBSIZE];
@@ -975,7 +975,7 @@ int fm_job_delete (struct fm_panel *p, char *src, int (*ui_render)(int dt))
     //reverse removal
     for (ptr = ptail; ptr != NULL; ptr = ptr->prev)
     {
-        if(!ptr->name) continue;
+        if(!ptr->name || strstr(ptr->name, "/..")) continue;
 
         lbp = strrchr (ptr->name, '/'); //file/dir name
         if (lbp)
@@ -1142,7 +1142,7 @@ int fm_entry_pull (struct fm_file **entries)
 
 int fm_job_add (struct fm_job *p, char *fn, char dir, unsigned long fsz)
 {
-    if(!p || !fn) return -1;
+    if(!p || !fn || strstr(fn, "/..")) return -1;
 
     if (fm_entry_add (&p->entries, fn, dir, fsz) == 0)
     {
@@ -1173,7 +1173,7 @@ int fm_panel_reload (struct fm_panel *p)
 
 int fm_panel_scan (struct fm_panel *p, char *path)
 {
-    if(!p) return -1;
+    if(!p || (path && strstr(path, "/.."))) return -1;
 
     if (p->path)
         free (p->path);
