@@ -25,6 +25,14 @@
 #define FONT_W	4
 #define FONT_H	16
 
+bool use_link = false;
+
+static int sysLv2FsBdDecrypt(void)
+{
+	lv2syscall1(36, (u64) "/dev_bdvd");
+	return_to_user_prog(int);
+}
+
 static int frame = 0;
 
 //status message
@@ -114,6 +122,9 @@ int fm_panel_enter (struct fm_panel *p)
         snprintf (np, CBSIZE, "%s", p->current->name);
     else
         *np = 0;
+
+    if(!strcmp(np, "sys://dev_bdvd"))
+        sysLv2FsBdDecrypt();
 
     ret = fm_panel_scan (p, np);
     if (ret == 0)
@@ -303,6 +314,7 @@ int fm_file_copy (char *src, char *dst, char srct, char dstt, unsigned long long
         NPrintf ("!fm_file_copy same source & destination %s\n", src);
         return -1;
     }
+
     FATFS fs;      /* Work area (filesystem object) for logical drives */
     int fsx = 0;
     BYTE *buffer = NULL;    // File copy buffer
@@ -599,8 +611,11 @@ int fm_file_copy (char *src, char *dst, char srct, char dstt, unsigned long long
 
 int fm_job_copy (struct fm_panel *p, char *src, char *dst, int (*ui_render)(int dt))
 {
+    // sanity check
     if (!p || !src || !dst || !*src || !*dst || strstr(src, "/..") || strstr(dst, "/.."))
         return -1;
+    if(use_link)
+        use_link = !strncmp(src, "sys://dev_hdd0", 14) && !strncmp(dst, "sys://dev_hdd0", 14);
     //
     struct fm_job fmjob;
     struct fm_job *job = &fmjob;
@@ -644,7 +659,9 @@ int fm_job_copy (struct fm_panel *p, char *src, char *dst, int (*ui_render)(int 
     //
     if(p->sels == 0)
     {
-        if(job->files)
+        if(use_link)
+          snprintf (lp, CBSIZE, "Do you want to link the selected file of %uMB?", (uint)(job->fsize/MBSZ));
+        else if(job->files)
           snprintf (lp, CBSIZE, "Do you want to copy the selected file of %uMB?", (uint)(job->fsize/MBSZ));
         else
           snprintf (lp, CBSIZE, "Do you want to copy the selected folder?\n\n%u items, %uMB", job->dirs, (uint)(job->fsize/MBSZ));
@@ -733,6 +750,13 @@ int fm_job_copy (struct fm_panel *p, char *src, char *dst, int (*ui_render)(int 
                     break;
                 }
                 ProgressBar2Update (100, NULL);
+            }
+            else if(use_link)
+            {
+                snprintf (lp, CBSIZE, "Link file to %s", dp);
+                fm_status_set (lp, 2, 0xffffeeFF);
+                sysLv2FsUnlink(dp);
+                ret = sysLv2FsLink(ptr->name, dp);
             }
             else
             {
@@ -1240,6 +1264,7 @@ int fm_panel_draw (struct fm_panel *p)
         snprintf (fname, 51, "%s", (p->fs_type == FS_TSYS && p->path[5] == '/') ? (p->path + 5) : p->path); // display without "sys:/"
     else
         snprintf (fname, 51, "%s", "[root]");
+
     DrawString (p->x, p->y, fname);
     //
     SetFontColor (is_active_panel ? FILES_COLOR : INACTIVE_TEXT , BLACK);

@@ -32,6 +32,7 @@ extern unsigned char msx[];
 extern int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_size);
 
 #include "console.h"
+#include "webman.h"
 
 #include "ff.h"
 #include "fflib.h"
@@ -73,10 +74,17 @@ int fmapp_cleanup (int dt);   //5
 //
 struct fm_panel lp, rp;
 //
+extern bool use_link;
 
 static int sys_fs_mount(char const* deviceName, char const* deviceFileSystem, char const* devicePath, int writeProt)
 {
 	lv2syscall8(837, (u64) deviceName, (u64) deviceFileSystem, (u64) devicePath, 0, (u64) writeProt, 0, 0, 0 );
+	return_to_user_prog(int);
+}
+
+static int sys_fs_umount(char const* deviceName)
+{
+	lv2syscall3(838, (u64) deviceName, 0, 1);
 	return_to_user_prog(int);
 }
 
@@ -138,6 +146,17 @@ static void update_info(void)
         *sp = 0;
 
     fm_status_set (sp, 0, WHITE);
+}
+
+static void change_path(struct fm_panel *ps, const char *path)
+{
+    if(!ps || !path) return;
+
+    if(ps->path)
+        free(ps->path);
+    ps->path = malloc (strlen(path + 1));
+    strcpy(ps->path, path);
+    fm_panel_reload (ps);
 }
 
 static void refresh_active_panel(u8 all)
@@ -230,8 +249,20 @@ int fmapp_update(int dat)
     //go up
     if (NPad (BUTTON_CIRCLE))
     {
+        if(PPad (BUTTON_SELECT))
+        {
+            struct fm_panel *ps = app_active_panel ();
+            if(ps)
+            {
+                if(ps->path && !strcmp(ps->path, "sys://dev_hdd0"))
+                    change_path(ps, "sys://dev_hdd0/packages");
+                else
+                    change_path(ps, "sys://dev_hdd0");
+            }
+        }
+
         //fm_panel_exit (app_active_panel ());
-        if (fm_panel_exit (app_active_panel ()))
+        else if (fm_panel_exit (app_active_panel ()))
         {
             //really quit?
             if (YesNoDialog ("Do you want to exit File Manager?") == 1)
@@ -398,21 +429,40 @@ int fmapp_update(int dat)
     else if (NPad (BUTTON_CROSS))
     {
         struct fm_panel *ps = app_active_panel();
-        if(fm_panel_enter (ps))
+        struct fm_panel *pd = app_inactive_panel();
+
+        bool mount_item = (PPad (BUTTON_SELECT) && ps && !strncmp(ps->path, "sys:/", 5));
+
+        if(mount_item || fm_panel_enter (ps))
         {
-            if(ps && ps->current)
+            if(ps && ps->current && pd)
             {
                 char *path1 = ps->path;
-                char *path2 = app_inactive_panel()->path;
+                char *path2 = pd->path;
                 char *curfile = ps->current->name;
                 uint64_t size = ps->current->size;
 
-                if(!path1 || strncmp(path1, "sys:/", 5))
+                if(!path1 || PPad (BUTTON_L2))
                     fm_toggle_selection (ps);
                 else
                 {
-//                  goto copy_files;
-//                /*
+                    if(mount_item)
+                    {
+                        char action[12 + strlen(path1) + strlen(curfile)];
+                        sprintf(action, "/mount_ps3%s/%s", path1 + 5, curfile);
+                        wm_plugin_action(action);
+                        if(path2 && strlen(path2) < 6)
+                        {
+                            sleep(3);
+                            fm_panel_reload (pd);
+                        }
+                    }
+                    else if(PPad (BUTTON_R2) && strlen(path1) > 5 && path2 && strlen(path2) > 5)
+                    {
+                        use_link = path1 && path2 && !strncmp(path1, "sys://dev_hdd0", 14) && !strncmp(path2, "sys://dev_hdd0", 14);
+                        goto copy_files;
+                    }
+
                     if(path1 && !strncmp(path1, "sys:/", 5)) path1 += 5; else path1 = (char*)"/";
                     if(path2 && !strncmp(path2, "sys:/", 5)) path2 += 5; else path2 = path1;
 
@@ -424,7 +474,7 @@ int fmapp_update(int dat)
                         strstr(".SFO", ext) ) return -1;
 
                     if(strcasestr(".zip", ext)) refresh_active_panel(1);
-//                */
+
                 }
             }
         }
@@ -474,6 +524,8 @@ int fmapp_update(int dat)
                        }
                     }
                 }
+                else
+                    return 0;
             }
             else
             {
@@ -485,7 +537,22 @@ int fmapp_update(int dat)
                 }
                 else if(!strcmp(sp, "sys://dev_blind"))
                 {
-                    lv2syscall3(838, (uint64_t)(char*)"/dev_blind", 0, 1);
+                    sys_fs_umount("/dev_blind");
+                    refresh_active_panel(0);
+                }
+                else if(!strcmp(sp, "sys://dev_bdvd") || !strcmp(sp, "sys://app_home"))
+                {
+                    sys_fs_umount("/dev_bdvd");
+                    refresh_active_panel(0);
+                }
+                else if(!strcmp(sp, "sys://dev_hdd0"))
+                {
+                    sys_fs_mount("CELL_FS_UTILITY:HDD1", "CELL_FS_FAT", "/dev_hdd1", 0);
+                    refresh_active_panel(0);
+                }
+                else if(!strcmp(sp, "sys://dev_hdd1"))
+                {
+                    sys_fs_umount("/dev_hdd1");
                     refresh_active_panel(0);
                 }
                 else
@@ -503,7 +570,7 @@ int fmapp_update(int dat)
         struct fm_panel *ps;
         struct fm_panel *pd;
 
-//copy_files:
+copy_files:
         ps = app_active_panel ();
         pd = app_inactive_panel ();
 
@@ -511,7 +578,11 @@ int fmapp_update(int dat)
         {
             if(ps->sels)
             {
-                snprintf (sp, CBSIZE, "Do you want to copy the %u selected items?", ps->sels);
+                if(use_link)
+                    snprintf (sp, CBSIZE, "Do you want to link the %u selected items?", ps->sels);
+                else
+                    snprintf (sp, CBSIZE, "Do you want to copy the %u selected items?", ps->sels);
+
                 if (YesNoDialog(sp) == 1)
                 {
                    struct fm_file *ptr = ps->entries;
@@ -522,9 +593,14 @@ int fmapp_update(int dat)
                           snprintf (sp, CBSIZE, "%s/%s", ps->path, ptr->name);
                           snprintf (dp, CBSIZE, "%s/", pd->path);
                           if(fm_job_copy (ps, sp, dp, &fmapp_render) == 0)
-                              {ptr->selected = FALSE; ps->sels--;}
+                            {ptr->selected = FALSE; ps->sels--;}
                       }
                    }
+                }
+                else
+                {
+                    use_link = false;
+                    return 0;
                 }
             }
             else
@@ -536,6 +612,7 @@ int fmapp_update(int dat)
             //reload inactive panel for content refresh
             refresh_active_panel(1);
         }
+        use_link = false;
     }
     //
     return 0;
