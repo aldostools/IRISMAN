@@ -1238,6 +1238,63 @@ int fm_panel_init (struct fm_panel *p, int x, int y, int w, int h, char act)
 
 struct fm_panel *app_active_panel ();
 
+int fm_root = 0;
+int fm_menu = -1;
+int menu_max = 4;
+
+int fm_menu_show (void)
+{
+    if(fm_menu < 0) return -1;
+
+    fm_root = 0;
+    char menu_options[5][10] = {
+        "Copy",    //0
+        "Delete",  //1
+        "Rename",  //2
+        "Refresh", //3
+        "Mount",   //4
+    };
+
+    menu_max = 4;
+
+    //
+    int k;
+    struct fm_panel *ps = app_active_panel ();
+    if(!ps || !ps->path)
+    {
+        sprintf(menu_options[0], "Exit");
+        sprintf(menu_options[1], "Restart");
+        sprintf(menu_options[2], "Shutdown");
+        menu_max = 3; fm_root = 1;
+    }
+    else if(ps->path)
+    {
+        if(use_link)
+            sprintf(menu_options[0], "Link");
+        menu_max = !strncmp(ps->path, "sys:/", 5) ? 5 : 4;
+    }
+
+    //draw panel content: 56 lines - 1 for dir path, 1 for status - 54
+    SetCurrentFont (1);
+    SetFontSize (FONT_W, FONT_H);
+    //
+    SetFontAutoCenter (0);
+
+    DrawRect2d (378, 108, 0, 84, 104, WHITE);
+    DrawRect2d (380, 110, 0, 80, 100, MENU_BGCOLOR);
+
+    for(k = 0; k < menu_max; k++)
+    {
+        if(fm_menu == k)
+            DrawRect2d (380, 120 + k * FONT_H, 0, 80, FONT_H, RED);
+
+        SetFontColor ((fm_menu == k ? YELLOW : WHITE), BLACK);
+        DrawString (385, 120 + k * FONT_H, menu_options[k]);
+    }
+    //
+    return 0;
+}
+
 int fm_panel_draw (struct fm_panel *p)
 {
     if(!p) return -1;

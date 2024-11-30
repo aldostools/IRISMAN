@@ -99,4 +99,5 @@ int fm_panel_del (struct fm_panel *p, char *fn);
 
 int fm_fname_get (struct fm_file *link, int cw, char *out);
 
+int fm_menu_show (void);
 #endif

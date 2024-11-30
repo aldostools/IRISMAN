@@ -27,6 +27,10 @@
 // font 2: 255 chr from 0 to 254, 8 x 8 pix 1 bit depth
 extern unsigned char msx[];
 
+extern int fm_root;
+extern int fm_menu;
+extern int menu_max;
+
 #define MAX(a, b)		((a) >= (b) ? (a) : (b))
 
 extern int exec_item(char *path, char *path2, char *filename, u32 d_type, s64 entry_size);
@@ -182,6 +186,159 @@ static void refresh_active_panel(u8 all)
     update_info();
 }
 
+static void set_default_use_link(void)
+{
+    use_link = false;
+    struct fm_panel *ps = app_active_panel(); if(!ps) return;
+    struct fm_panel *pd = app_inactive_panel(); if(!pd) return;
+
+    char *path1 = ps->path; if(!path1) return;
+    char *path2 = pd->path; if(!path2) return;
+
+    if(strlen(path1) > 5 && strlen(path2) > 5)
+    {
+        use_link = !strncmp(path1, "sys://dev_hdd0", 14) && !strncmp(path2, "sys://dev_hdd0", 14);
+    }
+}
+
+static void action_delete(void)
+{
+    char sp[CBSIZE];
+    struct fm_panel *ps = app_active_panel (); if(!ps) return;
+
+    if (ps->path)
+    {
+        //SELECT+TRIANGLE: go up one level
+        if(PPad (BUTTON_SELECT))
+        {
+            char *pp = strrchr (ps->path, '/'); if (pp) *pp = 0;
+
+            if(strchr(ps->path, '/'))
+            {
+                fm_panel_reload (ps);
+            }
+            else
+                fm_panel_scan (ps, NULL);
+        }
+        //remove files - show dialog box for confirmation for selected items
+        else if(ps->sels)
+        {
+            snprintf (sp, CBSIZE, "Do you want to delete the %u selected items?", ps->sels);
+            if (YesNoDialog(sp) == 1)
+            {
+                struct fm_file *ptr = ps->entries;
+                for (; ptr != NULL; ptr = ptr->next)
+                {
+                   if(ptr->selected)
+                   {
+                       snprintf (sp, CBSIZE, "%s/%s", ps->path, ptr->name);
+                       if(fm_job_delete (ps, sp, &fmapp_render) == 0)
+                           {ptr->selected = FALSE; ps->sels--;}
+                   }
+                }
+            }
+            else
+                return;
+        }
+        else
+        {
+            snprintf (sp, CBSIZE, "%s/%s", ps->path, ps->current->name);
+            if(!strcmp(sp, "sys://dev_flash"))
+            {
+                sys_fs_mount("CELL_FS_IOS:BUILTIN_FLSH1", "CELL_FS_FAT", "/dev_blind", 0);
+                refresh_active_panel(0);
+            }
+            else if(!strcmp(sp, "sys://dev_blind"))
+            {
+                sys_fs_umount("/dev_blind");
+                refresh_active_panel(0);
+            }
+            else if(!strcmp(sp, "sys://dev_bdvd") || !strcmp(sp, "sys://app_home"))
+            {
+                sys_fs_umount("/dev_bdvd");
+                refresh_active_panel(0);
+            }
+            else if(!strcmp(sp, "sys://dev_hdd0"))
+            {
+                sys_fs_mount("CELL_FS_UTILITY:HDD1", "CELL_FS_FAT", "/dev_hdd1", 0);
+                refresh_active_panel(0);
+            }
+            else if(!strcmp(sp, "sys://dev_hdd1"))
+            {
+                sys_fs_umount("/dev_hdd1");
+                refresh_active_panel(0);
+            }
+            else
+                fm_job_delete (ps, sp, &fmapp_render);
+        }
+        //reload for content refresh
+        refresh_active_panel(0);
+    }
+}
+
+static void action_rename(void)
+{
+    char sp[CBSIZE];
+    struct fm_panel *ps = app_active_panel ();
+    if (ps && ps->path && ps->current)
+    {
+        fm_status_set ("", 1, 0xffeeeeFF);
+        //check if we're allowed to rename item
+        if(strlen(ps->path) < 6 || strstr(ps->path, "/dev_flash/") || strstr(ps->path, "/dev_bdvd/"))
+        {
+            snprintf (sp, CBSIZE, "Rename is not allowed in %s", ps->path);
+            fm_status_set (sp, 0, 0xffeeeeFF);
+        }
+        else
+        {
+            snprintf (sp, CBSIZE, "%s", ps->current->name);
+            if(Get_OSK_String("Rename", sp, CBSIZE) == 0)
+            {
+                //rename
+                char lp[CBSIZE];
+                snprintf (lp, CBSIZE, "rename %s to %s", ps->current->name, sp);
+                fm_status_set (lp, 0, 0xffeeeeFF);
+                //
+                fm_job_rename (ps->path, ps->current->name, sp);
+                //reload for content refresh
+                refresh_active_panel(0);
+                //locate renamed item
+                fm_panel_locate (app_active_panel(), sp);
+            }
+        }
+    }
+}
+
+static void action_refresh(void)
+{
+    struct fm_panel *ps = app_active_panel (); if(!ps) return;
+
+    char sel = (ps->current) ? ps->current->selected : 1;
+    refresh_active_panel(0);                            // SELECT + L3 = Refresh / Select None
+    if(PPad (BUTTON_L2)) fm_panel_select_all (ps, sel); // SELECT + L3 + L2 = Toggle All
+}
+
+static void action_mount(void)
+{
+    struct fm_panel *ps = app_active_panel(); if(!ps) return;
+
+    char *path1 = ps->path; if(!ps->current) return;
+    char *curfile = ps->current->name;
+
+    char action[12 + strlen(path1) + strlen(curfile)];
+    sprintf(action, "/mount_ps3%s/%s", path1 + 5, curfile);
+    wm_plugin_action(action);
+
+    struct fm_panel *pd = app_inactive_panel(); if(!pd) return;
+
+    char *path2 = pd->path;
+    if(path2 && strlen(path2) < 6)
+    {
+        sleep(3);
+        fm_panel_reload (pd);
+    }
+}
+
 //restore app state after other module was executed
 int _fmapp_restore (char init)
 {
@@ -218,7 +375,7 @@ int fmapp_init (int dt)
     fm_status_set ("L1 / R1  - Navigate folders as well as CROSS and CIRCLE", 0, WHITE);
     fm_status_set ("LEFT / RIGHT - Switch active panel", 1, GREEN);
     fm_status_set ("START    - Copy content", 2, YELLOW);
-    fm_status_set ("TRIANGLE - Erase content", 3, RED);
+    fm_status_set ("TRIANGLE - Options Menu", 3, RED);
     //
     return 1;
 }
@@ -231,6 +388,70 @@ int fmapp_update(int dat)
 {
     //2 input
     ps3pad_read ();
+
+    // menu
+    if(fm_menu >= 0)
+    {
+        if (NPad (BUTTON_TRIANGLE) || NPad (BUTTON_CIRCLE))
+        {
+            fm_menu = -1;
+        }
+        else if (NPad (BUTTON_UP))
+        {
+            if(--fm_menu < 0) fm_menu = menu_max - 1; 
+        }
+        else if (NPad (BUTTON_DOWN))
+        {
+            if(++fm_menu >= menu_max) fm_menu = 0; 
+        }
+        else if (NPad (BUTTON_LEFT) || NPad (BUTTON_RIGHT))
+        {
+            if(use_link)
+                use_link = false;
+            else
+                set_default_use_link();
+        }
+        else if (NPad (BUTTON_CROSS) || NPad (BUTTON_START))
+        {
+            int sel = fm_menu; fm_menu = -1;
+            fmapp_render (0);
+
+            if(fm_root)
+            {
+                #define SC_SYS_POWER 					(379)
+                #define SYS_SOFT_REBOOT 				0x200
+                #define SYS_HARD_REBOOT					0x1200
+                #define SYS_REBOOT						0x8201
+                #define SYS_SHUTDOWN					0x1100
+
+                if(sel == 0) //Exit
+                {
+                    #ifndef EXTRA_SELF
+                    if(PPad (BUTTON_L2) || PPad (BUTTON_R2))
+                    #endif
+                    sysProcessExitSpawn2((char*)EXIT_PATH, NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
+                    return -1;
+                }
+                else //1=Restart, 2=Shutdown
+                {
+                    unlink("/dev_hdd0/tmp/turnoff");
+
+                    lv2syscall4(SC_SYS_POWER, (sel == 1) ? SYS_SOFT_REBOOT : SYS_SHUTDOWN, 0, 0, 0);
+                    return_to_user_prog(int);
+                }
+            }
+            else if(sel == 0)
+            {
+                goto copy_files;
+            }
+            else if(sel == 1) action_delete();
+            else if(sel == 2) action_rename();
+            else if(sel == 3) action_refresh();
+            else if(sel == 4) action_mount();
+        }
+        return 0;
+    }
+
     //mount monitoring logic: every 4 sec
     if (!app_active_panel ()->path)
     {
@@ -357,44 +578,16 @@ int fmapp_update(int dat)
     //rename (R3)
     else if (NPad (BUTTON_R3))
     {
-        char sp[CBSIZE];
-        struct fm_panel *ps = app_active_panel ();
-        if (ps && ps->path && ps->current)
-        {
-            fm_status_set ("", 1, 0xffeeeeFF);
-            //check if we're allowed to rename item
-            if(strlen(ps->path) < 6 || strstr(ps->path, "/dev_flash/") || strstr(ps->path, "/dev_bdvd/"))
-            {
-                snprintf (sp, CBSIZE, "Rename is not allowed in %s", ps->path);
-                fm_status_set (sp, 0, 0xffeeeeFF);
-            }
-            else
-            {
-                snprintf (sp, CBSIZE, "%s", ps->current->name);
-                if(Get_OSK_String("Rename", sp, CBSIZE) == 0)
-                {
-                    //rename
-                    char lp[CBSIZE];
-                    snprintf (lp, CBSIZE, "rename %s to %s", ps->current->name, sp);
-                    fm_status_set (lp, 0, 0xffeeeeFF);
-                    //
-                    fm_job_rename (ps->path, ps->current->name, sp);
-                    //reload for content refresh
-                    refresh_active_panel(0);
-                }
-            }
-        }
+        action_rename();
     }
     //new dir (L3)
     else if (NPad (BUTTON_L3))
     {
         char sp[CBSIZE];
-        struct fm_panel *ps = app_active_panel ();
+        struct fm_panel *ps = app_active_panel (); if(!ps) return 0;
         if(PPad (BUTTON_SELECT) || (ps->path && strlen(ps->path) < 6))
         {
-            char sel = (ps->current) ? ps->current->selected : 1;
-            refresh_active_panel(0);                            // SELECT + L3 = Refresh / Select None
-            if(PPad (BUTTON_L2)) fm_panel_select_all (ps, sel); // SELECT + L3 + L2 = Toggle All
+            action_refresh();
         }
         else if (ps->path)
         {
@@ -437,8 +630,8 @@ int fmapp_update(int dat)
         {
             if(ps && ps->current && pd)
             {
-                char *path1 = ps->path;
-                char *path2 = pd->path;
+                char *path1 = ps->path; if(!path1) return 0;
+                char *path2 = pd->path; if(!path2) return 0;
                 char *curfile = ps->current->name;
                 uint64_t size = ps->current->size;
 
@@ -448,18 +641,12 @@ int fmapp_update(int dat)
                 {
                     if(mount_item)
                     {
-                        char action[12 + strlen(path1) + strlen(curfile)];
-                        sprintf(action, "/mount_ps3%s/%s", path1 + 5, curfile);
-                        wm_plugin_action(action);
-                        if(path2 && strlen(path2) < 6)
-                        {
-                            sleep(3);
-                            fm_panel_reload (pd);
-                        }
+                        action_mount();
+                        return 0;
                     }
                     else if(PPad (BUTTON_R2) && strlen(path1) > 5 && path2 && strlen(path2) > 5)
                     {
-                        use_link = path1 && path2 && !strncmp(path1, "sys://dev_hdd0", 14) && !strncmp(path2, "sys://dev_hdd0", 14);
+                        set_default_use_link();
                         goto copy_files;
                     }
 
@@ -492,75 +679,14 @@ int fmapp_update(int dat)
     //files delete
     else if (NPad (BUTTON_TRIANGLE))
     {
-        char sp[CBSIZE];
-        struct fm_panel *ps = app_active_panel ();
-        if (ps && ps->path)
+        if((fm_menu < 0) && !PPad (BUTTON_SELECT))
         {
-            if(PPad (BUTTON_SELECT))
-            {
-                char *pp = strrchr (ps->path, '/'); if (pp) *pp = 0;
-
-                if(strchr(ps->path, '/'))
-                {
-                    fm_panel_reload (ps);
-                }
-                else
-                    fm_panel_scan (ps, NULL);
-            }
-            //remove files - 2do: show dialog box for confirmation
-            else if(ps && ps->sels)
-            {
-                snprintf (sp, CBSIZE, "Do you want to delete the %u selected items?", ps->sels);
-                if (YesNoDialog(sp) == 1)
-                {
-                    struct fm_file *ptr = ps->entries;
-                    for (; ptr != NULL; ptr = ptr->next)
-                    {
-                       if(ptr->selected)
-                       {
-                           snprintf (sp, CBSIZE, "%s/%s", ps->path, ptr->name);
-                           if(fm_job_delete (ps, sp, &fmapp_render) == 0)
-                               {ptr->selected = FALSE; ps->sels--;}
-                       }
-                    }
-                }
-                else
-                    return 0;
-            }
-            else
-            {
-                snprintf (sp, CBSIZE, "%s/%s", ps->path, ps->current->name);
-                if(!strcmp(sp, "sys://dev_flash"))
-                {
-                    sys_fs_mount("CELL_FS_IOS:BUILTIN_FLSH1", "CELL_FS_FAT", "/dev_blind", 0);
-                    refresh_active_panel(0);
-                }
-                else if(!strcmp(sp, "sys://dev_blind"))
-                {
-                    sys_fs_umount("/dev_blind");
-                    refresh_active_panel(0);
-                }
-                else if(!strcmp(sp, "sys://dev_bdvd") || !strcmp(sp, "sys://app_home"))
-                {
-                    sys_fs_umount("/dev_bdvd");
-                    refresh_active_panel(0);
-                }
-                else if(!strcmp(sp, "sys://dev_hdd0"))
-                {
-                    sys_fs_mount("CELL_FS_UTILITY:HDD1", "CELL_FS_FAT", "/dev_hdd1", 0);
-                    refresh_active_panel(0);
-                }
-                else if(!strcmp(sp, "sys://dev_hdd1"))
-                {
-                    sys_fs_umount("/dev_hdd1");
-                    refresh_active_panel(0);
-                }
-                else
-                    fm_job_delete (ps, sp, &fmapp_render);
-            }
-            //reload for content refresh
-            refresh_active_panel(0);
+            set_default_use_link();
+            fm_menu = 0; // show menu
+            return 0;
         }
+
+        action_delete(); // SELECT+TRIANGLE = Go up one level, TRIANGLE = Mount device on root or delete single file or selected files
     }
     //files copy
     else if (NPad (BUTTON_START))
@@ -574,7 +700,7 @@ copy_files:
         ps = app_active_panel ();
         pd = app_inactive_panel ();
 
-        if (ps->path && pd->path)
+        if (ps && ps->path && pd && pd->path)
         {
             if(ps->sels)
             {
@@ -635,6 +761,8 @@ int fmapp_render(int dat)
     // change to 2D context ( virtual size of the screen is 848.0 x 512.0)
     fm_panel_draw (&lp);
     fm_panel_draw (&rp);
+    //
+    fm_menu_show();
     //
     fm_status_draw (dat);
     //

@@ -22,7 +22,7 @@ usage:
 
 - `CROSS` copy or link files/dirs if copying from hdd0 to hdd0
 - `START` for copy files/dirs
-- `TRIANGLE` for delete of copy/dirs
+- `TRIANGLE` for options menu
 
 - `TRIANGLE` on root devices mount/unmount devices: /dev_blind, /dev_hdd1, /dev_bdvd
 - `SELECT`+`CROSS` mounts SYS file or folder as /dev_bdvd using webMAN MOD
