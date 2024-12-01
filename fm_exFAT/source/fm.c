@@ -1263,9 +1263,10 @@ int fm_menu_show (void)
     if(!ps || !ps->path)
     {
         sprintf(menu_options[0], "Exit");
-        sprintf(menu_options[1], "Restart");
-        sprintf(menu_options[2], "Shutdown");
-        menu_max = 3; fm_root = 1;
+        sprintf(menu_options[1], "Go to XMB");
+        sprintf(menu_options[2], "Restart");
+        sprintf(menu_options[3], "Shutdown");
+        fm_root = 1;
     }
     else if(ps->path)
     {

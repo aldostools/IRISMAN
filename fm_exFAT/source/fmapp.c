@@ -318,12 +318,27 @@ static void action_refresh(void)
     if(PPad (BUTTON_L2)) fm_panel_select_all (ps, sel); // SELECT + L3 + L2 = Toggle All
 }
 
+static void action_launch(const char *path1, const char *curfile)
+{
+    if(!path1 || !curfile) return;
+
+    if(!strncmp(path1, "sys:/", 5) && (strstr(curfile, ".self") || strstr(curfile, ".SELF") || !strcmp(curfile, "EBOOT.BIN")))
+    {
+        char sp[CBSIZE];
+        snprintf (sp, CBSIZE, "%s/%s", path1 + 5, curfile);
+        sysProcessExitSpawn2((char*)sp, NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
+        return;
+    }
+}
+
 static void action_mount(void)
 {
     struct fm_panel *ps = app_active_panel(); if(!ps) return;
 
-    char *path1 = ps->path; if(!ps->current) return;
-    char *curfile = ps->current->name;
+    char *path1 = ps->path; if(!path1 || !ps->current) return;
+    char *curfile = ps->current->name; if(!curfile) return;
+
+    action_launch(path1, curfile);
 
     char action[12 + strlen(path1) + strlen(curfile)];
     sprintf(action, "/mount_ps3%s/%s", path1 + 5, curfile);
@@ -424,19 +439,19 @@ int fmapp_update(int dat)
                 #define SYS_REBOOT						0x8201
                 #define SYS_SHUTDOWN					0x1100
 
-                if(sel == 0) //Exit
+                if(sel == 0 || sel == 1) //Exit
                 {
-                    #ifndef EXTRA_SELF
-                    if(PPad (BUTTON_L2) || PPad (BUTTON_R2))
-                    #endif
-                    sysProcessExitSpawn2((char*)EXIT_PATH, NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
+                    //#ifndef EXTRA_SELF
+                    //if(PPad (BUTTON_L2) || PPad (BUTTON_R2))
+                    //#endif
+                    sysProcessExitSpawn2((sel == 0) ? (char*)EXIT_PATH : (char*)"", NULL, NULL, NULL, 0, 3071, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
                     return -1;
                 }
-                else //1=Restart, 2=Shutdown
+                else //2=Restart, 23=Shutdown
                 {
                     unlink("/dev_hdd0/tmp/turnoff");
 
-                    lv2syscall4(SC_SYS_POWER, (sel == 1) ? SYS_SOFT_REBOOT : SYS_SHUTDOWN, 0, 0, 0);
+                    lv2syscall4(SC_SYS_POWER, (sel == 2) ? SYS_SOFT_REBOOT : SYS_SHUTDOWN, 0, 0, 0);
                     return_to_user_prog(int);
                 }
             }
@@ -613,6 +628,8 @@ int fmapp_update(int dat)
                     fm_job_newdir (ps->path, sp);
                     //reload for content refresh
                     refresh_active_panel(0);
+                    //locate new item
+                    fm_panel_locate (app_active_panel(), sp);
                 }
             }
         }
@@ -631,7 +648,7 @@ int fmapp_update(int dat)
             if(ps && ps->current && pd)
             {
                 char *path1 = ps->path; if(!path1) return 0;
-                char *path2 = pd->path; if(!path2) return 0;
+                char *path2 = pd->path;
                 char *curfile = ps->current->name;
                 uint64_t size = ps->current->size;
 
@@ -639,6 +656,8 @@ int fmapp_update(int dat)
                     fm_toggle_selection (ps);
                 else
                 {
+                    action_launch(path1, curfile); // launch self / eboot.bin
+
                     if(mount_item)
                     {
                         action_mount();
@@ -729,7 +748,7 @@ copy_files:
                     return 0;
                 }
             }
-            else
+            else if(ps->current)
             {
                 snprintf (sp, CBSIZE, "%s/%s", ps->path, ps->current->name);
                 snprintf (dp, CBSIZE, "%s/", pd->path);
